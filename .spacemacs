@@ -31,6 +31,7 @@ values."
      html
      ruby-on-rails
      git
+     shell
      ;; php
      ;; markdown
      ;; org
