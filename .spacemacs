@@ -17,21 +17,32 @@ values."
    ;; List of configuration layers to load. If it is the symbol `all' instead
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
-   '(emacs-lisp
+   '(
+     helm-ag
+     emacs-lisp
+     yaml
      markdown
      syntax-checking
      auto-completion
-     company-mode
      erlang
      elixir
+     ruby
+     ruby-on-rails
      git
+     version-control
      osx
      html
      org
-     colors
-     editorconfig
      themes-megapack
-     perspectives
+     colors
+     shell
+     fsharp
+     javascript
+     scala
+     syntax-checking
+     sql
+     haskell
+     php
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -39,7 +50,7 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '()
    ;; A list of packages and/or extensions that will not be install and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(smartparens)
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
    ;; the list `dotspacemacs-configuration-layers'. (default t)
@@ -54,7 +65,6 @@ values."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
-   evil-escape-key-sequence "jk"
    ;; If non nil ELPA repositories are contacted via HTTPS whenever it's
    ;; possible. Set it to nil if you have no way to use HTTPS in your
    ;; environment, otherwise it is strongly recommended to let it set to t.
@@ -93,20 +103,15 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(
-                         monokai
-                         spacemacs-dark
-                         spacemacs-light
-                         solarized-light
+   dotspacemacs-themes '(spacemacs-dark
                          solarized-dark
-                         leuven
-                         zenburn)
+                         )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Menlo for Powerline"
+                               :size 12
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -180,7 +185,7 @@ values."
    dotspacemacs-loading-progress-bar t
    ;; If non nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
-   dotspacemacs-fullscreen-at-startup nil
+   dotspacemacs-fullscreen-at-startup t
    ;; If non nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-fullscreen-use-non-native nil
@@ -231,11 +236,6 @@ values."
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
    )
-  ;; Make META the command key
-    (setq mac-option-modifier 'meta)
-    (setq mac-command-modifier 'meta)
-    (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
-      
   )
 
 (defun dotspacemacs/user-init ()
@@ -255,10 +255,10 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place you code here."
   (global-linum-mode)
-  ;; (with-eval-after-load 'linum
-  ;;    (linum-relative-toggle))
-  (add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
+  (add-hook 'prog-mode-hook 'fci-mode)
+  (setq-default evil-escape-key-sequence "kj")
+;;  (add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
+;; au
