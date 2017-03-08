@@ -18,6 +18,9 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     ;; php
+     ;; php
+     shell-scripts
      helm-ag
      emacs-lisp
      yaml
@@ -36,12 +39,13 @@ values."
      themes-megapack
      colors
      shell
-     fsharp
+     ;; fsharp
      javascript
-     scala
+     ;; scala
      syntax-checking
      sql
-     haskell
+     ;; haskell
+     ;; php
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -233,7 +237,7 @@ values."
    ;; `trailing' to delete only the whitespace at end of lines, `changed'to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup nil
+   dotspacemacs-whitespace-cleanup 'trailing
    )
   )
 
