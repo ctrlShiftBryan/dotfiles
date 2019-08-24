@@ -1,0 +1,26 @@
+{
+	"Print to console": {
+		"prefix": "rsst",
+		"body": [
+			"import Enzyme, { shallow } from 'enzyme';",
+			"import Adapter from 'enzyme-adapter-react-16';",
+			"import toJson from 'enzyme-to-json';",
+			"import React from 'react';",
+			"import ${TM_FILENAME_BASE/(.*)\\..+$/$1/} from './${TM_FILENAME_BASE/(.*)\\..+$/$1/}.jsx';",
+			"Enzyme.configure({ adapter: new Adapter() });",
+			"",
+			"describe('<${TM_FILENAME_BASE/(.*)\\..+$/$1/} />', () => {",
+			"  let wrapper;",
+			"",
+			"  beforeEach(() => {",
+			"    wrapper = shallow(<${TM_FILENAME_BASE/(.*)\\..+$/$1/} />);",
+			"  });",
+			"",
+			"  it('should only change intentionally', () => {",
+			"    expect(toJson(wrapper)).toMatchSnapshot();",
+			"  });",
+			"});",
+		],
+		"description": "React Snapshot Test"
+	}
+}
