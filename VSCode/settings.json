@@ -1,0 +1,166 @@
+{
+    "vscode_custom_css.imports": [
+      "file:///Users/barendt/code/synthwave84.css"
+    ],
+    "vscode_custom_css.policy": true,
+    "peacock.affectStatusBar" : true,
+    "workbench.colorCustomizations": {
+      "editorIndentGuide.activeBackground": "#bdbdbd",
+      "panel.background": "#161616",
+      "statusBar.background": "#262525",
+      "statusBar.noFolderBackground": "#262525",
+      "statusBar.debuggingBackground": "#262525"
+    },
+    "editor.tabSize": 2,
+    "editor.rulers": [80],
+    "search.location": "panel",
+    "[sql]": {
+      "editor.formatOnSave": false
+    },
+    "[elixir]": {
+      "editor.formatOnSave": true
+    },
+    "[elm]": {
+      "editor.formatOnSave": true
+    },
+    "[yaml]": {
+      "editor.formatOnSave": false
+    },
+    "autoimport.filesToScan": "**/*.{ts,tsx,jsx,js}",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "[javascript]": {
+      "editor.formatOnSave": false,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+  
+    "[typescript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "elixirLS.fetchDeps": false,
+    "editor.renderWhitespace": "none",
+    "editor.formatOnSave": false,
+    "editor.minimap.enabled": false,
+    "editor.fontFamily": "Hack, 'Fira Code', 'Source Code Pro', Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontSize": 14,
+    "editor.fontLigatures": true,
+    "terminal.integrated.fontFamily": "Hack, 'Fira Code', 'Source Code Pro'",
+    "terminal.integrated.lineHeight": 1.3,
+    "terminal.integrated.fontSize": 14,
+    "vim.useCtrlKeys": true,
+    "vim.useSystemClipboard": true,
+    "files.autoSave": "onFocusChange",
+    "window.restoreFullscreen": true,
+    "files.insertFinalNewline": true,
+    "workbench.sideBar.location": "left",
+    "window.zoomLevel": 0,
+    "workbench.colorTheme": "dark+(elixir)",
+    "git.enableSmartCommit": true,
+    "gitlens.advanced.messages": {
+      "suppressShowKeyBindingsNotice": true
+    },
+    "workbench.editor.showTabs": false,
+    "workbench.iconTheme": "eq-material-theme-icons-ocean",
+    "gitlens.advanced.fileHistoryFollowsRenames": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "explorer.confirmDragAndDrop": false,
+    "git.confirmSync": false,
+    "eslint.autoFixOnSave": true,
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      {
+        "language": "vue",
+        "autoFix": true
+      }
+    ],
+    "eslint.workingDirectories": ["./assets", "./"],
+    "eslint.packageManager": "yarn",
+    "vetur.format.defaultFormatter.html": "prettyhtml",
+    "vim.statusBarColorControl": false,
+    "vim.statusBarColors.normal": "#262525",
+    "vim.statusBarColors.visual": "#2b004f",
+    "vim.statusBarColors.visualblock": "#473018",
+    "vim.statusBarColors.visualline": "#002828",
+    "vim.foldfix": true,
+    "gitlens.views.fileHistory.enabled": true,
+    "gitlens.views.lineHistory.enabled": true,
+    "ruby.lint": {
+      "reek": false,
+      "rubocop": true,
+      "ruby": false, //Runs ruby -wc
+      "fasterer": false,
+      "debride": false,
+      "ruby-lint": false
+    },
+    "[ruby]": {
+      "editor.formatOnSave": true
+    },
+    "ruby.format": "rubocop",
+    "editor.formatOnSaveTimeout": 1500,
+    "elixirLS.suggestSpecs": false,
+    "terminal.integrated.rendererType": "dom",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "peacock.favoriteColors": [
+      {
+        "name": "Angular Red",
+        "value": "#b52e31"
+      },
+      {
+        "name": "Auth0 Orange",
+        "value": "#eb5424"
+      },
+      {
+        "name": "Azure Blue",
+        "value": "#007fff"
+      },
+      {
+        "name": "C# Purple",
+        "value": "#68217A"
+      },
+      {
+        "name": "Gatsby Purple",
+        "value": "#639"
+      },
+      {
+        "name": "Java Blue-Gray",
+        "value": "#557c9b"
+      },
+      {
+        "name": "JavaScript Yellow",
+        "value": "#f9e64f"
+      },
+      {
+        "name": "Mandalorian Blue",
+        "value": "#1857a4"
+      },
+      {
+        "name": "Node Green",
+        "value": "#215732"
+      },
+      {
+        "name": "React Blue",
+        "value": "#00b3e6"
+      },
+      {
+        "name": "Something Different",
+        "value": "#832561"
+      },
+      {
+        "name": "Vue Green",
+        "value": "#42b883"
+      }
+    ],
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "liveshare.featureSet": "insiders",
+  }
