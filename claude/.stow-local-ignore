@@ -1,0 +1,9 @@
+# Ignore patterns (uses Perl regex)
+
+\.claude/ide
+\.claude/projects
+\.claude/statsig
+\.claude/todos
+\.claude/plans
+\.claude/docs
+\.DS_Store
