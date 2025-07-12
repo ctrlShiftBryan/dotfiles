@@ -186,6 +186,40 @@ cd ~/dotfiles
 # ... rest of script
 ```
 
+## Remote Machine Setup
+
+### First Time Setup on New Remote Machines
+
+For remote machines that don't have dependencies installed (Homebrew, Oh My Zsh, etc.):
+
+1. SSH to the remote machine normally: `ssh hostname`
+2. Run the interactive setup: 
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/ctrlShiftBryan/dotfiles/master/remote-setup.sh | bash
+   ```
+3. Follow the prompts to install Homebrew interactively
+4. Exit and reconnect using: `sshs hostname`
+
+### Regular Usage
+
+Once initial setup is complete, simply use:
+```bash
+sshs hostname
+```
+
+This will:
+- Pull latest dotfiles (or clone if first time)
+- Install/update dependencies automatically
+- Link your configurations via GNU Stow
+- Start a new shell with your environment
+
+### Troubleshooting Remote Setup
+
+If you see errors about missing commands:
+- `stow: command not found` - Homebrew needs to be installed first
+- `brew: command not found` - Run remote-setup.sh first
+- Python errors in env.sh - Normal on first run, template files will be created
+
 ## Benefits of This Approach
 
 1. **Simplicity**: Just symlinks, no complex tool to learn
