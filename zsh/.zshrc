@@ -108,16 +108,28 @@ source $ZSH/oh-my-zsh.sh
 fpath=(/Users/bryanarendt/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
-"$(brew --prefix asdf)/libexec/asdf.sh"
 # End of Docker CLI completions
-. "$(brew --prefix asdf)/libexec/asdf.sh"
 
-echo "Loading aliases from ~/.zsh/aliases.sh" >> /tmp/zsh_debug.log
-source ~/.zsh/aliases.sh
-echo "Loading local config from ~/.zsh/local.sh" >> /tmp/zsh_debug.log
-source ~/.zsh/local.sh
-echo "Loading env from ~/.zsh/env.sh" >> /tmp/zsh_debug.log
-source ~/.zsh/env.sh
+# Load ASDF if available
+if command -v brew >/dev/null 2>&1 && [ -f "$(brew --prefix asdf 2>/dev/null)/libexec/asdf.sh" ]; then
+    . "$(brew --prefix asdf)/libexec/asdf.sh"
+fi
+
+# Source additional configuration files if they exist
+if [ -f ~/.zsh/aliases.sh ]; then
+    echo "Loading aliases from ~/.zsh/aliases.sh" >> /tmp/zsh_debug.log
+    source ~/.zsh/aliases.sh
+fi
+
+if [ -f ~/.zsh/local.sh ]; then
+    echo "Loading local config from ~/.zsh/local.sh" >> /tmp/zsh_debug.log
+    source ~/.zsh/local.sh
+fi
+
+if [ -f ~/.zsh/env.sh ]; then
+    echo "Loading env from ~/.zsh/env.sh" >> /tmp/zsh_debug.log
+    source ~/.zsh/env.sh
+fi
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="/opt/podman/bin:$PATH"
 
