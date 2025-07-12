@@ -5,7 +5,8 @@ cd ~/dotfiles
 if ! command -v stow >/dev/null 2>&1; then
     echo "📦 Stow not found. Running bootstrap..."
     if [ -f "./bootstrap.sh" ]; then
-        ./bootstrap.sh
+        # Source instead of execute to preserve PATH changes
+        source ./bootstrap.sh
     else
         echo "❌ bootstrap.sh not found!"
         exit 1

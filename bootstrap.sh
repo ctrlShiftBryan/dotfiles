@@ -50,36 +50,48 @@ else
     echo "✅ Zsh already installed"
 fi
 
-# 2. Install Homebrew (macOS only)
-if [[ "$OS" == "macos" ]] && ! command_exists brew; then
-    echo "📦 Installing Homebrew..."
-    # Check if we can run interactively
-    if [ -t 0 ]; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    else
-        echo "⚠️  Homebrew installation requires interactive mode."
-        echo "⚠️  Please install Homebrew manually first:"
-        echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-        echo "⚠️  Then run this script again."
-        exit 1
+# 2. Handle Homebrew (macOS only)
+if [[ "$OS" == "macos" ]]; then
+    # First, check if Homebrew is installed in known locations
+    BREW_INSTALLED=false
+    if [[ -x "/opt/homebrew/bin/brew" ]]; then
+        echo "✅ Found Homebrew at /opt/homebrew (Apple Silicon)"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        BREW_INSTALLED=true
+    elif [[ -x "/usr/local/bin/brew" ]]; then
+        echo "✅ Found Homebrew at /usr/local (Intel)"
+        eval "$(/usr/local/bin/brew shellenv)"
+        BREW_INSTALLED=true
     fi
     
-    # Add Homebrew to PATH for current session
-    if [[ -d "/opt/homebrew" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
+    # If not found in known locations, check if it's in PATH
+    if ! $BREW_INSTALLED && command_exists brew; then
+        echo "✅ Homebrew found in PATH"
+        BREW_INSTALLED=true
     fi
-else
-    echo "✅ Package manager ready"
-    # Ensure brew is in PATH even if already installed
-    if [[ "$OS" == "macos" ]]; then
-        if [[ -d "/opt/homebrew" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        elif [[ -d "/usr/local" ]]; then
-            eval "$(/usr/local/bin/brew shellenv)"
+    
+    # Only try to install if truly not found
+    if ! $BREW_INSTALLED; then
+        echo "📦 Installing Homebrew..."
+        # Check if we can run interactively
+        if [ -t 0 ]; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            # Add to PATH after installation
+            if [[ -d "/opt/homebrew" ]]; then
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            else
+                eval "$(/usr/local/bin/brew shellenv)"
+            fi
+        else
+            echo "⚠️  Homebrew installation requires interactive mode."
+            echo "⚠️  Please install Homebrew manually first:"
+            echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+            echo "⚠️  Then run this script again."
+            exit 1
         fi
     fi
+else
+    echo "✅ Package manager ready (Linux)"
 fi
 
 # 3. Install Oh My Zsh if not present
@@ -163,7 +175,7 @@ if [ ! -f "$HOME/.zsh/aliases.sh" ]; then
 
 # Dotfile sync function
 sshs() {
-    ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec \$SHELL"
+    ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec zsh"
 }
 
 EOF
@@ -171,6 +183,22 @@ EOF
 fi
 
 echo "🎉 Bootstrap complete! Ready to run setup.sh"
+
+# Export PATH for subsequent scripts
+if [[ "$OS" == "macos" ]]; then
+    if [[ -d "/opt/homebrew" ]]; then
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    elif [[ -d "/usr/local" ]]; then
+        export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+    fi
+fi
+
+# Debug: Show current PATH and which commands are available
+echo "📍 Current PATH: $PATH"
+echo "📍 Commands available:"
+echo "  - brew: $(command -v brew || echo 'not found')"
+echo "  - stow: $(command -v stow || echo 'not found')"
+echo "  - zsh: $(command -v zsh || echo 'not found')"
 
 # Note: We don't install ASDF, Python, or other tools here
 # Those can be installed after the dotfiles are linked and .zshrc is working
