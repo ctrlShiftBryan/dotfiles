@@ -53,7 +53,16 @@ fi
 # 2. Install Homebrew (macOS only)
 if [[ "$OS" == "macos" ]] && ! command_exists brew; then
     echo "📦 Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # Check if we can run interactively
+    if [ -t 0 ]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        echo "⚠️  Homebrew installation requires interactive mode."
+        echo "⚠️  Please install Homebrew manually first:"
+        echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+        echo "⚠️  Then run this script again."
+        exit 1
+    fi
     
     # Add Homebrew to PATH for current session
     if [[ -d "/opt/homebrew" ]]; then
@@ -63,6 +72,14 @@ if [[ "$OS" == "macos" ]] && ! command_exists brew; then
     fi
 else
     echo "✅ Package manager ready"
+    # Ensure brew is in PATH even if already installed
+    if [[ "$OS" == "macos" ]]; then
+        if [[ -d "/opt/homebrew" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -d "/usr/local" ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+    fi
 fi
 
 # 3. Install Oh My Zsh if not present
@@ -143,6 +160,11 @@ if [ ! -f "$HOME/.zsh/aliases.sh" ]; then
 # alias dc='docker-compose'
 
 # Add your personal aliases below:
+
+# Dotfile sync function
+sshs() {
+    ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec \$SHELL"
+}
 
 EOF
     echo "✅ Created ~/.zsh/aliases.sh template"
