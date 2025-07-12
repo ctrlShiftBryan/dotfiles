@@ -125,6 +125,7 @@ mkdir -p "$HOME/.zsh"
 
 # Create env.sh template if it doesn't exist
 if [ ! -f "$HOME/.zsh/env.sh" ]; then
+    echo "📝 Creating new ~/.zsh/env.sh template"
     cat > "$HOME/.zsh/env.sh" << 'EOF'
 # ~/.zsh/env.sh
 # This file is for environment variables containing sensitive data
@@ -137,8 +138,20 @@ if [ ! -f "$HOME/.zsh/env.sh" ]; then
 
 # Add your environment variables below:
 
+# Example of conditional Python PATH (uncomment if needed):
+# if command -v python >/dev/null 2>&1; then
+#     export PATH="$PATH:$(python -m site --user-site)/../bin"
+# fi
+
 EOF
     echo "✅ Created ~/.zsh/env.sh template"
+else
+    echo "ℹ️  ~/.zsh/env.sh already exists, skipping template creation"
+    # Check if it contains Python commands that might fail
+    if grep -q "python -m site" "$HOME/.zsh/env.sh" 2>/dev/null; then
+        echo "⚠️  Found Python PATH command in existing env.sh"
+        echo "⚠️  Consider wrapping it with: if command -v python >/dev/null 2>&1; then"
+    fi
 fi
 
 # Create local.sh template if it doesn't exist
