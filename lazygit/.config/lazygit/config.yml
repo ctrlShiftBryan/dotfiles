@@ -11,7 +11,6 @@ gui:
   showIcons: true
   # Show file tree icons even in terminals that don't support unicode
   nerdFontsVersion: "3"
-
 git:
   # Use delta for better diffs (if installed)
   paging:
@@ -22,7 +21,6 @@ git:
   # Show whole commit graph by default
   log:
     showWholeGraph: true
-
 keybinding:
   universal:
     quit: 'q'
@@ -53,7 +51,7 @@ keybinding:
     nextMatch: 'n'
     prevMatch: 'N'
     startSearch: '/'
-    optionMenu: null
+    optionMenu: <disabled>
     optionMenu-alt1: '?'
     select: '<space>'
     goInto: '<enter>'
@@ -69,28 +67,22 @@ keybinding:
     scrollDownMain-alt1: 'J'
     scrollUpMain-alt2: '<c-u>'
     scrollDownMain-alt2: '<c-d>'
-    executeCustomCommand: ':'
+    executeShellCommand: ':'
     createRebaseOptionsMenu: 'm'
-    
     # Push/pull/fetch
     pushFiles: 'P'
     pullFiles: 'p'
-    
     # Undo/redo
     undo: '<c-z>'
     redo: '<c-y>'
-    
     # Copy
     copyToClipboard: '<c-o>'
-    
     # Help
     openMergeTool: 'M'
-  
   status:
     checkForUpdate: 'u'
     recentRepos: '<enter>'
     allBranchesLogGraph: 'a'
-  
   files:
     commitChanges: 'c'
     commitChangesWithoutHook: 'w'
@@ -109,7 +101,6 @@ keybinding:
     openMergeTool: 'M'
     openStatusFilter: '<c-b>'
     quit: 'q'
-  
   branches:
     createPullRequest: 'o'
     viewPullRequestOptions: 'O'
@@ -126,10 +117,8 @@ keybinding:
     setUpstream: 'u'
     fetchRemote: 'f'
     sortOrder: 's'
-  
   worktrees:
     viewWorktreeOptions: 'w'
-  
   commits:
     squashDown: 's'
     renameCommit: 'r'
@@ -155,29 +144,23 @@ keybinding:
     openInBrowser: 'o'
     viewBisectOptions: 'b'
     startInteractiveRebase: 'i'
-  
   amendAttribute:
     resetAuthor: 'a'
     setAuthor: 'A'
     addCoAuthor: 'c'
-  
   stash:
     popStash: 'g'
     renameStash: 'r'
-  
   commitFiles:
     checkoutCommitFile: 'c'
-  
   main:
     toggleSelectHunk: 'a'
     pickBothHunks: 'b'
     editSelectHunk: 'E'
-  
   submodules:
     init: 'i'
     update: 'u'
     bulkMenu: 'b'
-
 # OS-specific overrides
 os:
   edit: 'nvim {{filename}}'
@@ -185,7 +168,6 @@ os:
   editAtLineAndWait: 'nvim +{{line}} {{filename}}'
   editInTerminal: true
   openDirInEditor: 'nvim {{dir}}'
-
 # Custom commands
 customCommands:
   - key: '<c-v>'

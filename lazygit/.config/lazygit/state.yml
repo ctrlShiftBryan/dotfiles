@@ -1,10 +1,14 @@
 lastupdatecheck: 0
 recentrepos:
+    - /Users/bryanarendt/dotfiles
+    - /Users/bryanarendt/code/dynasty-nerds-monorepo-worktrees/feature/gm2-new-arch
+    - /Users/bryanarendt/code2/wordpress-azure
     - /Users/bryanarendt/code/dynasty-nerds-monorepo
     - /Users/bryanarendt/code2/zmk-config2
 startuppopupversion: 5
 lastversion: 0.53.0
-customcommandshistory: []
+customcommandshistory:
+    - :q
 hidecommandlog: false
 ignorewhitespaceindiffview: false
 diffcontextsize: 3
