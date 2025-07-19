@@ -2,6 +2,8 @@
 
 my name is bryan
 
+my github username is ctrlshiftbryan
+
 # Running Shell Commands in Background
 
 ## Complete Command

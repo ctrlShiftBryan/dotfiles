@@ -1,0 +1,121 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(find:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git diff:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(gh pr view:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run rerun:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(diff:*)",
+      "Bash(find:*)",
+      "Bash(gh run download:*)",
+      "Bash(gh workflow:*)",
+      "Bash(gh run rerun:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(echo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git fetch:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(git switch:*)",
+      "Bash(jq:*)",
+      "Bash(git reset:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude --version)",
+      "Bash(chmod:*)"
+    ],
+    "deny": []
+  },
+  "model": "sonnet",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT=$(basename \"${CLAUDE_ORIGINAL_DIR:-$PWD}\") && TIME=$(date +%I:%M%p) && curl -s -F 'token='\"$PUSHOVER_API_TOKEN\" -F 'user='\"$PUSHOVER_USER_KEY\" -F 'message=Claude Code task completed in: '\"$PROJECT\"' at '\"$TIME\" -F 'title=Claude Code' -F 'sound=magic' https://api.pushover.net/1/messages.json"
+          },
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs Stop",
+            "stdin": "full"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs PreToolUse",
+            "stdin": "full"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs PostToolUse",
+            "stdin": "full"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs Notification",
+            "stdin": "full"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs SubagentStop",
+            "stdin": "full"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/bryanarendt/.claude/hooks/log-hook.mjs PreCompact",
+            "stdin": "full"
+          }
+        ]
+      }
+    ]
+  }
+}
