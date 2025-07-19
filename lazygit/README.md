@@ -36,3 +36,4 @@ The Neovim configuration includes the `lazygit.nvim` plugin with the following k
 Edit `~/.config/lazygit/config.yml` to customize lazygit behavior. Changes take effect immediately.
 
 For the full list of configuration options, see: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+
