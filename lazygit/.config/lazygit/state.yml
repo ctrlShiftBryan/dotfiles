@@ -1,0 +1,15 @@
+lastupdatecheck: 0
+recentrepos:
+    - /Users/bryanarendt/code/dynasty-nerds-monorepo
+    - /Users/bryanarendt/code2/zmk-config2
+startuppopupversion: 5
+lastversion: 0.53.0
+customcommandshistory: []
+hidecommandlog: false
+ignorewhitespaceindiffview: false
+diffcontextsize: 3
+renamesimilaritythreshold: 50
+localbranchsortorder: recency
+remotebranchsortorder: alphabetical
+gitlogorder: topo-order
+gitlogshowgraph: always
