@@ -137,3 +137,4 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="/opt/podman/bin:$PATH"
 
 
+export PATH="$HOME/.local/bin:$PATH"
