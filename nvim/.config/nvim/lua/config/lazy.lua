@@ -51,3 +51,46 @@ require("lazy").setup({
     },
   },
 })
+
+-- paste without overwriting
+vim.keymap.set('v', 'p', 'P')
+
+-- redo
+vim.keymap.set('n', 'U', '<C-r>')
+
+-- clear search highlighting
+vim.keymap.set('n', '<Esc>', ':nohlsearch<cr>')
+
+-- fix folds
+vim.cmd('nmap k gk')
+vim.cmd('nmap j gj')
+
+-- sync system clipboard
+vim.opt.clipboard = 'unnamedplus'
+
+-- search ignoring case
+vim.opt.ignorecase = true
+
+-- disable "ignorecase" option if the search pattern contains upper case characters
+vim.opt.smartcase = true
+
+-- Normal mode mappings
+vim.keymap.set('n', 'gG', function() vim.fn.VSCodeNotify('workbench.scm.focus') end)
+vim.keymap.set('n', 'gF', function() vim.fn.VSCodeNotify('workbench.files.action.focusFilesExplorer') end)
+
+-- Visual mode mappings
+vim.keymap.set('x', 'gG', function() vim.fn.VSCodeNotify('workbench.scm.focus') end)
+vim.keymap.set('x', 'gF', function() vim.fn.VSCodeNotify('workbench.files.action.focusFilesExplorer') end)
+
+vim.keymap.set('n', '?', function()
+    local word = vim.fn.expand('<cword>')
+    vim.fn.VSCodeNotify('search.action.openNewEditor', {
+        query = word,
+        focusResults = true,
+    })
+end, { noremap = true, silent = true, desc = "Open VSCode search for word under cursor" })
+
+-- New mapping for 'gE' to go to the next error
+vim.keymap.set('n', 'gE', function()
+    vim.fn.VSCodeNotify('editor.action.marker.next')
+end, { noremap = true, silent = true, desc = "Go to next error or warning" })
