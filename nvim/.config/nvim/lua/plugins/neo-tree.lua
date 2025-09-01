@@ -25,6 +25,33 @@ return {
         end,
         desc = "Buffer list (Neo-tree)",
       },
+      {
+        "<leader>gf",
+        function()
+          require("neo-tree.command").execute({ 
+            source = "filesystem", 
+            toggle = true,
+            git_status_show_untracked = true,
+            filtered_items = {
+              visible = true,
+              hide_dotfiles = false,
+              hide_gitignored = false,
+              hide_by_pattern = {},
+              never_show = {},
+              always_show = {},
+              hide_by_name = {},
+              never_show_by_pattern = {},
+              custom = function(path, type)
+                -- Only show files with git changes
+                local git = require("neo-tree.git.status")
+                local status = git.get_status_of_file(path)
+                return status == nil
+              end,
+            },
+          })
+        end,
+        desc = "Git changed files only (Neo-tree)",
+      },
     },
     opts = {
       sources = { "filesystem", "buffers", "git_status" },
@@ -84,15 +111,15 @@ return {
         git_status = {
           symbols = {
             -- Change type
-            added = "", -- or "✚", ""
+            added = "✚", -- or "", ""
             deleted = "✖", -- or "", ""
             modified = "", -- or "", ""
             renamed = "󰁕", -- or "", ""
             -- Status type
-            untracked = "",
+            untracked = "?",
             ignored = "",
             unstaged = "󰄱",
-            staged = "",
+            staged = "✓",
             conflict = "",
           },
         },
@@ -210,7 +237,7 @@ return {
       },
       git_status = {
         window = {
-          position = "float",
+          position = "left",
           mappings = {
             ["A"] = "git_add_all",
             ["gu"] = "git_unstage_file",
