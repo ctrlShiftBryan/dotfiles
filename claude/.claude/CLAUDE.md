@@ -80,14 +80,19 @@ When creating pull requests:
 - Only create non-draft PRs when explicitly instructed not to use draft mode
 - Example: `gh pr create --draft --title "My PR" --body "Description"`
 - **Escape backticks in PR bodies**: When including code blocks or inline code in PR descriptions, use a heredoc to avoid shell interpretation errors:
-  ```bash
+
+  ````bash
   gh pr create --draft --title "Title" --body "$(cat <<'EOF'
   Description with `inline code` and code blocks:
   ```bash
   echo "example"
-  ```
+  ````
+
   EOF
   )"
+
+  ```
+
   ```
 
 ## Git worktrees
@@ -265,3 +270,17 @@ This ensures all plans are:
 - Preserved for future reference
 - Organized in a dedicated location
 - Always reflect the current/latest version of the plan
+
+# when working with web urls and dev servers
+
+please write them to the file 'tmux-urls.cfg' in the root of the repository at the same level as the .git folder.
+
+<example-tmux-urls.cfg>
+b: https://localhost:1234
+f: http://localhost:3333/dev-login
+g: https://google.com
+</example-tmux-urls.cfg>
+
+this will allow the user to quickly open a browser with the url using a keyboard shortcut, so this should be kept up to date
+
+use keyboard keys 'b,f,g,r,t,d,c,e' as needed
