@@ -1,0 +1,25 @@
+  "mcpServers": {
+    "playwright-ui": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ]
+    },
+    "gpt5-server": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/bryanarendt/code2/gpt5mcp/servers/gpt5-server/build/index.js"
+      ],
+      "env": {
+        "AZURE_OPENAI_API_KEY": "297a73fb589b4c54b2e67b77f53455ec"
+      }
+    }
+  },
