@@ -108,6 +108,107 @@ require("lazy").setup({
     },
   },
 
+  -- LSP Support
+  {
+    'neovim/nvim-lspconfig',
+    dependencies = {
+      -- Mason for installing LSP servers
+      { 'williamboman/mason.nvim', config = true },
+      { 'williamboman/mason-lspconfig.nvim' },
+
+      -- Autocompletion
+      { 'hrsh7th/nvim-cmp' },
+      { 'hrsh7th/cmp-nvim-lsp' },
+      { 'hrsh7th/cmp-buffer' },
+      { 'hrsh7th/cmp-path' },
+      { 'L3MON4D3/LuaSnip' },
+      { 'saadparwaiz1/cmp_luasnip' },
+    },
+    config = function()
+      -- Setup mason
+      require('mason').setup()
+      require('mason-lspconfig').setup({
+        ensure_installed = { 'lua_ls', 'ts_ls', 'eslint' },
+        automatic_installation = true,
+      })
+
+      -- Setup completion
+      local cmp = require('cmp')
+      local cmp_lsp = require('cmp_nvim_lsp')
+      local capabilities = cmp_lsp.default_capabilities()
+
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            require('luasnip').lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+          ['<C-Space>'] = cmp.mapping.complete(),
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+        }, {
+          { name = 'buffer' },
+          { name = 'path' },
+        })
+      })
+
+      -- LSP keymaps on attach
+      local on_attach = function(client, bufnr)
+        local opts = { buffer = bufnr, remap = false }
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+        vim.keymap.set('n', '<leader>vws', vim.lsp.buf.workspace_symbol, opts)
+        vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, opts)
+        vim.keymap.set('n', '[d', vim.diagnostic.goto_next, opts)
+        vim.keymap.set('n', ']d', vim.diagnostic.goto_prev, opts)
+        vim.keymap.set('n', '<leader>vca', vim.lsp.buf.code_action, opts)
+        vim.keymap.set('n', '<leader>vrr', vim.lsp.buf.references, opts)
+        vim.keymap.set('n', '<leader>vrn', vim.lsp.buf.rename, opts)
+        vim.keymap.set('i', '<C-h>', vim.lsp.buf.signature_help, opts)
+      end
+
+      -- Configure LSP servers using new vim.lsp.config API
+      vim.lsp.config('lua_ls', {
+        cmd = { 'lua-language-server' },
+        root_markers = { '.luarc.json', '.luarc.jsonc', '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml', '.git' },
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          Lua = {
+            diagnostics = {
+              globals = { 'vim' }
+            }
+          }
+        }
+      })
+
+      vim.lsp.config('ts_ls', {
+        cmd = { 'typescript-language-server', '--stdio' },
+        root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' },
+        capabilities = capabilities,
+        on_attach = on_attach,
+      })
+
+      vim.lsp.config('eslint', {
+        cmd = { 'vscode-eslint-language-server', '--stdio' },
+        root_markers = { '.eslintrc', '.eslintrc.js', '.eslintrc.json', 'package.json', '.git' },
+        capabilities = capabilities,
+        on_attach = on_attach,
+      })
+
+      -- Enable LSP servers
+      vim.lsp.enable('lua_ls')
+      vim.lsp.enable('ts_ls')
+      vim.lsp.enable('eslint')
+    end,
+  },
+
   -- Telescope fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
