@@ -165,6 +165,20 @@ require("lazy").setup({
         vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
         vim.keymap.set('n', '<leader>vws', vim.lsp.buf.workspace_symbol, opts)
         vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, opts)
+        vim.keymap.set('n', '<leader>vy', function()
+          local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
+          if #diagnostics > 0 then
+            local diag = diagnostics[1]
+            local filepath = vim.fn.expand('%')
+            local line = diag.lnum + 1
+            local col = diag.col + 1
+            local message = string.format("%s in file '%s' line %d column %d",
+              diag.message, filepath, line, col)
+            vim.diagnostic.open_float()
+            vim.fn.setreg('+', message)
+            print('Diagnostic with location copied to clipboard')
+          end
+        end, opts)
         vim.keymap.set('n', '[d', vim.diagnostic.goto_next, opts)
         vim.keymap.set('n', ']d', vim.diagnostic.goto_prev, opts)
         vim.keymap.set('n', '<leader>vca', vim.lsp.buf.code_action, opts)
