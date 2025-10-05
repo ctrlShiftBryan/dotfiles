@@ -46,6 +46,23 @@ require("lazy").setup({
     end,
   },
 
+  -- vim-tmux-navigator with Alt key mappings (instead of Ctrl to avoid breaking Shift+Enter)
+  {
+    'christoomey/vim-tmux-navigator',
+    lazy = false,
+    init = function()
+      -- Disable default Ctrl mappings
+      vim.g.tmux_navigator_no_mappings = 1
+    end,
+    config = function()
+      -- Use Alt keys instead of Ctrl
+      vim.keymap.set('n', '<M-h>', '<cmd>TmuxNavigateLeft<cr>', { desc = 'Navigate left (vim/tmux)' })
+      vim.keymap.set('n', '<M-j>', '<cmd>TmuxNavigateDown<cr>', { desc = 'Navigate down (vim/tmux)' })
+      vim.keymap.set('n', '<M-k>', '<cmd>TmuxNavigateUp<cr>', { desc = 'Navigate up (vim/tmux)' })
+      vim.keymap.set('n', '<M-l>', '<cmd>TmuxNavigateRight<cr>', { desc = 'Navigate right (vim/tmux)' })
+    end,
+  },
+
   -- Harpoon
   {
     'ThePrimeagen/harpoon',
@@ -220,6 +237,55 @@ require("lazy").setup({
       vim.lsp.enable('lua_ls')
       vim.lsp.enable('ts_ls')
       vim.lsp.enable('eslint')
+    end,
+  },
+
+  -- which-key - show keybindings
+  {
+    'folke/which-key.nvim',
+    event = 'VeryLazy',
+    config = function()
+      local wk = require('which-key')
+      wk.setup({
+        delay = 500, -- delay before popup shows (ms)
+        preset = "modern", -- modern gives us centered position
+        keys = {
+          scroll_down = "<c-f>", -- scroll down (avoid conflict with <c-d>)
+          scroll_up = "<c-b>",   -- scroll up (avoid conflict with <c-u>)
+        },
+        win = {
+          border = "single",
+          padding = { 1, 1 }, -- minimal padding like helix
+          height = { min = 4, max = 15 }, -- compact height
+          width = { min = 40, max = 80 }, -- compact width
+          row = math.floor(vim.o.lines / 4), -- center vertically (half of screen height)
+        },
+        layout = {
+          spacing = 1, -- tight spacing like helix
+          align = "center",
+        },
+        icons = {
+          separator = "→", -- clean separator
+          group = "+", -- simple group indicator
+        },
+      })
+
+      -- Define groups
+      wk.add({
+        { "<leader>f", group = "Find (Telescope)" },
+        { "<leader>g", group = "Git" },
+        { "<leader>v", group = "LSP" },
+        { "<leader>w", group = "Window" },
+        { "<leader>wn", group = "Navigate" },
+        { "<leader>ws", group = "Split" },
+        { "<leader>wr", group = "Resize" },
+        { "<leader>wm", group = "Move" },
+        { "<leader>c", group = "Quickfix" },
+        { "<leader>l", group = "Location List" },
+        { "<leader>p", group = "Path" },
+        { "<leader>z", group = "LSP Tools" },
+        { "<leader>d", group = "Delete" },
+      })
     end,
   },
 
