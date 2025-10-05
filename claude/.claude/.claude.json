@@ -193,6 +193,9 @@
       "lastTotalCacheCreationInputTokens": 15177,
       "lastTotalCacheReadInputTokens": 73074,
       "lastSessionId": "64f84bfc-0920-44bf-ba0d-baedbf4397aa"
+    },
+    "/Users/bryanarendt/code2/wordpress-azure": {
+      "mcpServers": {}
     }
   },
   "fallbackAvailableWarningThreshold": 0.5,

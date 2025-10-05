@@ -163,11 +163,8 @@ keybinding:
     bulkMenu: 'b'
 # OS-specific overrides
 os:
-  edit: 'nvim {{filename}}'
-  editAtLine: 'nvim +{{line}} {{filename}}'
-  editAtLineAndWait: 'nvim +{{line}} {{filename}}'
-  editInTerminal: true
-  openDirInEditor: 'nvim {{dir}}'
+  edit: 'nvim --server $NVIM --remote-tab {{filename}}'
+  editAtLine: 'nvim --server $NVIM --remote-tab {{filename}} +{{line}}'
 # Custom commands
 customCommands:
   - key: '<c-v>'
