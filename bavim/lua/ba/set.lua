@@ -42,3 +42,7 @@ vim.opt.updatetime = 50
 
 -- Use system clipboard
 vim.opt.clipboard = "unnamedplus"
+
+-- Use zsh as default shell with interactive mode to load aliases
+vim.o.shell = "/bin/zsh"
+vim.o.shellcmdflag = "-ic"

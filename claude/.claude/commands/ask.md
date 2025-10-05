@@ -21,28 +21,29 @@ Answer the following question about the codebase. DO NOT modify any existing fil
 
 <output_format>
 Provide your answer in this format:
+
 1. Direct answer to the question
 2. Supporting evidence (file paths, line numbers, code snippets)
 3. Any additional context or explanations
 4. If you created temporary files for testing, list them at the end
-</output_format>
+   </output_format>
 
 <question>
-
 k
 $ARGUMENTS
 
 </question>
 
 <examples>
-Good questions:
-- "How does the authentication middleware work in this project?"
-- "What design patterns are used in the database layer?"
-- "Which files handle user session management?"
-- "What's the flow of data from the API endpoint to the database?"
+   Good questions:
+   - "How does the authentication middleware work in this project?"
+   - "What design patterns are used in the database layer?"
+   - "Which files handle user session management?"
+   - "What's the flow of data from the API endpoint to the database?"
 
 If asked "How does function X handle null inputs?", you might:
-1. First examine the function's code
-2. If unclear, create /tmp/test_function_x.py to test behavior
-3. Report findings without modifying the original function
-</examples>
+
+1.  First examine the function's code
+2.  If unclear, create /tmp/test_function_x.js to test behavior
+3.  Report findings without modifying the original function
+    </examples>
