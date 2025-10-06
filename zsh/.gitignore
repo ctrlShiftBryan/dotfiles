@@ -1,3 +1,4 @@
-# Machine-specific files (created by bootstrap.sh)
+# Machine-specific files
 env.sh
 local.sh
+.zsh/machines.md
