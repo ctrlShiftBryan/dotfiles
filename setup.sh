@@ -32,5 +32,5 @@ if [ ! -L "$HOME/.zshrc" ]; then
 fi
 
 # Run stow (will update symlinks if dotfiles changed)
-stow zsh claude
+stow zsh claude bavim
 echo "Dotfiles synced and linked!"
