@@ -17,17 +17,34 @@ fi
 if [ ! -L "$HOME/.zshrc" ]; then
     backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$backup_dir"
-    
+    mkdir -p "$backup_dir/.config/tmux"
+
     # Check and backup existing files
     [ -e "$HOME/.zshrc" ] && mv "$HOME/.zshrc" "$backup_dir/"
     [ -e "$HOME/.claude" ] && mv "$HOME/.claude" "$backup_dir/"
     [ -e "$HOME/CLAUDE.md" ] && mv "$HOME/CLAUDE.md" "$backup_dir/"
-    
+
+    # Backup tmux configs if they exist and are not symlinks
+    if [ -e "$HOME/.config/tmux/tmux.conf" ] && [ ! -L "$HOME/.config/tmux/tmux.conf" ]; then
+        mv "$HOME/.config/tmux/tmux.conf" "$backup_dir/.config/tmux/"
+    fi
+    if [ -e "$HOME/.config/tmux/tmux.conf.local" ] && [ ! -L "$HOME/.config/tmux/tmux.conf.local" ]; then
+        mv "$HOME/.config/tmux/tmux.conf.local" "$backup_dir/.config/tmux/"
+    fi
+    if [ -e "$HOME/.config/tmux/tmux-urls.cfg" ] && [ ! -L "$HOME/.config/tmux/tmux-urls.cfg" ]; then
+        mv "$HOME/.config/tmux/tmux-urls.cfg" "$backup_dir/.config/tmux/"
+    fi
+
+    # Backup bavim config if it exists and is not a symlink
+    if [ -d "$HOME/.config/bavim" ] && [ ! -L "$HOME/.config/bavim" ]; then
+        mv "$HOME/.config/bavim" "$backup_dir/.config/"
+    fi
+
     # Report backups
-    if [ "$(ls -A "$backup_dir")" ]; then
-        echo "Initial setup: existing files backed up to $backup_dir"
+    if [ "$(find "$backup_dir" -type f -o -type d -mindepth 1 | head -1)" ]; then
+        echo "📦 Initial setup: existing files backed up to $backup_dir"
     else
-        rmdir "$backup_dir"
+        rm -rf "$backup_dir"
     fi
 fi
 
