@@ -1,6 +1,8 @@
 # Lazygit configuration file
 # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
+promptToReturnFromSubprocess: false
+
 gui:
   theme:
     selectedLineBgColor:
@@ -163,11 +165,15 @@ keybinding:
     bulkMenu: 'b'
 # OS-specific overrides
 os:
-  edit: 'nvim --server $NVIM --remote-tab {{filename}}'
-  editAtLine: 'nvim --server $NVIM --remote-tab {{filename}} +{{line}}'
+  edit: 'NVIM_APPNAME=bavim nvim --server $NVIM --remote-tab {{filename}}'
+  editAtLine: 'NVIM_APPNAME=bavim nvim --server $NVIM --remote-tab {{filename}} +{{line}}'
 # Custom commands
 customCommands:
   - key: '<c-v>'
     context: 'global'
     description: 'Open lazygit config in editor'
     command: 'nvim ~/.config/lazygit/config.yml'
+  - key: 'D'
+    context: 'files'
+    description: 'Open file in diffview'
+    command: 'NVIM_APPNAME=bavim nvim -c "DiffviewOpen -- {{.SelectedFile.Name}}" {{.SelectedFile.Name}}'
