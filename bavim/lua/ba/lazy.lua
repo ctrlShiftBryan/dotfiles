@@ -475,6 +475,7 @@ require("lazy").setup({
         end,
         desc = 'Git status'
       },
+      { '<leader>gS', '<cmd>Telescope git_status<cr>', desc = 'Git commits (no resume)' },
       { '<leader>gc', '<cmd>Telescope git_commits<cr>', desc = 'Git commits' },
       { '<leader>gB', '<cmd>Telescope git_branches<cr>', desc = 'Git branches' },
     },
