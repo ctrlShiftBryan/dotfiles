@@ -105,3 +105,6 @@ vim.keymap.set('n', '<leader>pa', function()
   vim.fn.setreg('+', path)
   print('Copied absolute path: ' .. path)
 end, { desc = 'Copy absolute path' })
+
+-- Terminal mode
+vim.keymap.set('t', '<C-Space>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
