@@ -192,6 +192,31 @@ require("lazy").setup({
     },
   },
 
+  -- Octo - GitHub integration
+  {
+    'pwntester/octo.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope.nvim',
+      'nvim-tree/nvim-web-devicons',
+    },
+    cmd = 'Octo',
+    keys = {
+      { '<leader>go', '<cmd>Octo<cr>', desc = 'Octo' },
+      { '<leader>gpl', '<cmd>Octo pr list<cr>', desc = 'List PRs' },
+      { '<leader>gpc', '<cmd>Octo pr checkout<cr>', desc = 'Checkout PR' },
+      { '<leader>gpr', '<cmd>Octo pr create<cr>', desc = 'Create PR' },
+      { '<leader>gpv', '<cmd>Octo pr view<cr>', desc = 'View PR' },
+    },
+    config = function()
+      require('octo').setup({
+        enable_builtin = true,
+        default_to_projects_v2 = true,
+        default_merge_method = 'squash',
+      })
+    end,
+  },
+
   -- LSP Support
   {
     'neovim/nvim-lspconfig',
@@ -314,7 +339,7 @@ require("lazy").setup({
     config = function()
       local wk = require('which-key')
       wk.setup({
-        delay = 500, -- delay before popup shows (ms)
+        delay = 200, -- delay before popup shows (ms)
         preset = "modern", -- modern gives us centered position
         keys = {
           scroll_down = "<c-f>", -- scroll down (avoid conflict with <c-d>)
@@ -341,6 +366,7 @@ require("lazy").setup({
       wk.add({
         { "<leader>f", group = "Find (Telescope)" },
         { "<leader>g", group = "Git" },
+        { "<leader>gp", group = "Pull Request" },
         { "<leader>h", group = "Hunk" },
         { "<leader>t", group = "Toggle" },
         { "<leader>v", group = "LSP" },
