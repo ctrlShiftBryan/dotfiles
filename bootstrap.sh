@@ -2,6 +2,14 @@
 
 set -e
 
+# Parse arguments
+DRY_RUN=false
+if [[ "$1" == "--dry-run" ]]; then
+    DRY_RUN=true
+    echo "🔍 DRY RUN MODE - No changes will be made"
+    echo ""
+fi
+
 echo "🚀 Starting dotfiles bootstrap..."
 
 # Detect OS
@@ -31,19 +39,21 @@ command_exists() {
 
 # 1. Install Zsh if not present
 if ! command_exists zsh; then
-    echo "📦 Installing Zsh..."
-    if [[ "$OS" == "macos" ]]; then
-        # macOS usually has zsh pre-installed, but just in case
-        if command_exists brew; then
-            brew install zsh
-        else
-            echo "⚠️  Zsh not found and Homebrew not available. Will install Homebrew first."
-        fi
-    elif [[ "$OS" == "linux" ]]; then
-        if [[ "$DISTRO" == "debian" ]]; then
-            sudo apt-get update && sudo apt-get install -y zsh
-        elif [[ "$DISTRO" == "redhat" ]]; then
-            sudo yum install -y zsh
+    echo "📦 Would install: Zsh"
+    if ! $DRY_RUN; then
+        if [[ "$OS" == "macos" ]]; then
+            # macOS usually has zsh pre-installed, but just in case
+            if command_exists brew; then
+                brew install zsh
+            else
+                echo "⚠️  Zsh not found and Homebrew not available. Will install Homebrew first."
+            fi
+        elif [[ "$OS" == "linux" ]]; then
+            if [[ "$DISTRO" == "debian" ]]; then
+                sudo apt-get update && sudo apt-get install -y zsh
+            elif [[ "$DISTRO" == "redhat" ]]; then
+                sudo yum install -y zsh
+            fi
         fi
     fi
 else
@@ -72,22 +82,24 @@ if [[ "$OS" == "macos" ]]; then
     
     # Only try to install if truly not found
     if ! $BREW_INSTALLED; then
-        echo "📦 Installing Homebrew..."
-        # Check if we can run interactively
-        if [ -t 0 ]; then
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            # Add to PATH after installation
-            if [[ -d "/opt/homebrew" ]]; then
-                eval "$(/opt/homebrew/bin/brew shellenv)"
+        echo "📦 Would install: Homebrew"
+        if ! $DRY_RUN; then
+            # Check if we can run interactively
+            if [ -t 0 ]; then
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                # Add to PATH after installation
+                if [[ -d "/opt/homebrew" ]]; then
+                    eval "$(/opt/homebrew/bin/brew shellenv)"
+                else
+                    eval "$(/usr/local/bin/brew shellenv)"
+                fi
             else
-                eval "$(/usr/local/bin/brew shellenv)"
+                echo "⚠️  Homebrew installation requires interactive mode."
+                echo "⚠️  Please install Homebrew manually first:"
+                echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+                echo "⚠️  Then run this script again."
+                exit 1
             fi
-        else
-            echo "⚠️  Homebrew installation requires interactive mode."
-            echo "⚠️  Please install Homebrew manually first:"
-            echo "    /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-            echo "⚠️  Then run this script again."
-            exit 1
         fi
     fi
 else
@@ -96,23 +108,27 @@ fi
 
 # 3. Install Oh My Zsh if not present
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "📦 Installing Oh My Zsh..."
-    # Use unattended install
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    echo "📦 Would install: Oh My Zsh"
+    if ! $DRY_RUN; then
+        # Use unattended install
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    fi
 else
     echo "✅ Oh My Zsh already installed"
 fi
 
 # 4. Install GNU Stow
 if ! command_exists stow; then
-    echo "📦 Installing GNU Stow..."
-    if [[ "$OS" == "macos" ]]; then
-        brew install stow
-    elif [[ "$OS" == "linux" ]]; then
-        if [[ "$DISTRO" == "debian" ]]; then
-            sudo apt-get install -y stow
-        elif [[ "$DISTRO" == "redhat" ]]; then
-            sudo yum install -y stow
+    echo "📦 Would install: GNU Stow"
+    if ! $DRY_RUN; then
+        if [[ "$OS" == "macos" ]]; then
+            brew install stow
+        elif [[ "$OS" == "linux" ]]; then
+            if [[ "$DISTRO" == "debian" ]]; then
+                sudo apt-get install -y stow
+            elif [[ "$DISTRO" == "redhat" ]]; then
+                sudo yum install -y stow
+            fi
         fi
     fi
 else
@@ -120,13 +136,20 @@ else
 fi
 
 # 5. Create ~/.zsh directory and template files
-echo "📁 Creating ~/.zsh directory and template files..."
-mkdir -p "$HOME/.zsh"
+if [ ! -d "$HOME/.zsh" ]; then
+    echo "📁 Would create: ~/.zsh directory"
+    if ! $DRY_RUN; then
+        mkdir -p "$HOME/.zsh"
+    fi
+else
+    echo "✅ ~/.zsh directory already exists"
+fi
 
 # Create env.sh template if it doesn't exist
 if [ ! -f "$HOME/.zsh/env.sh" ]; then
-    echo "📝 Creating new ~/.zsh/env.sh template"
-    cat > "$HOME/.zsh/env.sh" << 'EOF'
+    echo "📝 Would create: ~/.zsh/env.sh template"
+    if ! $DRY_RUN; then
+        cat > "$HOME/.zsh/env.sh" << 'EOF'
 # ~/.zsh/env.sh
 # This file is for environment variables containing sensitive data
 # It is NOT tracked in git and should be created per-machine
@@ -144,9 +167,10 @@ if [ ! -f "$HOME/.zsh/env.sh" ]; then
 # fi
 
 EOF
-    echo "✅ Created ~/.zsh/env.sh template"
+        echo "✅ Created ~/.zsh/env.sh template"
+    fi
 else
-    echo "ℹ️  ~/.zsh/env.sh already exists, skipping template creation"
+    echo "✅ ~/.zsh/env.sh already exists"
     # Check if it contains Python commands that might fail
     if grep -q "python -m site" "$HOME/.zsh/env.sh" 2>/dev/null; then
         echo "⚠️  Found Python PATH command in existing env.sh"
@@ -156,7 +180,9 @@ fi
 
 # Create local.sh template if it doesn't exist
 if [ ! -f "$HOME/.zsh/local.sh" ]; then
-    cat > "$HOME/.zsh/local.sh" << 'EOF'
+    echo "📝 Would create: ~/.zsh/local.sh template"
+    if ! $DRY_RUN; then
+        cat > "$HOME/.zsh/local.sh" << 'EOF'
 # ~/.zsh/local.sh
 # This file is for machine-specific configuration
 # It is NOT tracked in git and should be created per-machine
@@ -169,12 +195,15 @@ if [ ! -f "$HOME/.zsh/local.sh" ]; then
 # Add your machine-specific configuration below:
 
 EOF
-    echo "✅ Created ~/.zsh/local.sh template"
+        echo "✅ Created ~/.zsh/local.sh template"
+    fi
 fi
 
-# Create aliases.sh template if it doesn't exist  
+# Create aliases.sh template if it doesn't exist
 if [ ! -f "$HOME/.zsh/aliases.sh" ]; then
-    cat > "$HOME/.zsh/aliases.sh" << 'EOF'
+    echo "📝 Would create: ~/.zsh/aliases.sh template"
+    if ! $DRY_RUN; then
+        cat > "$HOME/.zsh/aliases.sh" << 'EOF'
 # ~/.zsh/aliases.sh
 # This file is for personal aliases
 # It is NOT tracked in git and should be created per-machine
@@ -192,10 +221,16 @@ sshs() {
 }
 
 EOF
-    echo "✅ Created ~/.zsh/aliases.sh template"
+        echo "✅ Created ~/.zsh/aliases.sh template"
+    fi
 fi
 
-echo "🎉 Bootstrap complete! Ready to run setup.sh"
+if $DRY_RUN; then
+    echo ""
+    echo "🔍 Dry run complete! Run without --dry-run to apply changes"
+else
+    echo "🎉 Bootstrap complete! Ready to run setup.sh"
+fi
 
 # Export PATH for subsequent scripts
 if [[ "$OS" == "macos" ]]; then
