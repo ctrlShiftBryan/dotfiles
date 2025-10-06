@@ -119,9 +119,76 @@ require("lazy").setup({
     'tpope/vim-fugitive',
     cmd = { 'Git', 'G', 'Gdiffsplit', 'Gread', 'Gwrite', 'Ggrep', 'GMove', 'GDelete', 'GBrowse', 'GRemove', 'GRename', 'Glgrep', 'Gedit' },
     keys = {
-      { '<leader>gs', '<cmd>Git<cr>', desc = 'Git status' },
       { '<leader>gb', '<cmd>Git blame<cr>', desc = 'Git blame' },
       { '<leader>gd', '<cmd>Gdiffsplit<cr>', desc = 'Git diff' },
+    },
+  },
+
+  -- Diffview - VSCode-like diff view
+  {
+    'sindrets/diffview.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
+    keys = {
+      { '<leader>gv', '<cmd>DiffviewOpen<cr>', desc = 'Open diffview' },
+      { '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', desc = 'File history' },
+      { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close diffview' },
+    },
+  },
+
+  -- Gitsigns - Inline git change indicators
+  {
+    'lewis6991/gitsigns.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    opts = {
+      signs = {
+        add          = { text = '│' },
+        change       = { text = '│' },
+        delete       = { text = '_' },
+        topdelete    = { text = '‾' },
+        changedelete = { text = '~' },
+        untracked    = { text = '┆' },
+      },
+      on_attach = function(bufnr)
+        local gs = package.loaded.gitsigns
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map('n', ']c', function()
+          if vim.wo.diff then return ']c' end
+          vim.schedule(function() gs.next_hunk() end)
+          return '<Ignore>'
+        end, {expr=true, desc = 'Next hunk'})
+
+        map('n', '[c', function()
+          if vim.wo.diff then return '[c' end
+          vim.schedule(function() gs.prev_hunk() end)
+          return '<Ignore>'
+        end, {expr=true, desc = 'Previous hunk'})
+
+        -- Actions
+        map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage hunk' })
+        map('n', '<leader>hr', gs.reset_hunk, { desc = 'Reset hunk' })
+        map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { desc = 'Stage hunk' })
+        map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { desc = 'Reset hunk' })
+        map('n', '<leader>hS', gs.stage_buffer, { desc = 'Stage buffer' })
+        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'Undo stage hunk' })
+        map('n', '<leader>hR', gs.reset_buffer, { desc = 'Reset buffer' })
+        map('n', '<leader>hp', gs.preview_hunk, { desc = 'Preview hunk' })
+        map('n', '<leader>hb', function() gs.blame_line{full=true} end, { desc = 'Blame line' })
+        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'Toggle line blame' })
+        map('n', '<leader>hd', gs.diffthis, { desc = 'Diff this' })
+        map('n', '<leader>hD', function() gs.diffthis('~') end, { desc = 'Diff this ~' })
+        map('n', '<leader>td', gs.toggle_deleted, { desc = 'Toggle deleted' })
+
+        -- Text object
+        map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'Select hunk' })
+      end
     },
   },
 
@@ -274,6 +341,8 @@ require("lazy").setup({
       wk.add({
         { "<leader>f", group = "Find (Telescope)" },
         { "<leader>g", group = "Git" },
+        { "<leader>h", group = "Hunk" },
+        { "<leader>t", group = "Toggle" },
         { "<leader>v", group = "LSP" },
         { "<leader>w", group = "Window" },
         { "<leader>wn", group = "Navigate" },
@@ -302,15 +371,41 @@ require("lazy").setup({
       }
     },
     config = function()
+      local actions = require('telescope.actions')
+      local action_state = require('telescope.actions.state')
+
       require('telescope').setup({
         pickers = {
           live_grep = {
             additional_args = function()
               return {
+                "--hidden",
                 "--glob", "!**/*.snap",
                 "--glob", "!stubs/**/*.json",
+                "--glob", "!.git",
+                "--glob", "*.env*",
+                "--glob", "keys/prod-env",
+                "--glob", "prod-env-secret.yaml",
               }
             end,
+          },
+          git_status = {
+            mappings = {
+              n = {
+                ['<C-d>'] = function(prompt_bufnr)
+                  local entry = action_state.get_selected_entry()
+                  actions.close(prompt_bufnr)
+                  vim.cmd('DiffviewOpen -- ' .. entry.value)
+                end,
+              },
+              i = {
+                ['<C-d>'] = function(prompt_bufnr)
+                  local entry = action_state.get_selected_entry()
+                  actions.close(prompt_bufnr)
+                  vim.cmd('DiffviewOpen -- ' .. entry.value)
+                end,
+              },
+            },
           },
         },
       })
@@ -319,18 +414,78 @@ require("lazy").setup({
       {
         '<leader>ff',
         function()
-          local builtin = require('telescope.builtin')
-          local ok = pcall(builtin.git_files, {})
-          if not ok then
-            builtin.find_files({})
+          local cached_pickers = require('telescope.state').get_global_key('cached_pickers') or {}
+          local last_picker = cached_pickers[1]
+
+          -- Only resume if last picker was Find Files or Git Files
+          if last_picker and (last_picker.prompt_title == 'Find Files' or last_picker.prompt_title == 'Git Files') then
+            require('telescope.builtin').resume()
+          else
+            local builtin = require('telescope.builtin')
+            local ok = pcall(builtin.git_files, { show_untracked = true })
+            if not ok then
+              builtin.find_files({ hidden = true })
+            end
           end
         end,
         desc = 'Find files (git or all)'
       },
-      { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = 'Live grep' },
+      {
+        '<leader>fg',
+        function()
+          local cached_pickers = require('telescope.state').get_global_key('cached_pickers') or {}
+          local last_picker = cached_pickers[1]
+
+          -- Only resume if last picker was Live Grep
+          if last_picker and last_picker.prompt_title == 'Live Grep' then
+            require('telescope.builtin').resume()
+          else
+            require('telescope.builtin').live_grep()
+          end
+        end,
+        desc = 'Live grep'
+      },
+      {
+        '<leader>fn',
+        function()
+          require('telescope.builtin').live_grep({
+            search_dirs = { "node_modules" },
+            additional_args = function()
+              return { "--hidden" }
+            end
+          })
+        end,
+        desc = 'Grep in node_modules'
+      },
       { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = 'Buffers' },
       { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = 'Help tags' },
+      -- Git pickers
+      {
+        '<leader>gs',
+        function()
+          local cached_pickers = require('telescope.state').get_global_key('cached_pickers') or {}
+          local last_picker = cached_pickers[1]
+
+          -- Only resume if last picker was Git Status
+          if last_picker and last_picker.prompt_title == 'Git Status' then
+            require('telescope.builtin').resume()
+          else
+            require('telescope.builtin').git_status()
+          end
+        end,
+        desc = 'Git status'
+      },
+      { '<leader>gc', '<cmd>Telescope git_commits<cr>', desc = 'Git commits' },
+      { '<leader>gB', '<cmd>Telescope git_branches<cr>', desc = 'Git branches' },
     },
+  },
+
+  -- Markdown rendering
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    ft = { 'markdown' },
+    opts = {},
   },
 }, {
   -- Lazy.nvim options
