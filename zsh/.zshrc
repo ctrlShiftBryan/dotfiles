@@ -138,3 +138,4 @@ export PATH="/opt/podman/bin:$PATH"
 
 
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/Library/Python/3.9/bin:$PATH"
