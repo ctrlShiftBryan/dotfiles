@@ -115,7 +115,11 @@ compinit
 
 # Load ASDF if available
 if command -v brew >/dev/null 2>&1 && [ -f "$(brew --prefix asdf 2>/dev/null)/libexec/asdf.sh" ]; then
+    # ASDF installed via Homebrew
     . "$(brew --prefix asdf)/libexec/asdf.sh"
+elif [ -f "$HOME/.asdf/asdf.sh" ]; then
+    # ASDF installed manually in ~/.asdf
+    . "$HOME/.asdf/asdf.sh"
 fi
 
 # Source additional configuration files if they exist
