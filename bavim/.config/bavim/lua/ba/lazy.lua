@@ -414,10 +414,7 @@ require("lazy").setup({
                 "--hidden",
                 "--glob", "!**/*.snap",
                 "--glob", "!stubs/**/*.json",
-                "--glob", "!.git",
-                "--glob", "*.env*",
-                "--glob", "keys/prod-env",
-                "--glob", "prod-env-secret.yaml",
+                "--glob", "!.git"
               }
             end,
           },
