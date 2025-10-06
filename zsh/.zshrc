@@ -136,6 +136,8 @@ fi
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export PATH="/opt/podman/bin:$PATH"
 
+# Add zsh scripts to PATH
+export PATH="$HOME/.zsh/scripts:$PATH"
 
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/Library/Python/3.9/bin:$PATH"
