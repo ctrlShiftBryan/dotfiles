@@ -60,6 +60,12 @@ require("lazy").setup({
       vim.keymap.set('n', '<M-j>', '<cmd>TmuxNavigateDown<cr>', { desc = 'Navigate down (vim/tmux)' })
       vim.keymap.set('n', '<M-k>', '<cmd>TmuxNavigateUp<cr>', { desc = 'Navigate up (vim/tmux)' })
       vim.keymap.set('n', '<M-l>', '<cmd>TmuxNavigateRight<cr>', { desc = 'Navigate right (vim/tmux)' })
+
+      -- Same mappings work from terminal mode
+      vim.keymap.set('t', '<M-h>', '<cmd>TmuxNavigateLeft<cr>', { desc = 'Navigate left from terminal' })
+      vim.keymap.set('t', '<M-j>', '<C-\\><C-n><cmd>TmuxNavigateDown<cr>', { desc = 'Navigate down from terminal' })
+      vim.keymap.set('t', '<M-k>', '<C-\\><C-n><cmd>TmuxNavigateUp<cr>', { desc = 'Navigate up from terminal' })
+      vim.keymap.set('t', '<M-l>', '<C-\\><C-n><cmd>TmuxNavigateRight<cr>', { desc = 'Navigate right from terminal' })
     end,
   },
 
