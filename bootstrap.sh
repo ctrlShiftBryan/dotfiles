@@ -199,31 +199,8 @@ EOF
     fi
 fi
 
-# Create aliases.sh template if it doesn't exist
-if [ ! -f "$HOME/.zsh/aliases.sh" ]; then
-    echo "📝 Would create: ~/.zsh/aliases.sh template"
-    if ! $DRY_RUN; then
-        cat > "$HOME/.zsh/aliases.sh" << 'EOF'
-# ~/.zsh/aliases.sh
-# This file is for personal aliases
-# It is NOT tracked in git and should be created per-machine
-#
-# Example usage:
-# alias ll='ls -la'
-# alias gs='git status'
-# alias dc='docker-compose'
-
-# Add your personal aliases below:
-
-# Dotfile sync function
-sshs() {
-    ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec zsh"
-}
-
-EOF
-        echo "✅ Created ~/.zsh/aliases.sh template"
-    fi
-fi
+# Note: aliases.sh is now tracked in dotfiles/zsh/ and stowed to ~/.zsh/aliases.sh
+# No template needed here
 
 if $DRY_RUN; then
     echo ""

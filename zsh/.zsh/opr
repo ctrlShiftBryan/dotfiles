@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Get the current git branch
+branch=$(git branch --show-current 2>/dev/null)
+
+# Check if we're in a git repository
+if [ -z "$branch" ]; then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Unset GITHUB_TOKEN to avoid authentication issues
+unset GITHUB_TOKEN
+
+# Get PR info for the current branch
+pr_info=$(gh pr list --head "$branch" --json number,title,url,state 2>/dev/null)
+
+# Check if gh command failed
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to query GitHub PRs. Make sure you're authenticated with 'gh auth login'"
+    exit 1
+fi
+
+# Check if there are any PRs
+if [ "$pr_info" = "[]" ] || [ -z "$pr_info" ]; then
+    echo "No pull request found for branch: $branch"
+    exit 0
+fi
+
+# Parse and display PR info
+echo "$pr_info" | jq -r '.[] | "PR #\(.number): \(.title)\nStatus: \(.state)\nURL: \(.url)"'
+
+# Get the URL and open it in the default browser
+url=$(echo "$pr_info" | jq -r '.[0].url')
+if [ -n "$url" ]; then
+    open "$url"
+fi

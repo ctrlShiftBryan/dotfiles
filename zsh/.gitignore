@@ -1,0 +1,3 @@
+# Machine-specific files (created by bootstrap.sh)
+env.sh
+local.sh
