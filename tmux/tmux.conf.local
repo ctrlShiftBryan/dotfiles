@@ -31,6 +31,12 @@ set-option -g focus-events on
 
 set -g mouse on
 
+# Faster command sequences - reduce escape-time for quicker prefix key response
+set-option -g escape-time 10
+
+# Reduce repeat time if you don't need long repeat windows
+set-option -g repeat-time 300
+
 # Fix Shift+Enter and other modifier keys for Claude Code
 # set -g extended-keys always
 # set -as terminal-features 'xterm*:extkeys'
