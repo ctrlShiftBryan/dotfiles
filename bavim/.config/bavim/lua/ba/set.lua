@@ -46,3 +46,34 @@ vim.opt.clipboard = "unnamedplus"
 -- Use zsh as default shell with interactive mode to load aliases
 vim.o.shell = "/bin/zsh"
 vim.o.shellcmdflag = "-ic"
+
+-- Enable word wrap for markdown files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.wrap = true
+  end,
+})
+
+-- Diagnostic configuration with squiggly underlines
+vim.diagnostic.config({
+  underline = true,
+  virtual_text = {
+    spacing = 4,
+    prefix = function(diagnostic)
+      local source = diagnostic.source or "unknown"
+      return string.format("[%s]", source)
+    end,
+  },
+  signs = true,
+  update_in_insert = false,
+  severity_sort = true,
+})
+
+-- Use curly underlines for diagnostics (requires terminal support)
+vim.cmd([[
+  highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#db4b4b
+  highlight DiagnosticUnderlineWarn cterm=undercurl gui=undercurl guisp=#e0af68
+  highlight DiagnosticUnderlineInfo cterm=undercurl gui=undercurl guisp=#0db9d7
+  highlight DiagnosticUnderlineHint cterm=undercurl gui=undercurl guisp=#10b981
+]])
