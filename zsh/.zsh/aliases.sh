@@ -67,8 +67,6 @@ sshs() {
     ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec \$SHELL"
 }
 
-alias opr='~/.zsh/opr'
-
 # claude worktree versions
 function ccw() {
     local current_dir=$(basename "$PWD")
