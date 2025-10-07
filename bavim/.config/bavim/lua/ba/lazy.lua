@@ -567,7 +567,7 @@ require("lazy").setup({
         desc = 'Find files (git or all)'
       },
       {
-        '<leader>fg',
+        '<leader>fs',
         function()
           local cached_pickers = require('telescope.state').get_global_key('cached_pickers') or {}
           local last_picker = cached_pickers[1]
@@ -595,9 +595,22 @@ require("lazy").setup({
       },
       { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = 'Buffers' },
       { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = 'Help tags' },
+      {
+        '<leader>fr',
+        function()
+          local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+          if vim.v.shell_error == 0 then
+            require('telescope.builtin').oldfiles({ cwd = git_root })
+          else
+            require('telescope.builtin').oldfiles({ cwd_only = true })
+          end
+        end,
+        desc = 'Recent files (repo)'
+      },
+      { '<leader>fR', '<cmd>Telescope oldfiles<cr>', desc = 'Recent files (all)' },
       -- Git pickers
       {
-        '<leader>gs',
+        '<leader>fg',
         function()
           local cached_pickers = require('telescope.state').get_global_key('cached_pickers') or {}
           local last_picker = cached_pickers[1]
@@ -611,9 +624,9 @@ require("lazy").setup({
         end,
         desc = 'Git status'
       },
-      { '<leader>gS', '<cmd>Telescope git_status<cr>', desc = 'Git commits (no resume)' },
-      { '<leader>gc', '<cmd>Telescope git_commits<cr>', desc = 'Git commits' },
-      { '<leader>gB', '<cmd>Telescope git_branches<cr>', desc = 'Git branches' },
+      { '<leader>fG', '<cmd>Telescope git_status<cr>', desc = 'Git commits (no resume)' },
+      { '<leader>fc', '<cmd>Telescope git_commits<cr>', desc = 'Git commits' },
+      { '<leader>fB', '<cmd>Telescope git_branches<cr>', desc = 'Git branches' },
     },
   },
 
