@@ -390,6 +390,15 @@ require("lazy").setup({
     end,
   },
 
+  -- Comment.nvim - Smart commenting
+  {
+    'numToStr/Comment.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    config = function()
+      require('Comment').setup()
+    end,
+  },
+
   -- Telescope fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
@@ -426,12 +435,110 @@ require("lazy").setup({
                   actions.close(prompt_bufnr)
                   vim.cmd('DiffviewOpen -- ' .. entry.value)
                 end,
+                ['<C-r>'] = function(prompt_bufnr)
+                  local entry = action_state.get_selected_entry()
+                  if not entry then
+                    print('No file selected')
+                    return
+                  end
+
+                  local file = entry.path or entry.value
+                  local status = entry.status
+
+                  -- Confirm before reverting
+                  local action_text = status == '??' and 'Delete' or 'Revert'
+                  local choice = vim.fn.confirm(action_text .. ' ' .. file .. '?', '&Yes\n&No', 2)
+                  if choice ~= 1 then
+                    return
+                  end
+
+                  actions.close(prompt_bufnr)
+
+                  local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+                  local cmd, result
+
+                  -- Handle different git statuses
+                  if status == '??' then
+                    -- Untracked file - delete it
+                    cmd = string.format('cd %s && rm -rf %s 2>&1',
+                      vim.fn.shellescape(git_root),
+                      vim.fn.shellescape(file))
+                  else
+                    -- Modified/staged file - restore it
+                    cmd = string.format('cd %s && git restore --staged %s && git restore %s 2>&1',
+                      vim.fn.shellescape(git_root),
+                      vim.fn.shellescape(file),
+                      vim.fn.shellescape(file))
+                  end
+
+                  result = vim.fn.system(cmd)
+
+                  if vim.v.shell_error ~= 0 then
+                    print('Failed: ' .. result)
+                  else
+                    print((status == '??' and 'Deleted: ' or 'Reverted: ') .. file)
+                  end
+
+                  -- Reopen git_status
+                  vim.defer_fn(function()
+                    require('telescope.builtin').git_status()
+                  end, 100)
+                end,
               },
               i = {
                 ['<C-d>'] = function(prompt_bufnr)
                   local entry = action_state.get_selected_entry()
                   actions.close(prompt_bufnr)
                   vim.cmd('DiffviewOpen -- ' .. entry.value)
+                end,
+                ['<C-r>'] = function(prompt_bufnr)
+                  local entry = action_state.get_selected_entry()
+                  if not entry then
+                    print('No file selected')
+                    return
+                  end
+
+                  local file = entry.path or entry.value
+                  local status = entry.status
+
+                  -- Confirm before reverting
+                  local action_text = status == '??' and 'Delete' or 'Revert'
+                  local choice = vim.fn.confirm(action_text .. ' ' .. file .. '?', '&Yes\n&No', 2)
+                  if choice ~= 1 then
+                    return
+                  end
+
+                  actions.close(prompt_bufnr)
+
+                  local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+                  local cmd, result
+
+                  -- Handle different git statuses
+                  if status == '??' then
+                    -- Untracked file - delete it
+                    cmd = string.format('cd %s && rm -rf %s 2>&1',
+                      vim.fn.shellescape(git_root),
+                      vim.fn.shellescape(file))
+                  else
+                    -- Modified/staged file - restore it
+                    cmd = string.format('cd %s && git restore --staged %s && git restore %s 2>&1',
+                      vim.fn.shellescape(git_root),
+                      vim.fn.shellescape(file),
+                      vim.fn.shellescape(file))
+                  end
+
+                  result = vim.fn.system(cmd)
+
+                  if vim.v.shell_error ~= 0 then
+                    print('Failed: ' .. result)
+                  else
+                    print((status == '??' and 'Deleted: ' or 'Reverted: ') .. file)
+                  end
+
+                  -- Reopen git_status
+                  vim.defer_fn(function()
+                    require('telescope.builtin').git_status()
+                  end, 100)
                 end,
               },
             },
