@@ -263,6 +263,15 @@ require("lazy").setup({
           ['<C-n>'] = cmp.mapping.select_next_item(),
           ['<C-y>'] = cmp.mapping.confirm({ select = true }),
           ['<C-Space>'] = cmp.mapping.complete(),
+
+          -- Tab to accept suggestion
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.confirm({ select = true })
+            else
+              fallback() -- normal tab behavior when menu isn't open
+            end
+          end, { 'i', 's' }),
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
@@ -390,12 +399,17 @@ require("lazy").setup({
     end,
   },
 
-  -- Comment.nvim - Smart commenting
+  -- Comment.nvim - Smart commenting with JSX support
   {
     'numToStr/Comment.nvim',
+    dependencies = {
+      'JoosepAlviste/nvim-ts-context-commentstring'
+    },
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
-      require('Comment').setup()
+      require('Comment').setup({
+        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+      })
     end,
   },
 
@@ -636,6 +650,16 @@ require("lazy").setup({
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
     ft = { 'markdown' },
     opts = {},
+  },
+
+  -- nvim-surround - easily change/add/delete surrounding pairs
+  {
+    'kylechui/nvim-surround',
+    version = '*',
+    event = 'VeryLazy',
+    config = function()
+      require('nvim-surround').setup()
+    end,
   },
 }, {
   -- Lazy.nvim options
