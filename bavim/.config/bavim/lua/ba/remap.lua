@@ -81,6 +81,12 @@ vim.keymap.set("n", "<leader>lp", "<cmd>lprev<CR>zz", { desc = "Prev location" }
 -- Search and replace word under cursor
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Replace word under cursor" })
 
+-- Live grep with word under cursor
+vim.keymap.set("n", "?", function()
+  local word = vim.fn.expand('<cword>')
+  require('telescope.builtin').live_grep({ default_text = word })
+end, { desc = "Live grep word under cursor" })
+
 -- Make current file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make file executable" })
 
