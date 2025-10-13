@@ -4,3 +4,5 @@ claude/.claude/powerline/usage/today.json
 claude/.claude/powerline/usage/pricing.json
 claude/.claude/file-history/
 claude/.claude/history.jsonl
+claude/.claude/debug/
+tmux.con:fig

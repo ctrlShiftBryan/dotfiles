@@ -622,6 +622,13 @@ require("lazy").setup({
         desc = 'Recent files (repo)'
       },
       { '<leader>fR', '<cmd>Telescope oldfiles<cr>', desc = 'Recent files (all)' },
+      {
+        '<leader>fF',
+        function()
+          require('telescope.builtin').find_files({ hidden = true, no_ignore = true })
+        end,
+        desc = 'Find files (including gitignored)'
+      },
       -- Git pickers
       {
         '<leader>fg',
