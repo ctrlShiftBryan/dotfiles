@@ -1,6 +1,7 @@
--- Line numbers
+-- Line numbers - show both absolute and relative side-by-side
 vim.opt.nu = true
 vim.opt.relativenumber = true
+vim.opt.statuscolumn = "%s %{v:lnum} %{v:relnum} "
 
 -- Tabs and indentation (2 spaces for JS/TS)
 vim.opt.tabstop = 2
@@ -77,3 +78,18 @@ vim.cmd([[
   highlight DiagnosticUnderlineInfo cterm=undercurl gui=undercurl guisp=#0db9d7
   highlight DiagnosticUnderlineHint cterm=undercurl gui=undercurl guisp=#10b981
 ]])
+
+-- Tmux integration: Set window title to show current buffer
+vim.opt.title = true
+vim.opt.titlelen = 0  -- No length limit
+
+-- Dynamically update title on buffer changes
+vim.api.nvim_create_autocmd({"BufEnter", "BufWritePost"}, {
+  callback = function()
+    local filename = vim.fn.expand("%:t")
+    local dirpath = vim.fn.expand("%:~:.:h")
+    if filename ~= "" then
+      vim.opt.titlestring = filename .. " - " .. dirpath .. "/"
+    end
+  end
+})
