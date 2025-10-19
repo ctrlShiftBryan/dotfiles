@@ -383,7 +383,7 @@ require("lazy").setup({
         { "<leader>g", group = "Git" },
         { "<leader>gp", group = "Pull Request" },
         { "<leader>h", group = "Hunk" },
-        { "<leader>t", group = "Toggle" },
+        { "<leader>t", group = "Tools/Toggle" },
         { "<leader>v", group = "LSP" },
         { "<leader>w", group = "Window" },
         { "<leader>wn", group = "Navigate" },
@@ -666,6 +666,20 @@ require("lazy").setup({
     event = 'VeryLazy',
     config = function()
       require('nvim-surround').setup()
+    end,
+  },
+
+  -- ba-tools.nvim - Personal tools and utilities
+  {
+    'ba-tools.nvim',
+    dir = '~/code2/ba-tools.nvim',
+    keys = {
+      { '<leader>th', function() require('ba-tools').hello() end, desc = 'Tools: Hello' },
+      { '<leader>ti', function() require('ba-tools').file_info() end, desc = 'Tools: File Info' },
+      { '<leader>tg', function() require('ba-tools').git_menu() end, desc = 'Tools: Git Menu' },
+    },
+    config = function()
+      require('ba-tools').setup()
     end,
   },
 }, {
