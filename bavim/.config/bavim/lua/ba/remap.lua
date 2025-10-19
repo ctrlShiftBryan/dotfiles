@@ -87,10 +87,10 @@ vim.keymap.set("n", "?", function()
   require('telescope.builtin').live_grep({ default_text = word })
 end, { desc = "Live grep word under cursor" })
 
--- Quick access to git status
+-- Quick access to git menu (ba-tools)
 vim.keymap.set("n", "<C-g>", function()
-  require('telescope.builtin').git_status()
-end, { desc = "Git status" })
+  require('ba-tools').git_menu()
+end, { desc = "Git menu" })
 
 -- Make current file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make file executable" })
