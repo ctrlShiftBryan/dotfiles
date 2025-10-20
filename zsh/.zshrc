@@ -87,8 +87,8 @@ source $ZSH/oh-my-zsh.sh
 export XDG_CONFIG_HOME="$HOME/.config"
 
 # Preferred editor for local and remote sessions
-export EDITOR='bavim'
-export VISUAL='bavim'
+# export EDITOR='bavim'
+# export VISUAL='bavim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch $(uname -m)"
