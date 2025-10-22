@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Filter Claude Code stream-json output to show only message text
+# Usage: claude --output-format stream-json | claude-stream-filter
+
+# Check if input is from a pipe
+if [ -t 0 ]; then
+    echo "Usage: claude --output-format stream-json | $0"
+    exit 1
+fi
+
+# Process each line of JSON input
+while IFS= read -r line; do
+    # Extract text from assistant messages and result messages
+    echo "$line" | jq -r '
+        select(.type == "assistant" or .type == "result") |
+        if .type == "assistant" and .message.content then
+            .message.content[] |
+            select(.type == "text") |
+            .text
+        elif .type == "result" then
+            .result
+        else
+            empty
+        end
+    ' 2>/dev/null
+done

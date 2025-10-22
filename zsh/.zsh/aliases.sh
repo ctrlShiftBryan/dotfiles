@@ -49,10 +49,6 @@ cccdp() {
     claude --dangerously-skip-permissions --resume query "$@"
 }
 
-commit-staged() {
-    ccd -p '/cc-staged' --model haiku --verbose --output-format stream-json
-}
-
 # Claude Code with Proxyman - Insecure mode (skip SSL verification)
 # Use only for debugging when certificate issues persist
 ccpi() {
