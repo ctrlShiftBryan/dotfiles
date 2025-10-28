@@ -315,10 +315,11 @@ alias cd..="cd .." # Typo addressed.
 alias codei="code-insiders"
 
 # eza (better ls)
-alias l="eza --icons"
-alias ls="eza --icons"
-alias ll="eza -lg --icons"
-alias la="eza -lag --icons"
+alias l="eza --icons -snew"
+alias ls="eza --icons -snew"
+alias ll="eza -lg --icons -snew"
+alias la="eza -lag --icons -snew"
+
 alias lt="eza -lTg --level=2 --icons"
 alias lt1="eza -lTg --level=1 --icons"
 alias lt2="eza -lTg --level=2 --icons"

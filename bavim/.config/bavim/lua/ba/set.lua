@@ -79,6 +79,9 @@ vim.cmd([[
   highlight DiagnosticUnderlineHint cterm=undercurl gui=undercurl guisp=#10b981
 ]])
 
+-- VSCode-like git diff: hide filler dashes
+vim.opt.fillchars:append({ diff = ' ' })
+
 -- Tmux integration: Set window title to show current buffer
 vim.opt.title = true
 vim.opt.titlelen = 0  -- No length limit
