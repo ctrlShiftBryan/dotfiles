@@ -140,6 +140,46 @@ require("lazy").setup({
       { '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', desc = 'File history' },
       { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close diffview' },
     },
+    config = function()
+      require('diffview').setup({
+        enhanced_diff_hl = true, -- Use better diff highlighting
+        hooks = {
+          diff_buf_win_enter = function(bufnr, winid, ctx)
+            -- Override winhighlight for left window to show ALL changes in red
+            if ctx.layout_name:match("diff2") and ctx.symbol == "a" then
+              -- Left side (old): map ALL diff highlights to red
+              vim.api.nvim_win_set_option(winid, 'winhighlight',
+                'DiffAdd:DiffviewDiffAddAsDelete,DiffChange:DiffviewDiffAddAsDelete,DiffText:DiffviewDiffAddAsDelete')
+            end
+          end,
+        },
+      })
+
+      -- Set GitHub-style diff colors (diffview-specific groups)
+      local function set_diff_colors()
+        -- Standard vim diff groups (fallback)
+        vim.api.nvim_set_hl(0, 'DiffDelete', { bg = '#1a1a1a' })  -- Nearly black for deleted line fillers
+        vim.api.nvim_set_hl(0, 'DiffAdd', { bg = '#1f3d1f' })
+        vim.api.nvim_set_hl(0, 'DiffChange', { bg = '#1f3d1f' })
+        vim.api.nvim_set_hl(0, 'DiffText', { bg = '#1f3d1f' })
+
+        -- Diffview-specific groups (LEFT side = red, RIGHT side = green)
+        vim.api.nvim_set_hl(0, 'DiffviewDiffAddAsDelete', { bg = '#4a1f1f' })  -- LEFT: red for changed lines
+        vim.api.nvim_set_hl(0, 'DiffviewDiffAdd', { bg = '#1f3d1f' })          -- RIGHT: green for added
+        vim.api.nvim_set_hl(0, 'DiffviewDiffDelete', { bg = '#1a1a1a' })       -- Deleted line fillers (subtle)
+        vim.api.nvim_set_hl(0, 'DiffviewDiffChange', { bg = '#1f3d1f' })       -- Changed lines
+        vim.api.nvim_set_hl(0, 'DiffviewDiffText', { bg = '#1f3d1f' })         -- Changed text
+      end
+
+      -- Apply immediately
+      set_diff_colors()
+
+      -- Reapply after any colorscheme change
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        callback = set_diff_colors,
+      })
+    end,
   },
 
   -- Gitsigns - Inline git change indicators
