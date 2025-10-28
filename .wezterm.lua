@@ -28,6 +28,9 @@ config.native_macos_fullscreen_mode = true
 config.window_background_opacity = 0.80
 config.macos_window_background_blur = 20
 
+-- Hyperlink detection rules
+config.hyperlink_rules = wezterm.default_hyperlink_rules()
+
 -- Key bindings
 config.keys = {
   -- Make shift+enter send a literal newline
@@ -43,5 +46,9 @@ config.keys = {
     action = wezterm.action.ToggleFullScreen,
   },
 }
+
+-- No custom mouse_bindings - use WezTerm's smart defaults
+-- Default behavior: simple click opens hyperlinks
+-- Inside tmux: use SHIFT+click to bypass mouse capture
 
 return config
