@@ -465,6 +465,41 @@ function curloop() {
   while true; do sleep 1; curl $@; echo -e '\n'$(date)'\n';done
 }
 
+function curl-save() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: curl-save <url> [filename]"
+    echo "Example: curl-save https://example.com/api"
+    echo "Example: curl-save https://example.com/api my-response"
+    return 1
+  fi
+
+  local url="$1"
+  local filename="$2"
+
+  # If no filename provided, generate from URL
+  if [[ -z "$filename" ]]; then
+    # Extract domain and path, sanitize for filename
+    filename=$(echo "$url" | sed -E 's|https?://||' | sed 's|/|_|g' | sed 's|[?&=]|_|g')
+    # Truncate if too long and add timestamp
+    filename="${filename:0:50}_$(date +%Y%m%d_%H%M%S)"
+  fi
+
+  # Ensure .txt extension
+  if [[ ! "$filename" =~ \.txt$ ]]; then
+    filename="${filename}.txt"
+  fi
+
+  echo "Fetching $url..."
+  if curl -sS "$url" > "$filename"; then
+    echo "✓ Saved to: $filename"
+    local size=$(ls -lh "$filename" | awk '{print $5}')
+    echo "📄 File size: $size"
+  else
+    echo "✗ Failed to fetch $url"
+    return 1
+  fi
+}
+
 function dci () {
   docker run -it -v $(pwd):/app $@ sh
 }
