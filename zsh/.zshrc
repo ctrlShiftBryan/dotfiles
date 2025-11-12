@@ -3,6 +3,10 @@ export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 HISTSIZE=100000
 SAVEHIST=100000
 
+# Search history with up/down arrows based on what you've typed
+bindkey '^[[A' history-beginning-search-backward  # Up arrow
+bindkey '^[[B' history-beginning-search-forward   # Down arrow
+
 # Load zsh-autosuggestions
 if [ -f ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -82,3 +86,11 @@ eval "$(zoxide init zsh --cmd cd)"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
+
+# Android Development
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export ANDROID_AVD_HOME=$HOME/.config/.android/avd
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
