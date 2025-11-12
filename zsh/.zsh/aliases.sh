@@ -304,6 +304,9 @@ function gwm() {
     fi
 }
 
+# safer file deletion (uses trash instead of rm)
+alias rm='trash'
+
 # Easier directory navigation.
 
 alias ~="cd ~"
@@ -855,6 +858,38 @@ zipclip() {
     cat "$tempfile" | pbcopy
     rm "$tempfile"
     
+    echo "📋 Clipboard size: $size"
+}
+
+# Zip staged git files to clipboard
+zipstaged() {
+    # Check if git repo
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "❌ Not a git repository"
+        return 1
+    fi
+
+    # Get staged files (exclude deleted)
+    local staged_files=$(git diff --cached --name-only --diff-filter=ACMR)
+
+    if [ -z "$staged_files" ]; then
+        echo "❌ No staged files to zip"
+        return 1
+    fi
+
+    # Count files
+    local file_count=$(echo "$staged_files" | wc -l | tr -d ' ')
+
+    # Create zip and encode
+    local tempfile=$(mktemp)
+    echo "$staged_files" | zip -r -q -@ - | base64 > "$tempfile"
+
+    # Get size and copy to clipboard
+    local size=$(ls -lh "$tempfile" | awk '{print $5}')
+    cat "$tempfile" | pbcopy
+    rm "$tempfile"
+
+    echo "✓ Archived $file_count staged file(s) to clipboard"
     echo "📋 Clipboard size: $size"
 }
 

@@ -328,7 +328,7 @@ require("lazy").setup({
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
         vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
         vim.keymap.set('n', '<leader>vws', vim.lsp.buf.workspace_symbol, opts)
-        vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, opts)
+        vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float, { buffer = bufnr, remap = false, desc = 'Show diagnostic' })
         vim.keymap.set('n', '<leader>vy', function()
           local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
           if #diagnostics > 0 then
@@ -342,7 +342,29 @@ require("lazy").setup({
             vim.fn.setreg('+', message)
             print('Diagnostic with location copied to clipboard')
           end
-        end, opts)
+        end, { buffer = bufnr, remap = false, desc = 'Yank diagnostic to clipboard' })
+        vim.keymap.set('n', '<leader>va', function()
+          local diagnostics = vim.diagnostic.get(0)
+          if #diagnostics > 0 then
+            local filepath = vim.fn.expand('%')
+            local messages = {}
+            for i, diag in ipairs(diagnostics) do
+              local line = diag.lnum + 1
+              local col = diag.col + 1
+              local message = string.format("%s in file '%s' line %d column %d",
+                diag.message, filepath, line, col)
+              table.insert(messages, message)
+              if i < #diagnostics then
+                table.insert(messages, string.rep('-', 80))
+              end
+            end
+            local output = table.concat(messages, '\n')
+            vim.fn.setreg('+', output)
+            print(string.format('Copied %d diagnostics to clipboard', #diagnostics))
+          else
+            print('No diagnostics in buffer')
+          end
+        end, { buffer = bufnr, remap = false, desc = 'Yank all diagnostics to clipboard' })
         vim.keymap.set('n', '[d', vim.diagnostic.goto_next, opts)
         vim.keymap.set('n', ']d', vim.diagnostic.goto_prev, opts)
         vim.keymap.set('n', '<leader>vca', vim.lsp.buf.code_action, opts)
