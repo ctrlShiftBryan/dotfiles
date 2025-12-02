@@ -202,6 +202,36 @@ fi
 # Note: aliases.sh is now tracked in dotfiles/zsh/ and stowed to ~/.zsh/aliases.sh
 # No template needed here
 
+# 6. Install brew packages (macOS only)
+if [[ "$OS" == "macos" ]] && command_exists brew; then
+    BREW_PACKAGES=(eza starship zsh-autosuggestions zsh-syntax-highlighting zoxide)
+    BREW_CASKS=(wezterm font-hack-nerd-font)
+
+    echo "📦 Checking brew packages..."
+    for pkg in "${BREW_PACKAGES[@]}"; do
+        if ! brew list "$pkg" &>/dev/null; then
+            echo "📦 Would install: $pkg"
+            if ! $DRY_RUN; then
+                brew install "$pkg"
+            fi
+        else
+            echo "✅ $pkg already installed"
+        fi
+    done
+
+    echo "📦 Checking brew casks..."
+    for cask in "${BREW_CASKS[@]}"; do
+        if ! brew list --cask "$cask" &>/dev/null; then
+            echo "📦 Would install cask: $cask"
+            if ! $DRY_RUN; then
+                brew install --cask "$cask"
+            fi
+        else
+            echo "✅ $cask already installed"
+        fi
+    done
+fi
+
 if $DRY_RUN; then
     echo ""
     echo "🔍 Dry run complete! Run without --dry-run to apply changes"

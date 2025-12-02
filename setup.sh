@@ -49,5 +49,5 @@ if [ ! -L "$HOME/.zshrc" ]; then
 fi
 
 # Run stow (will update symlinks if dotfiles changed)
-stow zsh bavim tmux
+stow zsh bavim tmux wezterm starship
 echo "Dotfiles synced and linked!"
