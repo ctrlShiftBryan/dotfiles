@@ -204,7 +204,7 @@ fi
 
 # 6. Install brew packages (macOS only)
 if [[ "$OS" == "macos" ]] && command_exists brew; then
-    BREW_PACKAGES=(eza starship zsh-autosuggestions zsh-syntax-highlighting zoxide asdf gh tmux)
+    BREW_PACKAGES=(eza starship zsh-autosuggestions zsh-syntax-highlighting zoxide asdf gh tmux ripgrep fd lazygit)
     BREW_CASKS=(wezterm font-hack-nerd-font)
 
     echo "📦 Checking brew packages..."
