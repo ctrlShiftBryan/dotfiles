@@ -204,7 +204,7 @@ fi
 
 # 6. Install brew packages (macOS only)
 if [[ "$OS" == "macos" ]] && command_exists brew; then
-    BREW_PACKAGES=(eza starship zsh-autosuggestions zsh-syntax-highlighting zoxide)
+    BREW_PACKAGES=(eza starship zsh-autosuggestions zsh-syntax-highlighting zoxide asdf)
     BREW_CASKS=(wezterm font-hack-nerd-font)
 
     echo "📦 Checking brew packages..."
@@ -228,6 +228,48 @@ if [[ "$OS" == "macos" ]] && command_exists brew; then
             fi
         else
             echo "✅ $cask already installed"
+        fi
+    done
+fi
+
+# 7. Install asdf plugins and tools
+if command_exists asdf || [ -f "$HOME/.asdf/asdf.sh" ]; then
+    # Source asdf if not already in PATH
+    if ! command_exists asdf; then
+        if [ -f "$(brew --prefix asdf 2>/dev/null)/libexec/asdf.sh" ]; then
+            . "$(brew --prefix asdf)/libexec/asdf.sh"
+        elif [ -f "$HOME/.asdf/asdf.sh" ]; then
+            . "$HOME/.asdf/asdf.sh"
+        fi
+    fi
+
+    ASDF_PLUGINS=(nodejs neovim)
+    ASDF_VERSIONS=("nodejs:latest" "neovim:0.11.3")
+
+    echo "📦 Checking asdf plugins..."
+    for plugin in "${ASDF_PLUGINS[@]}"; do
+        if ! asdf plugin list 2>/dev/null | grep -q "^$plugin$"; then
+            echo "📦 Would add asdf plugin: $plugin"
+            if ! $DRY_RUN; then
+                asdf plugin add "$plugin"
+            fi
+        else
+            echo "✅ asdf plugin $plugin already added"
+        fi
+    done
+
+    echo "📦 Checking asdf tool versions..."
+    for entry in "${ASDF_VERSIONS[@]}"; do
+        tool="${entry%%:*}"
+        version="${entry##*:}"
+        if ! asdf list "$tool" 2>/dev/null | grep -q "$version"; then
+            echo "📦 Would install: $tool $version"
+            if ! $DRY_RUN; then
+                asdf install "$tool" "$version"
+                asdf set -u "$tool" "$version"
+            fi
+        else
+            echo "✅ $tool $version already installed"
         fi
     done
 fi
