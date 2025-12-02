@@ -3,6 +3,7 @@
   "permissions": {
     "allow": [
       "Bash(pnpm:*)",
+      "Bash(ls:*)",
       "Bash(find:*)",
       "Bash(gh repo create:*)",
       "Bash(git diff:*)",

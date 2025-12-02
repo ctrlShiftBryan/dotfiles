@@ -36,29 +36,36 @@ https://teams.microsoft.com/l/chat/19:4c0e35536e114d31ba84ea0283badcf7@thread.v2
 
 ## Posting Messages
 
-### Method 1: Direct m365 CLI (Preferred for Simple Messages)
+### CRITICAL: ALWAYS Use post-to-teams.sh
 
+**ALWAYS use `~/bin/post-to-teams.sh` for ALL messages.** This script:
+- Automatically converts markdown to properly formatted HTML
+- Handles both channels AND chats correctly
+- Ensures formatting renders properly in Teams
+
+**DO NOT use `m365 teams message send` directly** - it often results in raw HTML being displayed as text.
+
+### For Channels:
 ```bash
-m365 teams message send \
-  --teamId "ee5004b3-665b-4408-9de3-82b39f4a7eac" \
-  --channelId "19:fefa1b4410914ae2ab046c9c29331c91@thread.tacv2" \
-  --message '<h2>Title</h2><p>Content with <strong>formatting</strong></p>'
-```
-
-### Method 2: Using post-to-teams.sh (For Markdown or Complex Messages)
-
-```bash
-# Post markdown to channel
 ~/bin/post-to-teams.sh \
   --team "ee5004b3-665b-4408-9de3-82b39f4a7eac" \
   --channel "19:fefa1b4410914ae2ab046c9c29331c91@thread.tacv2" \
   -m "## Title\n**Bold** text with bullets:\n- Item 1\n- Item 2"
+```
 
-# Post to chat
+### For Chats:
+```bash
 ~/bin/post-to-teams.sh \
   --chat "19:4c0e35536e114d31ba84ea0283badcf7@thread.v2" \
   -m "## Update\nNew feature deployed!"
 ```
+
+### Message Format
+Write your message content in **markdown** - the script converts it automatically:
+- Use `##` for headers
+- Use `**text**` for bold
+- Use `- item` for bullet lists
+- Use triple backticks for code blocks
 
 ## Message Formatting Guidelines
 
@@ -107,21 +114,20 @@ echo "## Title\n**Bold** text" | ~/bin/markdown-to-html.js
 When the user asks to post to Teams:
 
 1. **Parse Input**: Check if they provided a Teams URL
-   - If URL: Extract teamId/channelId/chatId
-   - If no URL: Ask which channel/chat or use default
+   - If chat URL (contains `/chat/`): Extract chatId
+   - If channel URL (contains `/channel/`): Extract teamId and channelId
+   - If no URL: Ask which channel/chat
 
 2. **Prepare Message**:
-   - If user provides markdown: Convert to HTML with `~/bin/markdown-to-html.js`
-   - If user describes content: Create appropriate HTML
+   - Write content in **markdown format**
    - Add emojis for visual appeal (🚀 🐛 ✅ ⚡ 📝 💡)
+   - Use headers, bold, lists, code blocks as needed
 
-3. **Choose Method**:
-   - **Simple HTML**: Use `m365 teams message send` directly
-   - **Markdown conversion needed**: Use `~/bin/post-to-teams.sh`
+3. **Post Message**: ALWAYS use `~/bin/post-to-teams.sh`
+   - For chats: `~/bin/post-to-teams.sh --chat "<chatId>" -m "<markdown>"`
+   - For channels: `~/bin/post-to-teams.sh --team "<teamId>" --channel "<channelId>" -m "<markdown>"`
 
-4. **Post Message**: Execute appropriate command
-
-5. **Confirm**: Report success with link to message if available
+4. **Confirm**: Report success
 
 ## Common Message Templates
 
