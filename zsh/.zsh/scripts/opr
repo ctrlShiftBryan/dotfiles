@@ -23,7 +23,12 @@ fi
 
 # Check if there are any PRs
 if [ "$pr_info" = "[]" ] || [ -z "$pr_info" ]; then
-    echo "No pull request found for branch: $branch"
+    echo "No PR for branch: $branch"
+    repo_url=$(gh repo view --json url -q '.url' 2>/dev/null)
+    if [ -n "$repo_url" ]; then
+        echo "Opening repo: $repo_url"
+        open "$repo_url"
+    fi
     exit 0
 fi
 
