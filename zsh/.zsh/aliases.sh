@@ -304,6 +304,193 @@ function gwm() {
     fi
 }
 
+# git worktree list - list all worktrees with PR status
+function gwl() {
+    # Validate: in git repo
+    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Validate: in main repo, not worktree
+    local git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+    if [[ "$git_common_dir" != "$(git rev-parse --git-dir)" ]]; then
+        echo "Error: Run from main repo, not a worktree"
+        return 1
+    fi
+
+    # Validate: gh CLI available
+    if ! command -v gh &>/dev/null; then
+        echo "Error: gh CLI required"
+        return 1
+    fi
+
+    # Determine main branch
+    local main_branch
+    if git show-ref --verify --quiet refs/heads/main; then
+        main_branch="main"
+    elif git show-ref --verify --quiet refs/heads/master; then
+        main_branch="master"
+    else
+        echo "Error: No main/master branch"
+        return 1
+    fi
+
+    local merged_worktrees=()
+    local wt_branch wt_path wt_name pr_info wt_status pr_num pr_state line
+
+    # Parse git worktree list
+    while IFS= read -r line; do
+        wt_path=$(echo "$line" | awk '{print $1}')
+        wt_name=$(basename "$wt_path")
+
+        if [[ "$line" =~ \(detached\ HEAD\) ]]; then
+            printf "%-20s %b\n" "$wt_name" "\033[33m? detached\033[0m"
+            continue
+        fi
+
+        # Extract branch name from [branch]
+        wt_branch=$(echo "$line" | grep -oE '\[[^]]+\]$' | tr -d '[]')
+
+        # Skip if no branch found or is main/master
+        if [[ -z "$wt_branch" || "$wt_branch" == "$main_branch" ]]; then
+            continue
+        fi
+
+        # Check PR status via gh
+        pr_info=$(gh pr list --head "$wt_branch" --state all --json number,state --jq '.[0] | "\(.number) \(.state)"' 2>/dev/null)
+
+        if [[ -z "$pr_info" || "$pr_info" == "null null" ]]; then
+            wt_status="\033[90m○ no PR\033[0m"
+        else
+            pr_num=$(echo "$pr_info" | awk '{print $1}')
+            pr_state=$(echo "$pr_info" | awk '{print $2}')
+
+            case "$pr_state" in
+                MERGED)
+                    wt_status="\033[32m✓ merged\033[0m"
+                    merged_worktrees+=("$wt_branch")
+                    ;;
+                OPEN)
+                    wt_status="\033[34m↑ PR #$pr_num\033[0m"
+                    ;;
+                CLOSED)
+                    wt_status="\033[31m✗ closed #$pr_num\033[0m"
+                    ;;
+                *)
+                    wt_status="\033[90m○ no PR\033[0m"
+                    ;;
+            esac
+        fi
+
+        printf "%-20s %b\n" "$wt_branch" "$wt_status"
+    done < <(git worktree list)
+
+    # Cleanup suggestion
+    if [[ ${#merged_worktrees[@]} -gt 0 ]]; then
+        echo ""
+        echo "Cleanup: gwc ${merged_worktrees[*]}"
+    fi
+}
+
+# git worktree cleanup - remove worktree and delete branch
+function gwc() {
+    # Validate: in git repo
+    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Validate: in main repo, not worktree
+    local git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+    if [[ "$git_common_dir" != "$(git rev-parse --git-dir)" ]]; then
+        echo "Error: Run from main repo, not a worktree"
+        return 1
+    fi
+
+    # Determine main branch
+    local main_branch
+    if git show-ref --verify --quiet refs/heads/main; then
+        main_branch="main"
+    elif git show-ref --verify --quiet refs/heads/master; then
+        main_branch="master"
+    else
+        echo "Error: No main/master branch"
+        return 1
+    fi
+
+    # Declare loop variables upfront (zsh quirk: local inside loops prints)
+    local worktrees=()
+    local wt_path wt_name wt_branch line name
+
+    # Build worktree list (excluding main)
+    while IFS= read -r line; do
+        wt_path=$(echo "$line" | awk '{print $1}')
+        wt_name=$(basename "$wt_path")
+
+        # Extract branch or detect detached
+        if [[ "$line" =~ \(detached\ HEAD\) ]]; then
+            worktrees+=("$wt_name")
+            continue
+        fi
+
+        wt_branch=$(echo "$line" | grep -oE '\[[^]]+\]$' | tr -d '[]')
+
+        # Skip main/master
+        if [[ -n "$wt_branch" && "$wt_branch" != "$main_branch" ]]; then
+            worktrees+=("$wt_branch")
+        fi
+    done < <(git worktree list)
+
+    # No args: print numbered list
+    if [[ -z "$1" ]]; then
+        if [[ ${#worktrees[@]} -eq 0 ]]; then
+            echo "No worktrees to clean up"
+            return 0
+        fi
+        for i in {1..${#worktrees[@]}}; do
+            echo "$i. ${worktrees[$i]}"
+        done
+        return 0
+    fi
+
+    # Get repo name for worktree path
+    local current_dir=$(basename "$PWD")
+    local worktrees_dir="../${current_dir}-worktrees"
+
+    # Process each argument
+    for arg in "$@"; do
+        if [[ "$arg" =~ ^[0-9]+$ ]]; then
+            # Numeric: lookup from list
+            if [[ $arg -lt 1 || $arg -gt ${#worktrees[@]} ]]; then
+                echo "Invalid index: $arg"
+                continue
+            fi
+            name="${worktrees[$arg]}"
+        else
+            # Direct name
+            name="$arg"
+        fi
+
+        wt_path="${worktrees_dir}/${name}"
+
+        # Remove worktree
+        if git worktree remove "$wt_path" 2>/dev/null; then
+            echo "Removed worktree: $name"
+        else
+            echo "Skipping $name: has uncommitted changes or doesn't exist"
+            continue
+        fi
+
+        # Delete local branch (silent fail ok for detached)
+        if git branch -d "$name" 2>/dev/null; then
+            echo "Deleted branch: $name"
+        elif git branch -D "$name" 2>/dev/null; then
+            echo "Deleted branch: $name"
+        fi
+    done
+}
+
 # safer file deletion (uses trash instead of rm)
 alias rm='trash'
 
