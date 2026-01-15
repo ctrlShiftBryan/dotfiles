@@ -1,48 +1,7 @@
 {
   "includeCoAuthoredBy": false,
   "permissions": {
-    "allow": [
-      "Bash(pnpm:*)",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(gh repo create:*)",
-      "Bash(git diff:*)",
-      "Bash(git init:*)",
-      "Bash(git remote add:*)",
-      "Bash(git push:*)",
-      "Bash(git remote get-url:*)",
-      "Bash(gh pr view:*)",
-      "Bash(ls:*)",
-      "Bash(pnpm:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr edit:*)",
-      "Bash(git checkout:*)",
-      "Bash(git pull:*)",
-      "Bash(gh run list:*)",
-      "Bash(gh run view:*)",
-      "Bash(gh run rerun:*)",
-      "Bash(cat:*)",
-      "Bash(grep:*)",
-      "Bash(diff:*)",
-      "Bash(find:*)",
-      "Bash(gh run download:*)",
-      "Bash(gh workflow:*)",
-      "Bash(gh run rerun:*)",
-      "Bash(node:*)",
-      "Bash(rm:*)",
-      "Bash(echo:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(gh pr create:*)",
-      "Bash(git fetch:*)",
-      "Bash(gh pr checks:*)",
-      "Bash(git switch:*)",
-      "Bash(jq:*)",
-      "Bash(git reset:*)",
-      "WebFetch(domain:docs.anthropic.com)",
-      "Bash(claude --version)",
-      "Bash(chmod:*)"
-    ],
+    "allow": [],
     "deny": []
   },
   "hooks": {
@@ -57,6 +16,14 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "code-simplifier@claude-plugins-official": true,
+    "vtsls@claude-code-lsps": true
   },
   "alwaysThinkingEnabled": true
 }

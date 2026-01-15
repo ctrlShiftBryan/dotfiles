@@ -15,7 +15,7 @@ ccd() {
 }
 cccd() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
-    claude --dangerously-skip-permissions --resume query "$@"
+    claude --dangerously-skip-permissions -r "$@"
 }
 
 # Claude Code with Proxyman (for debugging API calls)
@@ -304,7 +304,7 @@ function gwm() {
     fi
 }
 
-# git worktree list - list all worktrees with PR status
+# git worktree list - list all worktrees with PR status, sorted by last commit
 function gwl() {
     # Validate: in git repo
     if ! git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -338,6 +338,8 @@ function gwl() {
 
     local merged_worktrees=()
     local wt_branch wt_path wt_name pr_info wt_status pr_num pr_state line
+    local commit_date commit_date_rel sort_date
+    local -a output_lines
 
     # Parse git worktree list
     while IFS= read -r line; do
@@ -345,7 +347,7 @@ function gwl() {
         wt_name=$(basename "$wt_path")
 
         if [[ "$line" =~ \(detached\ HEAD\) ]]; then
-            printf "%-20s %b\n" "$wt_name" "\033[33m? detached\033[0m"
+            output_lines+=("0000-00-00|%-45s %-12s %b|$wt_name||? detached")
             continue
         fi
 
@@ -356,6 +358,12 @@ function gwl() {
         if [[ -z "$wt_branch" || "$wt_branch" == "$main_branch" ]]; then
             continue
         fi
+
+        # Get last commit date (sortable ISO format and relative)
+        sort_date=$(git log -1 --format="%ci" "$wt_branch" 2>/dev/null | cut -d' ' -f1)
+        commit_date_rel=$(git log -1 --format="%cr" "$wt_branch" 2>/dev/null)
+        [[ -z "$sort_date" ]] && sort_date="0000-00-00"
+        [[ -z "$commit_date_rel" ]] && commit_date_rel="unknown"
 
         # Check PR status via gh
         pr_info=$(gh pr list --head "$wt_branch" --state all --json number,state --jq '.[0] | "\(.number) \(.state)"' 2>/dev/null)
@@ -383,8 +391,13 @@ function gwl() {
             esac
         fi
 
-        printf "%-20s %b\n" "$wt_branch" "$wt_status"
+        output_lines+=("$sort_date|%-45s %-12s %b|$wt_branch|$commit_date_rel|$wt_status")
     done < <(git worktree list)
+
+    # Sort by date (oldest first, newest last)
+    printf '%s\n' "${output_lines[@]}" | sort -t'|' -k1 | while IFS='|' read -r _ fmt branch date st; do
+        printf "$fmt\n" "$branch" "$date" "$st"
+    done
 
     # Cleanup suggestion
     if [[ ${#merged_worktrees[@]} -gt 0 ]]; then

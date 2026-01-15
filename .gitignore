@@ -6,3 +6,15 @@ claude/.claude/file-history/
 claude/.claude/history.jsonl
 claude/.claude/debug/
 tmux-urls.cfg
+
+claude/.claude/cache/
+claude/.claude/chrome/
+claude/.claude/paste-cache/
+claude/.claude/plugins/cache/
+claude/.claude/plugins/install-counts-cache.json
+claude/.claude/plugins/installed_plugins.json
+claude/.claude/plugins/known_marketplaces.json
+claude/.claude/plugins/marketplaces/
+claude/.claude/stats-cache.json
+
+bavim/.config/bavim/lazy-lock.json

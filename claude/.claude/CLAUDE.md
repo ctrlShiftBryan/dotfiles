@@ -54,3 +54,26 @@ g: https://google.com
 this will allow the user to quickly open a browser with the url using a keyboard shortcut, so this should be kept up to date
 
 use keyboard keys 'b,f,g,r,t,d,c,e' as needed
+
+# LSP Code Intelligence
+
+Prefer LSP over Grep for semantic code operations:
+
+## Before Making Changes
+- `findReferences` - find all usages before modifying functions/types/interfaces
+- `incomingCalls` - find callers before changing signatures
+- `outgoingCalls` - understand dependencies before modifying
+- `goToImplementation` - find implementations before changing interfaces
+- `hover` - check types, docs, deprecation status
+
+## Understanding Code
+- `goToDefinition` - trace definitions
+- `documentSymbol` - file structure overview
+- `workspaceSymbol` - find existing code before writing new
+
+## After Changes
+- Check diagnostics for type errors/deprecations
+- `findReferences` to verify all usages updated
+
+## Use Grep For
+- Text/regex in strings, comments, non-code files
