@@ -18,3 +18,7 @@ claude/.claude/plugins/marketplaces/
 claude/.claude/stats-cache.json
 
 bavim/.config/bavim/lazy-lock.json
+
+# Sensitive claude config files
+claude/.claude/.claude.json
+claude/.claude/mcp-backup
