@@ -505,7 +505,14 @@ function gwc() {
 }
 
 # safer file deletion (uses trash instead of rm)
-alias rm='trash'
+# wrapper strips -r/-f flags since trash handles dirs automatically
+rm() {
+  local args=()
+  for arg in "$@"; do
+    [[ "$arg" =~ ^-[rf]+$ ]] || args+=("$arg")
+  done
+  trash "${args[@]}"
+}
 
 # Easier directory navigation.
 
