@@ -5,6 +5,18 @@
     "deny": []
   },
   "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "plannotator",
+            "timeout": 1800
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": ".*",
@@ -12,6 +24,16 @@
           {
             "type": "command",
             "command": "node ~/.claude/hooks/generate-session-url.js"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/bryanarendt/.claude/hooks/gsd-check-update.js\""
           }
         ]
       }
@@ -25,5 +47,6 @@
     "code-simplifier@claude-plugins-official": true,
     "vtsls@claude-code-lsps": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "plansDirectory": "./plans/"
 }

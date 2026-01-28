@@ -6,3 +6,7 @@ todos
 shell-snapshots
 plans
 docs
+kanban.*
+kanban-archive.*
+tasks
+telemetry

@@ -1,0 +1,37 @@
+# {{TITLE}}
+
+## Scope
+
+{{SCOPE}}
+
+---
+
+## Phases
+
+| Phase | Name | Status | Bean ID |
+|-------|------|--------|---------|
+{{PHASES_TABLE}}
+
+Query phases: `beans query '{ beans(filter: { search: "Phase" }) { id title status } }'`
+
+---
+
+## Dependencies
+
+```
+{{DEPENDENCY_GRAPH}}
+```
+
+---
+
+## Commands Reference
+
+| Purpose | Command |
+|---------|---------|
+{{COMMANDS_TABLE}}
+
+---
+
+## Related Docs
+
+- [CLAUDE.md](../CLAUDE.md) - Project guidance
