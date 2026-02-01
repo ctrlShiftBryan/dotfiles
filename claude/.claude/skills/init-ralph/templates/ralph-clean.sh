@@ -1,21 +1,21 @@
 #!/bin/bash
 # ralph-clean.sh - Archive ralph docs and complete phase beans before PR merge
+# Run from ralph/ directory
 
 BRANCH=$(git branch --show-current | tr '/' '-')
 TIMESTAMP=$(date +%Y-%m-%d-%H-%M)
-ARCHIVE_DIR="ralph-archive/${TIMESTAMP}-${BRANCH}-ralph"
-
-if [ ! -d "ralph" ]; then
-    echo "No ralph/ directory found"
-    exit 1
-fi
+ARCHIVE_DIR="../ralph-archive/${TIMESTAMP}-${BRANCH}-ralph"
 
 mkdir -p "$ARCHIVE_DIR"
-cp -r ralph/* "$ARCHIVE_DIR/"
 
-# Archive root-level ralph files
-[ -f "prompt.md" ] && cp prompt.md "$ARCHIVE_DIR/" && rm prompt.md
-[ -f "progress.txt" ] && cp progress.txt "$ARCHIVE_DIR/" && rm progress.txt
+# Archive all ralph files (we're inside ralph/)
+cp -r ./* "$ARCHIVE_DIR/" 2>/dev/null
+
+# Archive prompt.md from parent
+[ -f "../prompt.md" ] && cp ../prompt.md "$ARCHIVE_DIR/" && rm ../prompt.md
+
+# Archive .beans folder from parent
+[ -d "../.beans" ] && cp -r ../.beans "$ARCHIVE_DIR/" && rm -rf ../.beans
 
 # Mark phase beans as completed
 if command -v beans &> /dev/null; then
@@ -27,8 +27,9 @@ if command -v beans &> /dev/null; then
         done
 fi
 
-# Remove ralph directory
+# Move up and remove ralph directory
+cd ..
 rm -rf ralph/
 
 echo "Archived to: $ARCHIVE_DIR"
-echo "ralph/, prompt.md, progress.txt cleaned up"
+echo "ralph/, prompt.md, .beans cleaned up"

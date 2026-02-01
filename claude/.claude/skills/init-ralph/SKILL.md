@@ -125,14 +125,14 @@ EOF
 ```
 Save the bean IDs for overview.md generation.
 
-### 5.4 Generate `progress.txt`
+### 5.4 Generate `ralph/progress.txt`
 Use `templates/progress.txt.tmpl`. If exists, only add Codebase Patterns if missing.
 
-### 5.5 Generate `ralph.sh`
-Copy `templates/ralph.sh` verbatim to repo root. Run `chmod +x ralph.sh`.
+### 5.5 Generate `ralph/ralph.sh`
+Copy `templates/ralph.sh` verbatim to `ralph/ralph.sh`. Run `chmod +x ralph/ralph.sh`.
 
-### 5.6 Generate `ralph-clean.sh`
-Copy `templates/ralph-clean.sh` verbatim to repo root. Run `chmod +x ralph-clean.sh`.
+### 5.6 Generate `ralph/ralph-clean.sh`
+Copy `templates/ralph-clean.sh` verbatim to `ralph/ralph-clean.sh`. Run `chmod +x ralph/ralph-clean.sh`.
 
 ### 5.8 Generate `ralph/manual-steps.md`
 Use `templates/manual-steps.md.tmpl`. Substitute `{{MANUAL_STEPS}}` with extracted manual steps as `- [ ]` checkboxes.
@@ -155,11 +155,11 @@ Created Ralph Agent implementation docs:
 
 Files created:
 - prompt.md
-- ralph.sh
-- ralph-clean.sh
 - ralph/overview.md
 - ralph/manual-steps.md
-- progress.txt
+- ralph/progress.txt
+- ralph/ralph.sh
+- ralph/ralph-clean.sh
 
 Beans created:
 - Phase beans (one per phase, type: task)
@@ -175,7 +175,7 @@ Next steps:
 1. Complete manual steps in ralph/manual-steps.md
 2. Review ralph/overview.md and phase beans
 3. Customize task descriptions in beans
-4. Run: ./ralph.sh [max-iterations]
+4. Run: cd ralph && ./ralph.sh [max-iterations]
 5. Stop: touch .ralph-stop
 ```
 
