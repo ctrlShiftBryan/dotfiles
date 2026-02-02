@@ -1,6 +1,9 @@
 #!/bin/bash
 input=$(cat)
 
+# Capture metrics to sidecar file (async, non-blocking)
+echo "$input" | node ~/.claude/hooks/capture-session-metrics.js &
+
 MODEL=$(echo "$input" | jq -r '.model.display_name')
 COST=$(echo "$input" | jq -r '.cost.total_cost_usd' | xargs printf '%.2f')
 IN_TOKENS=$(echo "$input" | jq '.context_window.current_usage.input_tokens // 0')
