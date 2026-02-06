@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Create commit message from staged changes using Claude Code
+# Commits directly without review (use commit-staged for vim editing)
+
+# Check if there are any staged changes before running Claude
+if git diff --staged --quiet; then
+    echo "No staged changes to commit"
+    exit 1
+fi
+
+# Write staged diff to file for Claude to read
+git diff --staged > diff.txt
+
+# Set original directory for Claude hooks
+export CLAUDE_ORIGINAL_DIR="$PWD"
+
+# Run claude to generate commit message, filter to show only text output
+claude --dangerously-skip-permissions -p '/cc-msg' --model haiku --verbose --output-format stream-json | ~/.zsh/scripts/claude-stream-filter
+
+# Check if commit.md was created and has content
+if [ ! -f commit.md ]; then
+    echo ""
+    echo "No commit message generated. Are there staged changes?"
+    rm -f diff.txt
+    exit 1
+fi
+
+if [ ! -s commit.md ]; then
+    echo ""
+    echo "No staged changes to commit"
+    rm -f commit.md diff.txt
+    exit 1
+fi
+
+echo ""
+
+# Create the commit using the message from the file
+git commit -F commit.md
+
+# Check if commit was successful
+if [ $? -eq 0 ]; then
+    echo "✓ Commit successful"
+else
+    echo "✗ Commit failed"
+    rm -f commit.md diff.txt
+    exit 1
+fi
+
+# Clean up
+rm commit.md diff.txt
