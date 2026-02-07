@@ -17,6 +17,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/plan-rename.js"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": ".*",
@@ -24,6 +35,16 @@
           {
             "type": "command",
             "command": "node ~/.claude/hooks/generate-session-url.js"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/plan-rename-cleanup.js"
           }
         ]
       }
