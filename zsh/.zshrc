@@ -82,7 +82,9 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-eval "$(zoxide init zsh --cmd cd)"
+if [[ -z "${CLAUDECODE}" ]]; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
