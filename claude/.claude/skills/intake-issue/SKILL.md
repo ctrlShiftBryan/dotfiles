@@ -15,6 +15,8 @@ All scripts are in `scripts/` directory relative to this skill. They output JSON
 - `parse-issue.sh <input>` - Parse GitHub issue or text, suggest branch name
 - `create-worktree.sh <branch> [base]` - Create worktree in sibling dir
 - `init-worktree.sh` - Run in worktree to install dependencies
+- `github-issue-ops.sh <issue_number> <worktree_name>` - Assign issue + add hostname label
+- `create-prd.sh <worktree_path> <branch_name> [issue_number] [title]` - Write PRD.{branch}.md from issue content
 
 ## Orchestration Steps
 
@@ -87,6 +89,51 @@ This will:
 - Otherwise detect package manager and run install
 - Skip if no package.json
 
+### Step 4b: GitHub Issue Ops (skip if no issue number or gh CLI missing)
+
+```bash
+bash "$SKILL_DIR/scripts/github-issue-ops.sh" "{issue_number}" "{branch_name}"
+```
+
+This will:
+- Assign issue to `@me`
+- Add label `{hostname}:{branch_name}` to issue (creates label if needed)
+- Non-fatal: if this fails, continue workflow
+
+### Step 4c: Create PRD.md
+
+```bash
+bash "$SKILL_DIR/scripts/create-prd.sh" "{worktree_path}" "{branch_name}" "{issue_number}" "{title}"
+```
+
+Filename will be `PRD.{branch_with_dots}.md` (e.g. `PRD.feat.277-player-dropdowns.md`)
+
+- If issue number exists: fetches full issue from GitHub, writes title/url/labels/body
+- If text-only input: writes minimal PRD with title
+- Non-fatal: if this fails, continue workflow
+
+### Step 4d: Push Branch & Open Draft PR
+
+The PRD filename is `PRD.{branch_with_dots}.md` (e.g. `PRD.feat.277-player-dropdowns.md`).
+
+Run from inside the worktree:
+
+```bash
+cd "{worktree_path}"
+git add PRD.*.md
+git commit -m "docs: add PRD for {title}"
+git push -u origin "{branch_name}"
+```
+
+Then open a draft PR using the PRD as the body:
+
+```bash
+gh pr create --draft --title "{title}" --body "$(cat PRD.*.md)"
+```
+
+- Non-fatal: if push or PR creation fails, continue workflow
+- Skip if gh CLI missing
+
 ### Step 5: Finalize
 
 Change working directory to worktree. Output summary:
@@ -95,6 +142,10 @@ Change working directory to worktree. Output summary:
 ✓ Branch: feat/277-player-dropdowns
 ✓ Path: /code/project-worktrees/feat/277-player-dropdowns
 ✓ Dependencies installed
+✓ Assigned to @me
+✓ Label: bryans-mac:feat/277-player-dropdowns
+✓ PRD.feat.277-player-dropdowns.md created
+✓ Draft PR opened: https://github.com/org/repo/pull/280
 Ready to work!
 ```
 
@@ -106,8 +157,13 @@ Ready to work!
 | Not on main branch | AskUserQuestion to continue or checkout |
 | Branch exists | Offer existing worktree or new name |
 | Worktree path exists | Error, show `git worktree list` |
-| gh CLI missing | Fallback to manual title input |
+| gh CLI missing | Fallback to manual title input, skip issue ops |
 | No package.json | Skip install, still success |
+| Text input (no issue #) | Skip github-issue-ops, PRD.md gets text only |
+| Issue fetch fails for PRD | Non-fatal, continue workflow |
+| Label already exists | gh label create --force handles it |
+| Push/PR creation fails | Non-fatal, continue workflow |
+| Text input (no issue #) | PR body is PRD.md content, no "Closes" link |
 
 ## Example Usage
 
