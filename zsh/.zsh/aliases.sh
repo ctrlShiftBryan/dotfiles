@@ -59,6 +59,21 @@ ccpi() {
     claude "$@"
 }
 
+# Rename plan files to timestamped format
+plan-rename() {
+    local project_dir=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [[ -z "$project_dir" ]]; then
+        echo "Error: not in a git repository"
+        return 1
+    fi
+    if [[ ! -d "$project_dir/plans" ]]; then
+        echo "No plans/ directory in $project_dir"
+        return 0
+    fi
+    CLAUDE_PROJECT_DIR="$project_dir" node ~/.claude/hooks/plan-rename.js
+    CLAUDE_PROJECT_DIR="$project_dir" node ~/.claude/hooks/plan-rename-cleanup.js
+}
+
 sshs() {
     ssh -t "$1" "cd ~/dotfiles && git pull --rebase 2>/dev/null || git clone git@github.com:ctrlShiftBryan/dotfiles.git ~/dotfiles; cd ~/dotfiles && ./setup.sh; exec \$SHELL"
 }
