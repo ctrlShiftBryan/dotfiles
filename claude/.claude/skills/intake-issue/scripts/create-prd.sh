@@ -37,6 +37,8 @@ if [ -n "$ISSUE_NUM" ] && command -v gh &> /dev/null; then
 # ${I_TITLE}
 
 **Issue:** ${I_URL}
+
+Closes #${ISSUE_NUM}
 **Labels:** ${I_LABELS}
 
 ---

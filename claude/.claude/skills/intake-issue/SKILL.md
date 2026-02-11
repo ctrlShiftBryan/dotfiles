@@ -163,7 +163,7 @@ Ready to work!
 | Issue fetch fails for PRD | Non-fatal, continue workflow |
 | Label already exists | gh label create --force handles it |
 | Push/PR creation fails | Non-fatal, continue workflow |
-| Text input (no issue #) | PR body is PRD.md content, no "Closes" link |
+| Text input (no issue #) | PR body is PRD.md content, no "Closes" keyword |
 
 ## Example Usage
 
