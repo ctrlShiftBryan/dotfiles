@@ -6,4 +6,8 @@
 \.claude/todos
 \.claude/plans
 \.claude/docs
+\.claude/\.mcp\.json
+\.claude/\.metadata_never_index
+\.claude/settings\.local\.json
+\.claude/teams
 \.DS_Store

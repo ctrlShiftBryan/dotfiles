@@ -19,6 +19,10 @@ claude/.claude/stats-cache.json
 
 bavim/.config/bavim/lazy-lock.json
 
-# Sensitive claude config files
+# Sensitive/machine-specific claude config files
 claude/.claude/.claude.json
+claude/.claude/.mcp.json
+claude/.claude/.metadata_never_index
+claude/.claude/settings.local.json
 claude/.claude/mcp-backup
+claude/.claude/teams/
