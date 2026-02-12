@@ -13,9 +13,17 @@ ccd() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
     claude --dangerously-skip-permissions "$@"
 }
+ccds() {
+    export CLAUDE_ORIGINAL_DIR="$PWD"
+    CLAUDE_SKIP_HOOKS=1 claude --dangerously-skip-permissions "$@"
+}
 cccd() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
     claude --dangerously-skip-permissions -r "$@"
+}
+cccds() {
+    export CLAUDE_ORIGINAL_DIR="$PWD"
+    CLAUDE_SKIP_HOOKS=1 claude --dangerously-skip-permissions -r "$@"
 }
 
 # Claude Code with Proxyman (for debugging API calls)
