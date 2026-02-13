@@ -52,16 +52,7 @@
         ]
       }
     ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/bryanarendt/.claude/hooks/gsd-check-update.js\""
-          }
-        ]
-      }
-    ]
+    "SessionStart": []
   },
   "statusLine": {
     "type": "command",
@@ -72,5 +63,6 @@
     "vtsls@claude-code-lsps": true
   },
   "alwaysThinkingEnabled": true,
-  "plansDirectory": "./plans/"
+  "plansDirectory": "./plans/",
+  "skipDangerousModePermissionPrompt": true
 }
