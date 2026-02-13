@@ -20,8 +20,13 @@ API_TIME=$(printf '%ds' $((API_MS / 1000)))
 IN_K=$(printf '%.1fK' $(echo "scale=1; $IN_TOKENS / 1000" | bc))
 OUT_K=$(printf '%.1fK' $(echo "scale=1; $OUT_TOKENS / 1000" | bc))
 
-# Get short dir name (last component)
-DIR_NAME=$(basename "$PROJECT_DIR" 2>/dev/null || echo "?")
+# Use main worktree path for project name (handles worktrees correctly)
+MAIN_WORKTREE=$(git -C "$PROJECT_DIR" worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')
+if [ -n "$MAIN_WORKTREE" ]; then
+  DIR_NAME=$(basename "$MAIN_WORKTREE")
+else
+  DIR_NAME=$(basename "$PROJECT_DIR" 2>/dev/null || echo "?")
+fi
 
 # Get git branch from project dir (empty if not a repo)
 BRANCH=$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
