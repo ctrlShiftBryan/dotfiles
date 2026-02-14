@@ -27,8 +27,11 @@ config.native_macos_fullscreen_mode = false
 -- Disable close confirmation prompt (allows macOS restart/shutdown)
 config.window_close_confirmation = 'NeverPrompt'
 
--- Transparency
-config.window_background_opacity = 0.80
+-- Background color override + transparency
+config.colors = {
+  background = '#334155',
+}
+config.window_background_opacity = 0.30
 config.macos_window_background_blur = 20
 
 -- Hyperlink detection rules
