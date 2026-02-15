@@ -63,13 +63,13 @@ if (!user) return null;
 
 Less noise, reads as a sentence.
 
-### Use `const` by Default
+### Use const by Default
 
-Use `const` everywhere. Exceptions: tight loops, performance-critical mutation on arrays/sets in small scoped functions.
+Use const everywhere. Exceptions: tight loops, performance-critical mutation on arrays/sets in small scoped functions.
 
 ### Cleaner Conditionals
 
-**No `!` in ternaries** - swap branches instead:
+**No negation in ternaries** - swap branches instead:
 
 ```ts
 // BAD: reader must mentally invert
@@ -79,7 +79,7 @@ const label = !isActive ? "Disabled" : "Active";
 const label = isActive ? "Active" : "Disabled";
 ```
 
-**`Boolean()` over `!!`** - humans are bad at double negatives:
+**Boolean() over double-bang** - humans are bad at double negatives:
 
 ```ts
 // BAD
@@ -89,7 +89,7 @@ const hasValue = !!input;
 const hasValue = Boolean(input);
 ```
 
-**Explicit null over `&&`** in JSX:
+**Explicit null over ampersand-ampersand** in JSX:
 
 ```ts
 // BAD
@@ -113,7 +113,7 @@ Also return objects when return value isn't obvious from function name.
 
 ### Discriminated Unions with Exhaustive Checks
 
-Use `kind` as discriminator (not `type` - overloaded in TS world):
+Use "kind" as discriminator (not "type" - overloaded in TS world):
 
 ```ts
 type PaymentMethod =
@@ -131,7 +131,7 @@ function processPayment(method: PaymentMethod) {
 
 Prefer if-with-early-return over switch statements. Adding a new kind = compiler tells you everywhere to handle it.
 
-### `exhaustiveCheck` Helper
+### exhaustiveCheck Helper
 
 ```ts
 function exhaustiveCheck(value: never): never {
@@ -229,16 +229,16 @@ When state can't live in the database (too many updates), use React context inst
 | Pattern | Do | Don't |
 |---------|-----|-------|
 | Returns | Early return, flat | Nested if/else |
-| Single-line if | `if (!x) return null;` | Wrap in `{ }` |
-| Variables | `const` | `let`/`var` |
-| Ternary | Positive condition first | `!condition ?` |
-| Null coerce | `Boolean(x)` | `!!x` |
-| JSX conditional | `cond ? <X /> : null` | `cond && <X />` |
+| Single-line if | if (!x) return null; | Wrap in curly braces |
+| Variables | const | let/var |
+| Ternary | Positive condition first | Negated condition |
+| Null coerce | Boolean(x) | Double-bang |
+| JSX conditional | ternary with null | && operator |
 | Function args | Object param | Positional args |
-| Union discriminator | `kind` | `type` |
+| Union discriminator | "kind" | "type" |
 | Switch vs if | If + early return | Switch/case |
 | Event handlers | Inline | Hoist to component body |
-| Error handling | `.catch(onError)` | try/catch |
+| Error handling | .catch(onError) | try/catch |
 | Data fetching | In subcomponent | Prop drill from parent |
 | Components | One per file | Multiple per file |
 
@@ -246,10 +246,10 @@ When state can't live in the database (too many updates), use React context inst
 
 AI models consistently violate these patterns. Watch for and fix:
 
-1. **Hoisted handlers** - AI always extracts `const handleX = ...` into component body
+1. **Hoisted handlers** - AI always extracts const handleX into component body
 2. **Nested if/else** instead of early returns
-3. **`&&` conditional rendering** instead of ternary with null
+3. **&& conditional rendering** instead of ternary with null
 4. **try/catch** instead of promise chains
 5. **Positional args** instead of object params
-6. **`let` when `const` works**
-7. **`!!` instead of `Boolean()`**
+6. **let when const works**
+7. **Double-bang instead of Boolean()**
