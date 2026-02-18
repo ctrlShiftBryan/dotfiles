@@ -198,6 +198,20 @@ function gw() {
     echo "Changed to worktree directory: $PWD"
 }
 
+# git worktree intake - parse issue, create worktree, install deps, PRD, assign, draft PR
+function gwi() {
+    local tmpfile=$(mktemp)
+    GWI_RESULT_FILE="$tmpfile" "$HOME/.zsh/scripts/gwi-exec" "$@"
+    local rc=$?
+    local cd_path=$(cat "$tmpfile" 2>/dev/null)
+    rm -f "$tmpfile"
+    if [[ -n "$cd_path" && -d "$cd_path" ]]; then
+        cd "$cd_path"
+        echo "Changed to worktree: $PWD"
+    fi
+    return $rc
+}
+
 # git worktree back - navigate back to main repository from worktree
 function gwb() {
     # Check if in a git repository

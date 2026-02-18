@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+# gwi-exec — Git Worktree Intake: parse issue, create worktree, install deps, PRD, assign, draft PR
+
+set +e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+SUMMARY=()
+summary_add() { SUMMARY+=("$1"); }
+
+die() { echo -e "${RED}Error: $1${NC}" >&2; exit 1; }
+
+# ── 1. Validate ──────────────────────────────────────────────────────────────
+
+git rev-parse --is-inside-work-tree &>/dev/null || die "not in a git repo"
+
+CURRENT_BRANCH=$(git branch --show-current)
+[[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]] || \
+    die "must be on main/master (currently on $CURRENT_BRANCH)"
+
+[[ -n "$1" ]] || die "usage: gwi <issue-url|issue-number|\"text\">"
+
+INPUT="$1"
+ISSUE_NUM=""
+ISSUE_TITLE=""
+ISSUE_BODY=""
+ISSUE_LABELS=""
+ISSUE_URL=""
+MODE=""
+
+# ── 2. Parse Input ───────────────────────────────────────────────────────────
+
+if [[ "$INPUT" =~ ^https://github\.com/([^/]+/[^/]+)/issues/([0-9]+) ]]; then
+    MODE="issue"
+    REPO="${BASH_REMATCH[1]}"
+    ISSUE_NUM="${BASH_REMATCH[2]}"
+    command -v gh &>/dev/null || die "gh CLI required for issue mode"
+    command -v jq &>/dev/null || die "jq required for JSON parsing"
+
+    echo -e "${CYAN}Fetching issue #${ISSUE_NUM} from ${REPO}...${NC}"
+    ISSUE_JSON=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json title,body,labels,url 2>&1) || \
+        die "failed to fetch issue: $ISSUE_JSON"
+
+    ISSUE_TITLE=$(echo "$ISSUE_JSON" | jq -r '.title')
+    ISSUE_BODY=$(echo "$ISSUE_JSON" | jq -r '.body // ""')
+    ISSUE_LABELS=$(echo "$ISSUE_JSON" | jq -r '[.labels[].name] | join(",")')
+    ISSUE_URL=$(echo "$ISSUE_JSON" | jq -r '.url')
+
+elif [[ "$INPUT" =~ ^[0-9]+$ ]]; then
+    MODE="issue"
+    ISSUE_NUM="$INPUT"
+    command -v gh &>/dev/null || die "gh CLI required for issue mode"
+    command -v jq &>/dev/null || die "jq required for JSON parsing"
+
+    echo -e "${CYAN}Fetching issue #${ISSUE_NUM}...${NC}"
+    ISSUE_JSON=$(gh issue view "$ISSUE_NUM" --json title,body,labels,url 2>&1) || \
+        die "failed to fetch issue: $ISSUE_JSON"
+
+    ISSUE_TITLE=$(echo "$ISSUE_JSON" | jq -r '.title')
+    ISSUE_BODY=$(echo "$ISSUE_JSON" | jq -r '.body // ""')
+    ISSUE_LABELS=$(echo "$ISSUE_JSON" | jq -r '[.labels[].name] | join(",")')
+    ISSUE_URL=$(echo "$ISSUE_JSON" | jq -r '.url')
+
+else
+    MODE="text"
+    ISSUE_TITLE="$INPUT"
+fi
+
+# ── 3. Generate Branch Name ─────────────────────────────────────────────────
+
+# Infer type from labels
+TYPE="feat"
+if [[ "$ISSUE_LABELS" == *"bug"* ]]; then
+    TYPE="fix"
+elif [[ "$ISSUE_LABELS" == *"docs"* || "$ISSUE_LABELS" == *"documentation"* ]]; then
+    TYPE="docs"
+elif [[ "$ISSUE_LABELS" == *"enhancement"* ]]; then
+    TYPE="feat"
+fi
+
+# Slugify title
+SLUG=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+SLUG="${SLUG:0:50}"
+
+if [[ -n "$ISSUE_NUM" ]]; then
+    BRANCH="${TYPE}/${ISSUE_NUM}-${SLUG}"
+else
+    BRANCH="${TYPE}/${SLUG}"
+fi
+
+# Interactive confirm — let user edit branch name
+echo -e "${BOLD}Branch:${NC} $BRANCH"
+printf "New name (enter to accept): "
+read -r USER_BRANCH
+[[ -n "$USER_BRANCH" ]] && BRANCH="$USER_BRANCH"
+
+# ── 4. Create Worktree ──────────────────────────────────────────────────────
+
+REPO_DIR=$(basename "$PWD")
+WORKTREES_DIR="../${REPO_DIR}-worktrees"
+WT_PATH="${WORKTREES_DIR}/${BRANCH}"
+
+if [[ -d "$WT_PATH" ]]; then
+    echo -e "${YELLOW}Worktree already exists at ${WT_PATH}${NC}"
+    summary_add "${GREEN}+ worktree (existing)${NC}"
+else
+    mkdir -p "$WORKTREES_DIR"
+    if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+        git worktree add "$WT_PATH" "$BRANCH" || die "worktree creation failed"
+    else
+        git worktree add "$WT_PATH" -b "$BRANCH" || die "worktree creation failed"
+    fi
+    summary_add "${GREEN}+ worktree created${NC}"
+fi
+
+# Resolve absolute path for cd
+ABS_WT_PATH=$(cd "$WT_PATH" && pwd)
+
+# ── 5. Install Deps (non-fatal) ─────────────────────────────────────────────
+
+cd "$ABS_WT_PATH"
+
+if [[ -f "pnpm-lock.yaml" ]]; then
+    echo -e "${CYAN}Installing deps (pnpm)...${NC}"
+    pnpm install && summary_add "${GREEN}+ deps installed (pnpm)${NC}" || summary_add "${RED}! deps install failed${NC}"
+elif [[ -f "yarn.lock" ]]; then
+    echo -e "${CYAN}Installing deps (yarn)...${NC}"
+    yarn install && summary_add "${GREEN}+ deps installed (yarn)${NC}" || summary_add "${RED}! deps install failed${NC}"
+elif [[ -f "bun.lockb" || -f "bun.lock" ]]; then
+    echo -e "${CYAN}Installing deps (bun)...${NC}"
+    bun install && summary_add "${GREEN}+ deps installed (bun)${NC}" || summary_add "${RED}! deps install failed${NC}"
+elif [[ -f "package-lock.json" ]]; then
+    echo -e "${CYAN}Installing deps (npm)...${NC}"
+    npm install && summary_add "${GREEN}+ deps installed (npm)${NC}" || summary_add "${RED}! deps install failed${NC}"
+elif [[ -f "package.json" ]]; then
+    summary_add "${YELLOW}~ deps skipped (no lockfile)${NC}"
+else
+    summary_add "${YELLOW}~ deps skipped (no package.json)${NC}"
+fi
+
+# ── 6. Create PRD (non-fatal) ───────────────────────────────────────────────
+
+PRD_NAME="PRD.$(echo "$BRANCH" | tr '/' '.').md"
+
+if [[ ! -f "$PRD_NAME" ]]; then
+    {
+        echo "# ${ISSUE_TITLE}"
+        echo ""
+        if [[ "$MODE" == "issue" ]]; then
+            echo "Issue: ${ISSUE_URL}"
+            [[ -n "$ISSUE_LABELS" ]] && echo "Labels: ${ISSUE_LABELS}"
+            echo "Closes #${ISSUE_NUM}"
+            echo ""
+            echo "---"
+            echo ""
+            echo "$ISSUE_BODY"
+        fi
+    } > "$PRD_NAME" && summary_add "${GREEN}+ PRD created ($PRD_NAME)${NC}" || summary_add "${RED}! PRD creation failed${NC}"
+else
+    summary_add "${YELLOW}~ PRD already exists${NC}"
+fi
+
+# ── 7. Assign Issue (optional, issue mode only) ─────────────────────────────
+
+if [[ "$MODE" == "issue" && -n "$ISSUE_NUM" ]]; then
+    printf "${BOLD}Assign issue #${ISSUE_NUM} to yourself? [y/N]:${NC} "
+    read -r ASSIGN_REPLY
+    if [[ "$ASSIGN_REPLY" =~ ^[Yy]$ ]]; then
+        ASSIGN_ARGS=""
+        [[ -n "$REPO" ]] && ASSIGN_ARGS="--repo $REPO"
+
+        # Assign to self
+        if gh issue edit "$ISSUE_NUM" $ASSIGN_ARGS --add-assignee @me 2>/dev/null; then
+            summary_add "${GREEN}+ issue assigned${NC}"
+        else
+            summary_add "${RED}! issue assign failed${NC}"
+        fi
+
+        # Create hostname:branch label
+        HOST_LABEL="$(hostname -s):${BRANCH}"
+        if gh issue edit "$ISSUE_NUM" $ASSIGN_ARGS --add-label "$HOST_LABEL" 2>/dev/null; then
+            summary_add "${GREEN}+ label added ($HOST_LABEL)${NC}"
+        else
+            summary_add "${YELLOW}~ label failed (may need to create label first)${NC}"
+        fi
+    else
+        summary_add "${YELLOW}~ issue assign skipped${NC}"
+    fi
+fi
+
+# ── 8. Push + Draft PR (optional) ───────────────────────────────────────────
+
+printf "${BOLD}Push + open draft PR? [y/N]:${NC} "
+read -r PR_REPLY
+if [[ "$PR_REPLY" =~ ^[Yy]$ ]]; then
+    # Commit PRD
+    git add PRD.*.md 2>/dev/null
+    if git diff --cached --quiet 2>/dev/null; then
+        summary_add "${YELLOW}~ no PRD changes to commit${NC}"
+    else
+        git commit -m "docs: add PRD for ${ISSUE_TITLE}" && \
+            summary_add "${GREEN}+ PRD committed${NC}" || \
+            summary_add "${RED}! PRD commit failed${NC}"
+    fi
+
+    # Push
+    if git push -u origin "$BRANCH" 2>/dev/null; then
+        summary_add "${GREEN}+ pushed to origin${NC}"
+    else
+        summary_add "${RED}! push failed${NC}"
+    fi
+
+    # Draft PR
+    PR_TITLE="$ISSUE_TITLE"
+    PR_BODY=""
+    [[ -f "$PRD_NAME" ]] && PR_BODY=$(cat "$PRD_NAME")
+
+    if command -v gh &>/dev/null; then
+        PR_URL=$(gh pr create --draft --title "$PR_TITLE" --body "$PR_BODY" 2>&1)
+        if [[ $? -eq 0 ]]; then
+            summary_add "${GREEN}+ draft PR created: ${PR_URL}${NC}"
+        else
+            summary_add "${RED}! PR creation failed: ${PR_URL}${NC}"
+        fi
+    else
+        summary_add "${YELLOW}~ PR skipped (gh CLI not available)${NC}"
+    fi
+else
+    summary_add "${YELLOW}~ push/PR skipped${NC}"
+fi
+
+# ── 9. Summary ───────────────────────────────────────────────────────────────
+
+echo ""
+echo -e "${BOLD}── Summary ──${NC}"
+for line in "${SUMMARY[@]}"; do
+    echo -e "  $line"
+done
+echo ""
+
+# Output path for wrapper to cd into
+if [[ -n "$GWI_RESULT_FILE" ]]; then
+    echo "$ABS_WT_PATH" > "$GWI_RESULT_FILE"
+fi
