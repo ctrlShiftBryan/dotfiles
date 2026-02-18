@@ -41,27 +41,31 @@ function process(user: User) {
 
 // GOOD: flat with early returns
 function process(user: User) {
-  if (!user.isActive) return inactive();
-  if (!user.hasPermission) return unauthorized();
+  if (!user.isActive) {
+    return inactive();
+  }
+  if (!user.hasPermission) {
+    return unauthorized();
+  }
   return doWork(user);
 }
 ```
 
 Reads like English, line by line. Fewer brackets, less indentation.
 
-### Drop Curly Braces on Single-Line Ifs
+### Always Use Curly Braces on If Statements
 
 ```ts
 // BAD
+if (!user) return null;
+
+// GOOD
 if (!user) {
   return null;
 }
-
-// GOOD
-if (!user) return null;
 ```
 
-Less noise, reads as a sentence.
+Explicit blocks prevent bugs when adding lines later and keep formatting consistent.
 
 ### Use const by Default
 
@@ -122,9 +126,15 @@ type PaymentMethod =
   | { kind: "crypto"; walletAddress: string };
 
 function processPayment(method: PaymentMethod) {
-  if (method.kind === "card") return chargeCard(method.cardNumber);
-  if (method.kind === "bank") return debitBank(method.accountNumber);
-  if (method.kind === "crypto") return sendCrypto(method.walletAddress);
+  if (method.kind === "card") {
+    return chargeCard(method.cardNumber);
+  }
+  if (method.kind === "bank") {
+    return debitBank(method.accountNumber);
+  }
+  if (method.kind === "crypto") {
+    return sendCrypto(method.walletAddress);
+  }
   exhaustiveCheck(method); // type is `never` here
 }
 ```
@@ -229,7 +239,7 @@ When state can't live in the database (too many updates), use React context inst
 | Pattern | Do | Don't |
 |---------|-----|-------|
 | Returns | Early return, flat | Nested if/else |
-| Single-line if | if (!x) return null; | Wrap in curly braces |
+| If statements | Always use curly braces | Single-line without braces |
 | Variables | const | let/var |
 | Ternary | Positive condition first | Negated condition |
 | Null coerce | Boolean(x) | Double-bang |
@@ -248,8 +258,9 @@ AI models consistently violate these patterns. Watch for and fix:
 
 1. **Hoisted handlers** - AI always extracts const handleX into component body
 2. **Nested if/else** instead of early returns
-3. **&& conditional rendering** instead of ternary with null
-4. **try/catch** instead of promise chains
-5. **Positional args** instead of object params
-6. **let when const works**
-7. **Double-bang instead of Boolean()**
+3. **Missing curly braces** on single-line if statements
+4. **&& conditional rendering** instead of ternary with null
+5. **try/catch** instead of promise chains
+6. **Positional args** instead of object params
+7. **let when const works**
+8. **Double-bang instead of Boolean()**
