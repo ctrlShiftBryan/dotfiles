@@ -38,6 +38,10 @@
           {
             "type": "command",
             "command": "node ~/.claude/hooks/generate-session-url.js"
+          },
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/anders-session-end.js"
           }
         ]
       }
@@ -52,7 +56,17 @@
         ]
       }
     ],
-    "SessionStart": []
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/hooks/anders-session-start.js"
+          }
+        ]
+      }
+    ]
   },
   "statusLine": {
     "type": "command",
