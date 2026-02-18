@@ -5,17 +5,20 @@ description: Use when the user shares a YouTube URL, asks to summarize a video, 
 
 # YouTube Watcher
 
-Fetches YouTube video transcripts as phrase-level JSON segments or plain text via `youtube-transcript-api`.
+Fetches YouTube video transcripts as phrase-level JSON segments or plain text.
 
 ## Prerequisites
 
-Install `youtube-transcript-api`: `pip3 install youtube-transcript-api`
+Run once from the scripts directory:
+```bash
+cd ~/.claude/skills/youtube-watcher/scripts && npm install
+```
 
 ## Usage
 
 ```bash
 SKILL_DIR="$(dirname "$(readlink -f ~/.claude/skills/youtube-watcher/SKILL.md)")"
-python3 "$SKILL_DIR/scripts/get_transcript.py" "YOUTUBE_URL"
+node "$SKILL_DIR/scripts/get_transcript.mjs" "YOUTUBE_URL"
 ```
 
 ### Flags
@@ -30,18 +33,22 @@ python3 "$SKILL_DIR/scripts/get_transcript.py" "YOUTUBE_URL"
 
 JSON output (default):
 ```bash
-python3 "$SKILL_DIR/scripts/get_transcript.py" "https://www.youtube.com/watch?v=VIDEO_ID"
+node "$SKILL_DIR/scripts/get_transcript.mjs" "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
 Plain text:
 ```bash
-python3 "$SKILL_DIR/scripts/get_transcript.py" "https://www.youtube.com/watch?v=VIDEO_ID" --format text
+node "$SKILL_DIR/scripts/get_transcript.mjs" "https://www.youtube.com/watch?v=VIDEO_ID" --format text
 ```
 
 Spanish subtitles:
 ```bash
-python3 "$SKILL_DIR/scripts/get_transcript.py" "https://www.youtube.com/watch?v=VIDEO_ID" --lang es
+node "$SKILL_DIR/scripts/get_transcript.mjs" "https://www.youtube.com/watch?v=VIDEO_ID" --lang es
 ```
+
+## Python Alternative
+
+A Python script (`get_transcript.py`) is also available, requiring `pip3 install youtube-transcript-api`.
 
 ## Exit Codes
 
