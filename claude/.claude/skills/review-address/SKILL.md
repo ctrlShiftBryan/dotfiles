@@ -1,48 +1,103 @@
 ---
 name: review-address
-description: "Triage raw code review feedback. Enter plan mode to address or push back on each item. KISS approach."
+description: "Auto-resolve CodeRabbit review feedback on current PR. Fetches unhandled comments, fixes or pushes back, commits, pushes, replies inline. Re-runnable."
 ---
 
-# Review Address
+# Review Address — Automatic CodeRabbit Resolver
 
-Triage raw code review text pasted as argument. Enter plan mode, produce a plan to address or push back on every item.
+Fully automatic. Fetches CodeRabbit comments from the current PR, fixes or pushes back on each, commits, pushes, replies inline, and requests approval.
 
-## Input
+## Process (Default — Not in Plan Mode)
 
-The user pastes raw review feedback text directly after the slash command. This is NOT from a PR tool — just plain text copy-pasted from any review source.
+### 1. Detect PR
 
-## Process
+```bash
+gh pr view --json number -q '.number'
+```
 
-1. **Parse all feedback items** from the pasted text
-2. **Enter plan mode** immediately
-3. **For each item, decide:** address it or push back
-4. **If addressing:** describe the fix concisely in the plan
-5. **If pushing back:** explain reasoning in the plan
-6. **Generate a single reviewer response** — a large markdown block at the end of the plan that the user can copy-paste back to the reviewer covering all items
+Stop with message if no open PR on current branch.
 
-## Plan Structure
+### 2. Fetch CodeRabbit Comments
 
-The plan should contain:
+Get owner/repo from `gh repo view --json owner,name`.
 
-### Per-Item Triage
-For each feedback item:
-- Quote the original feedback
-- Decision: **Address** or **Push Back**
-- If addressing: what change to make and where
-- If pushing back: why
+Two paginated API calls:
 
-### Reviewer Response Block
-At the end, include a fenced markdown block (` ```md `) the user can send back to the reviewer. It should:
-- Thank the reviewer briefly
-- Group responses by addressed vs pushed back
-- For addressed items: confirm the fix
-- For pushed-back items: explain reasoning clearly and respectfully
-- Be a single self-contained message
+- **Review comments (inline):**
+  ```bash
+  gh api repos/{owner}/{repo}/pulls/$PR/comments --paginate
+  ```
+- **Issue comments (top-level):**
+  ```bash
+  gh api repos/{owner}/{repo}/issues/$PR/comments --paginate
+  ```
+
+Filter both by `.user.login == "coderabbitai"`.
+
+### 3. Filter Unhandled
+
+A comment is "handled" if its thread has any non-bot reply. Skip those.
+
+For review comments: check if any reply exists with a different `user.login` in the same `in_reply_to_id` chain.
+
+For issue comments: check if any subsequent non-bot comment references or follows the CodeRabbit comment.
+
+### 4. Triage Each
+
+For each unhandled comment:
+
+- **Address** — make the minimal KISS fix in the code
+- **Push back** — prepare a clear reasoning response
+
+### 5. Commit & Push
+
+Only if code changes were made:
+
+```bash
+git add -A && git commit -m "fix: address coderabbit feedback" && git push
+```
+
+Skip this step entirely if all comments were push-backs (no code changes).
+
+### 6. Reply Inline
+
+Reply to every triaged comment:
+
+- **Review comments (inline):**
+  ```bash
+  gh api repos/{owner}/{repo}/pulls/$PR/comments/{id}/replies -X POST -f body="Fixed — [brief description]"
+  ```
+- **Issue comments (top-level):**
+  ```bash
+  gh api repos/{owner}/{repo}/issues/$PR/comments -X POST -f body="@coderabbitai [response]"
+  ```
+
+For addressed items: "Fixed — [brief description]"
+For push-backs: clear reasoning why the suggestion was declined.
+
+### 7. Request Approval
+
+If no un-addressed issues remain, post a top-level comment:
+
+```bash
+gh api repos/{owner}/{repo}/issues/$PR/comments -X POST -f body="@coderabbitai resolve"
+```
+
+## Plan Mode Behavior
+
+If triggered while in plan mode: **do not act**. Instead produce a triage plan listing each comment, the decision (address/push-back), and proposed change or reasoning.
 
 ## Principles
 
-- **KISS** — don't over-engineer fixes
-- **Every item gets a response** — nothing ignored silently
+- **KISS** — minimal fixes, no over-engineering
+- **Re-runnable** — skip already-handled comments
+- **Every comment gets a response** — nothing ignored silently
 - **Push back when warranted** — not all suggestions are improvements
-- **Bias toward simplicity** — if a suggestion adds complexity without clear value, push back
-- **Local only** — no GitHub API calls, no PR interactions
+- **Single commit** — one commit for all fixes
+
+## Edge Cases
+
+- No open PR → stop with message
+- No CodeRabbit comments → stop with message
+- All already handled → stop with message
+- No code changes (all push-backs) → skip commit/push, only reply
