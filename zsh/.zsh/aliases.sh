@@ -1238,6 +1238,15 @@ function cd2dc() {
     fi
 }
 
+# package scripts - list scripts from package.json
+psc() {
+  if [[ ! -f package.json ]]; then
+    echo "No package.json in current directory"
+    return 1
+  fi
+  jq -r '.scripts // {} | to_entries[] | "\(.key)\t\(.value)"' package.json | column -t -s $'\t'
+}
+
 # Neovim configurations
 # bavim - default/minimal nvim config
 alias bavim='NVIM_APPNAME=bavim nvim'
