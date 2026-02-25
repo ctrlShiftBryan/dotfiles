@@ -1194,6 +1194,35 @@ zippreview() {
     fi
 }
 
+# Image clipboard serialization (for Synergy cross-machine transfer)
+imgclip() {
+    local tempfile=$(mktemp).png
+    pngpaste "$tempfile" 2>/dev/null
+    if [ ! -s "$tempfile" ]; then
+        rm -f "$tempfile"
+        echo "No image on clipboard"
+        return 1
+    fi
+    local size=$(stat -f%z "$tempfile")
+    printf 'IMGCLIP:' | cat - <(base64 < "$tempfile") | pbcopy
+    rm "$tempfile"
+    echo "Encoded ${size}b image to clipboard"
+}
+
+imgpaste() {
+    local text=$(pbpaste)
+    if [[ "$text" != IMGCLIP:* ]]; then
+        echo "No encoded image on clipboard"
+        return 1
+    fi
+    local tempfile=$(mktemp).png
+    echo "${text#IMGCLIP:}" | base64 -d > "$tempfile"
+    osascript -e "set the clipboard to (read POSIX file \"$tempfile\" as «class PNGf»)"
+    local size=$(stat -f%z "$tempfile")
+    rm "$tempfile"
+    echo "Restored ${size}b image to clipboard"
+}
+
 # Docker Compose directory navigation
 # Usage: cd2dc <container_name>
 # Example: cd2dc gm2-test-db
