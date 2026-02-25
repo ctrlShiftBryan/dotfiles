@@ -11,3 +11,5 @@
 \.claude/settings\.local\.json
 \.claude/teams
 \.DS_Store
+\.claude/plugins/blocklist\.json
+\.claude/mcp-needs-auth-cache\.json

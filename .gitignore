@@ -16,6 +16,8 @@ claude/.claude/plugins/installed_plugins.json
 claude/.claude/plugins/known_marketplaces.json
 claude/.claude/plugins/marketplaces/
 claude/.claude/stats-cache.json
+claude/.claude/plugins/blocklist.json
+claude/.claude/mcp-needs-auth-cache.json
 
 bavim/.config/bavim/lazy-lock.json
 
