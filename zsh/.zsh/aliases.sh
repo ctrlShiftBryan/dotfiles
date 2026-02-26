@@ -140,62 +140,81 @@ function cccdw() {
 }
 
 # git worktree helper
+# git worktree - checkout existing branch into worktree and navigate to it
 function gw() {
-    # Check if branch name is provided
     if [[ -z "$1" ]]; then
         echo "Error: Please provide a branch name"
-        echo "Usage: gw <branch-name>"
+        echo "Usage: gw <branch-name>  (branch must exist; use gwct to create)"
         return 1
     fi
-    
-    # Get current branch
+
     local current_branch=$(git branch --show-current)
-    
-    # Check if on main or master
     if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
-        echo "Error: You must be on 'main' or 'master' branch to create a worktree"
+        echo "Error: Must be on main/master to create a worktree"
         echo "Current branch: $current_branch"
         return 1
     fi
-    
-    # Get current directory name
+
     local current_dir=$(basename "$PWD")
     local worktrees_dir="../${current_dir}-worktrees"
     local new_worktree_path="${worktrees_dir}/$1"
-    
-    # Check if worktree path already exists
+
+    # Already exists as worktree dir — just navigate
     if [[ -d "$new_worktree_path" ]]; then
-        echo "Worktree already exists at: $new_worktree_path"
-        echo "Changing to existing worktree directory..."
         cd "$new_worktree_path"
-        echo "Changed to worktree directory: $PWD"
+        echo "Changed to existing worktree: $PWD"
         return 0
     fi
-    
-    # Check if branch already exists
-    if git show-ref --verify --quiet "refs/heads/$1"; then
-        echo "Branch '$1' already exists"
-        echo "Creating worktree with existing branch..."
-        # Create worktrees directory if it doesn't exist
-        if [[ ! -d "$worktrees_dir" ]]; then
-            echo "Creating worktrees directory: $worktrees_dir"
-            mkdir -p "$worktrees_dir"
-        fi
-        git worktree add "$new_worktree_path" "$1"
-    else
-        # Create worktrees directory if it doesn't exist
-        if [[ ! -d "$worktrees_dir" ]]; then
-            echo "Creating worktrees directory: $worktrees_dir"
-            mkdir -p "$worktrees_dir"
-        fi
-        # Create new branch and worktree
-        echo "Creating new branch '$1' and worktree at: $new_worktree_path"
-        git worktree add "$new_worktree_path" -b "$1"
+
+    # Branch must exist
+    if ! git show-ref --verify --quiet "refs/heads/$1"; then
+        echo "Error: Branch '$1' does not exist"
+        echo "Use 'gwct $1' to create a new branch + worktree"
+        return 1
     fi
-    
-    # Change to the new worktree directory
+
+    mkdir -p "$worktrees_dir"
+    git worktree add "$new_worktree_path" "$1"
     cd "$new_worktree_path"
-    echo "Changed to worktree directory: $PWD"
+    echo "Changed to worktree: $PWD"
+}
+
+# git worktree create - create new branch + worktree and navigate to it
+function gwct() {
+    if [[ -z "$1" ]]; then
+        echo "Error: Please provide a branch name"
+        echo "Usage: gwct <branch-name>"
+        return 1
+    fi
+
+    local current_branch=$(git branch --show-current)
+    if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
+        echo "Error: Must be on main/master to create a worktree"
+        echo "Current branch: $current_branch"
+        return 1
+    fi
+
+    local current_dir=$(basename "$PWD")
+    local worktrees_dir="../${current_dir}-worktrees"
+    local new_worktree_path="${worktrees_dir}/$1"
+
+    if [[ -d "$new_worktree_path" ]]; then
+        echo "Error: Worktree already exists at $new_worktree_path"
+        echo "Use 'gw $1' to navigate to it"
+        return 1
+    fi
+
+    if git show-ref --verify --quiet "refs/heads/$1"; then
+        echo "Error: Branch '$1' already exists"
+        echo "Use 'gw $1' to check it out as a worktree"
+        return 1
+    fi
+
+    mkdir -p "$worktrees_dir"
+    echo "Creating branch '$1' + worktree at: $new_worktree_path"
+    git worktree add "$new_worktree_path" -b "$1"
+    cd "$new_worktree_path"
+    echo "Changed to worktree: $PWD"
 }
 
 # git worktree intake - parse issue, create worktree, install deps, PRD, assign, draft PR
