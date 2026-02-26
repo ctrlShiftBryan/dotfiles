@@ -1,0 +1,108 @@
+{
+  "version": 3,
+  "skills": {
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "skillFolderHash": "761c2f359474328f40d73db9cb4cc1f5721917e5",
+      "installedAt": "2026-01-27T11:26:08.893Z",
+      "updatedAt": "2026-01-27T11:30:45.001Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-01-27T11:26:16.527Z",
+      "updatedAt": "2026-01-27T11:26:16.527Z"
+    },
+    "writing-clearly-and-concisely": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/softaworks/agent-toolkit.git",
+      "skillPath": "skills/writing-clearly-and-concisely/SKILL.md",
+      "skillFolderHash": "c87de46a961320ae78647293f80e9a5a4c50c908",
+      "installedAt": "2026-01-27T11:33:22.509Z",
+      "updatedAt": "2026-01-27T11:33:22.509Z"
+    },
+    "tailwind-design-system": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/wshobson/agents.git",
+      "skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+      "skillFolderHash": "55f639b507c63d6494292b9fd56fb6619b4ee46d",
+      "installedAt": "2026-01-27T11:34:28.145Z",
+      "updatedAt": "2026-01-27T11:34:28.145Z"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "skillFolderHash": "986c64ad9b8e196a4a737c01872c2eda790daba1",
+      "installedAt": "2026-01-27T11:35:25.999Z",
+      "updatedAt": "2026-01-27T11:35:25.999Z"
+    },
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/writing-skills/SKILL.md",
+      "skillFolderHash": "6396b432b11f15010bb3121d010ca3c3e50088bc",
+      "installedAt": "2026-01-27T12:20:13.354Z",
+      "updatedAt": "2026-01-27T12:20:13.354Z"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "skillFolderHash": "98904a7d8e0e04b9bd46220b9b17298f45fe0b72",
+      "installedAt": "2026-01-27T12:25:03.181Z",
+      "updatedAt": "2026-01-27T12:25:03.181Z"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "skillFolderHash": "828c239ac986cc1fc7edd10292f66e4a3640e9c0",
+      "installedAt": "2026-01-27T15:19:07.341Z",
+      "updatedAt": "2026-01-27T15:19:07.341Z"
+    },
+    "ios-simulator-skill": {
+      "source": "conorluddy/ios-simulator-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/conorluddy/ios-simulator-skill.git",
+      "skillPath": "ios-simulator-skill/SKILL.md",
+      "skillFolderHash": "ffa4cdb0d51a8fafa3aa38fe054ba6ceb6f97982",
+      "installedAt": "2026-02-17T14:18:35.910Z",
+      "updatedAt": "2026-02-17T14:18:35.910Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "88b7e785240d14ab80eb11abdd0cbd27b20055c6",
+      "installedAt": "2026-02-26T09:44:35.254Z",
+      "updatedAt": "2026-02-26T09:44:35.254Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode",
+    "claude-code"
+  ]
+}
