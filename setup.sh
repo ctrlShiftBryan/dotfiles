@@ -40,6 +40,11 @@ if [ ! -L "$HOME/.zshrc" ]; then
         mv "$HOME/.config/bavim" "$backup_dir/.config/"
     fi
 
+    # Backup .agents if it exists and is not a symlink
+    if [ -d "$HOME/.agents" ] && [ ! -L "$HOME/.agents" ]; then
+        mv "$HOME/.agents" "$backup_dir/"
+    fi
+
     # Report backups
     if [ "$(find "$backup_dir" -type f -o -type d -mindepth 1 | head -1)" ]; then
         echo "📦 Initial setup: existing files backed up to $backup_dir"
@@ -49,5 +54,5 @@ if [ ! -L "$HOME/.zshrc" ]; then
 fi
 
 # Run stow (will update symlinks if dotfiles changed)
-stow zsh bavim tmux wezterm starship
+stow zsh bavim tmux wezterm starship agents
 echo "Dotfiles synced and linked!"
