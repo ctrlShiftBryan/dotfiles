@@ -560,6 +560,79 @@ function gwc() {
     done
 }
 
+# git worktree cleanup auto - remove all merged worktrees
+function gwca() {
+    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    local git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+    if [[ "$git_common_dir" != "$(git rev-parse --git-dir)" ]]; then
+        echo "Error: Run from main repo, not a worktree"
+        return 1
+    fi
+
+    if ! command -v gh &>/dev/null; then
+        echo "Error: gh CLI required"
+        return 1
+    fi
+
+    local main_branch
+    if git show-ref --verify --quiet refs/heads/main; then
+        main_branch="main"
+    elif git show-ref --verify --quiet refs/heads/master; then
+        main_branch="master"
+    else
+        echo "Error: No main/master branch"
+        return 1
+    fi
+
+    local merged_worktrees=()
+    local wt_path wt_branch pr_info pr_state line
+
+    while IFS= read -r line; do
+        wt_path=$(echo "$line" | awk '{print $1}')
+
+        [[ "$line" =~ \(detached\ HEAD\) ]] && continue
+
+        wt_branch=$(echo "$line" | grep -oE '\[[^]]+\]$' | tr -d '[]')
+        [[ -z "$wt_branch" || "$wt_branch" == "$main_branch" ]] && continue
+
+        pr_info=$(gh pr list --head "$wt_branch" --state all --json state --jq '.[0].state' 2>/dev/null)
+        [[ "$pr_info" == "MERGED" ]] && merged_worktrees+=("$wt_branch")
+    done < <(git worktree list)
+
+    if [[ ${#merged_worktrees[@]} -eq 0 ]]; then
+        echo "No merged worktrees to clean up"
+        return 0
+    fi
+
+    echo "Cleaning ${#merged_worktrees[@]} merged worktree(s)..."
+    echo ""
+
+    local succeeded=()
+    local failed=()
+
+    for branch in "${merged_worktrees[@]}"; do
+        if gwc "$branch" 2>&1; then
+            succeeded+=("$branch")
+        else
+            failed+=("$branch")
+        fi
+        echo ""
+    done
+
+    echo "=== Cleanup Report ==="
+    echo "Succeeded: ${#succeeded[@]}"
+    for b in "${succeeded[@]}"; do echo "  ✓ $b"; done
+
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        echo "Failed: ${#failed[@]}"
+        for b in "${failed[@]}"; do echo "  ✗ $b"; done
+    fi
+}
+
 # safer file deletion (uses trash instead of rm)
 # wrapper strips -r/-f flags since trash handles dirs automatically
 rm() {
