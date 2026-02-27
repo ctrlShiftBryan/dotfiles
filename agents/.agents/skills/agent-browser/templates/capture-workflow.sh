@@ -22,47 +22,47 @@ mkdir -p "$OUTPUT_DIR"
 # Optional: Load authentication state
 # if [[ -f "./auth-state.json" ]]; then
 #     echo "Loading authentication state..."
-#     npx agent-browser state load "./auth-state.json"
+#     agent-browser state load "./auth-state.json"
 # fi
 
 # Navigate to target
-npx agent-browser open "$TARGET_URL"
-npx agent-browser wait --load networkidle
+agent-browser open "$TARGET_URL"
+agent-browser wait --load networkidle
 
 # Get metadata
-TITLE=$(npx agent-browser get title)
-URL=$(npx agent-browser get url)
+TITLE=$(agent-browser get title)
+URL=$(agent-browser get url)
 echo "Title: $TITLE"
 echo "URL: $URL"
 
 # Capture full page screenshot
-npx agent-browser screenshot --full "$OUTPUT_DIR/page-full.png"
+agent-browser screenshot --full "$OUTPUT_DIR/page-full.png"
 echo "Saved: $OUTPUT_DIR/page-full.png"
 
 # Get page structure with refs
-npx agent-browser snapshot -i > "$OUTPUT_DIR/page-structure.txt"
+agent-browser snapshot -i > "$OUTPUT_DIR/page-structure.txt"
 echo "Saved: $OUTPUT_DIR/page-structure.txt"
 
 # Extract all text content
-npx agent-browser get text body > "$OUTPUT_DIR/page-text.txt"
+agent-browser get text body > "$OUTPUT_DIR/page-text.txt"
 echo "Saved: $OUTPUT_DIR/page-text.txt"
 
 # Save as PDF
-npx agent-browser pdf "$OUTPUT_DIR/page.pdf"
+agent-browser pdf "$OUTPUT_DIR/page.pdf"
 echo "Saved: $OUTPUT_DIR/page.pdf"
 
 # Optional: Extract specific elements using refs from structure
-# npx agent-browser get text @e5 > "$OUTPUT_DIR/main-content.txt"
+# agent-browser get text @e5 > "$OUTPUT_DIR/main-content.txt"
 
 # Optional: Handle infinite scroll pages
 # for i in {1..5}; do
-#     npx agent-browser scroll down 1000
-#     npx agent-browser wait 1000
+#     agent-browser scroll down 1000
+#     agent-browser wait 1000
 # done
-# npx agent-browser screenshot --full "$OUTPUT_DIR/page-scrolled.png"
+# agent-browser screenshot --full "$OUTPUT_DIR/page-scrolled.png"
 
 # Cleanup
-npx agent-browser close
+agent-browser close
 
 echo ""
 echo "Capture complete:"

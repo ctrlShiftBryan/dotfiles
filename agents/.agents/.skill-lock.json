@@ -6,9 +6,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/brainstorming/SKILL.md",
-      "skillFolderHash": "761c2f359474328f40d73db9cb4cc1f5721917e5",
+      "skillFolderHash": "d28aa4ed67fe5a3f1336f0fcccb1e548c67dc864",
       "installedAt": "2026-01-27T11:26:08.893Z",
-      "updatedAt": "2026-01-27T11:30:45.001Z"
+      "updatedAt": "2026-02-27T11:16:03.597Z"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
@@ -24,9 +24,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/softaworks/agent-toolkit.git",
       "skillPath": "skills/writing-clearly-and-concisely/SKILL.md",
-      "skillFolderHash": "c87de46a961320ae78647293f80e9a5a4c50c908",
+      "skillFolderHash": "4bb2d919b567277219f7a18358bd05e0a1679a77",
       "installedAt": "2026-01-27T11:33:22.509Z",
-      "updatedAt": "2026-01-27T11:33:22.509Z"
+      "updatedAt": "2026-02-27T11:19:02.973Z"
     },
     "tailwind-design-system": {
       "source": "wshobson/agents",
@@ -71,7 +71,7 @@
       "skillPath": "skills/systematic-debugging/SKILL.md",
       "skillFolderHash": "828c239ac986cc1fc7edd10292f66e4a3640e9c0",
       "installedAt": "2026-01-27T15:19:07.341Z",
-      "updatedAt": "2026-01-27T15:19:07.341Z"
+      "updatedAt": "2026-02-27T11:16:03.651Z"
     },
     "ios-simulator-skill": {
       "source": "conorluddy/ios-simulator-skill",
@@ -88,8 +88,154 @@
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
       "skillFolderHash": "88b7e785240d14ab80eb11abdd0cbd27b20055c6",
+      "pluginName": "agent-browser",
       "installedAt": "2026-02-26T09:44:35.254Z",
-      "updatedAt": "2026-02-26T09:44:35.254Z"
+      "updatedAt": "2026-02-27T11:16:30.189Z"
+    },
+    "building-native-ui": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/building-native-ui/SKILL.md",
+      "skillFolderHash": "0078663cbdc42e388d2eb9c291dda1a0774eee29",
+      "installedAt": "2026-02-27T11:10:40.644Z",
+      "updatedAt": "2026-02-27T11:10:40.644Z"
+    },
+    "expo-api-routes": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/expo-api-routes/SKILL.md",
+      "skillFolderHash": "43ff4f9cb35a82e83b97cd48e0cd4dfa7aa912a1",
+      "installedAt": "2026-02-27T11:10:40.695Z",
+      "updatedAt": "2026-02-27T11:10:40.695Z"
+    },
+    "expo-cicd-workflows": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-deployment/skills/expo-cicd-workflows/SKILL.md",
+      "skillFolderHash": "3e9753a3ba093b8be385deb28db384d183f1e8b9",
+      "installedAt": "2026-02-27T11:10:40.746Z",
+      "updatedAt": "2026-02-27T11:10:40.746Z"
+    },
+    "expo-deployment": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-deployment/skills/expo-deployment/SKILL.md",
+      "skillFolderHash": "1b85cb69d451371559ff6af4f08283a0a6679d1c",
+      "installedAt": "2026-02-27T11:10:40.795Z",
+      "updatedAt": "2026-02-27T11:10:40.795Z"
+    },
+    "expo-dev-client": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/expo-dev-client/SKILL.md",
+      "skillFolderHash": "5adb1357248d76daeb2a80ee65824819b0b21a49",
+      "installedAt": "2026-02-27T11:10:40.844Z",
+      "updatedAt": "2026-02-27T11:10:40.844Z"
+    },
+    "expo-tailwind-setup": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/expo-tailwind-setup/SKILL.md",
+      "skillFolderHash": "bf60256bc226ad60a1eb0a6ce5e32b4aa83b5576",
+      "installedAt": "2026-02-27T11:10:40.895Z",
+      "updatedAt": "2026-02-27T11:10:40.895Z"
+    },
+    "native-data-fetching": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/native-data-fetching/SKILL.md",
+      "skillFolderHash": "43d26c96331a2240e33d319998d21da4191b5587",
+      "installedAt": "2026-02-27T11:10:40.944Z",
+      "updatedAt": "2026-02-27T11:10:40.944Z"
+    },
+    "upgrading-expo": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/upgrading-expo/skills/upgrading-expo/SKILL.md",
+      "skillFolderHash": "cfcc9ba12542031f7332426e2eb1ccf38c113c5e",
+      "installedAt": "2026-02-27T11:10:40.993Z",
+      "updatedAt": "2026-02-27T11:10:40.993Z"
+    },
+    "use-dom": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/expo/skills.git",
+      "skillPath": "plugins/expo-app-design/skills/use-dom/SKILL.md",
+      "skillFolderHash": "ce309744c9ec448b2a4ac7152910da46797e316a",
+      "installedAt": "2026-02-27T11:10:41.042Z",
+      "updatedAt": "2026-02-27T11:10:41.042Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
+      "pluginName": "example-skills",
+      "installedAt": "2026-02-27T11:14:32.246Z",
+      "updatedAt": "2026-02-27T11:14:32.246Z"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "skillFolderHash": "0a57c1590ddebe07ab4963238b6429447459659a",
+      "installedAt": "2026-02-27T11:16:03.704Z",
+      "updatedAt": "2026-02-27T11:16:03.704Z"
+    },
+    "verification-before-completion": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/verification-before-completion/SKILL.md",
+      "skillFolderHash": "ceb2f1f67f4cadb29b32a06e54d3d0be832071f5",
+      "installedAt": "2026-02-27T11:16:03.756Z",
+      "updatedAt": "2026-02-27T11:16:03.756Z"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "skillFolderHash": "7c90f50b6fe4631ed73563396a8f87a505915509",
+      "installedAt": "2026-02-27T11:16:03.808Z",
+      "updatedAt": "2026-02-27T11:16:03.808Z"
+    },
+    "excalidraw": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/softaworks/agent-toolkit.git",
+      "skillPath": "skills/excalidraw/SKILL.md",
+      "skillFolderHash": "535a7f7b3194cfe0bf308ad8f4558d066a7b95af",
+      "installedAt": "2026-02-27T11:19:03.028Z",
+      "updatedAt": "2026-02-27T11:19:03.028Z"
+    },
+    "humanizer": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/softaworks/agent-toolkit.git",
+      "skillPath": "skills/humanizer/SKILL.md",
+      "skillFolderHash": "004c1998fffe4d5cd4535123d65cf9fb1a107b64",
+      "installedAt": "2026-02-27T11:19:03.091Z",
+      "updatedAt": "2026-02-27T11:19:03.091Z"
+    },
+    "naming-analyzer": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/softaworks/agent-toolkit.git",
+      "skillPath": "skills/naming-analyzer/SKILL.md",
+      "skillFolderHash": "6717b98252ff6423dccbd77dc652dead434552bb",
+      "installedAt": "2026-02-27T11:19:03.151Z",
+      "updatedAt": "2026-02-27T11:19:03.151Z"
     }
   },
   "dismissed": {
@@ -97,6 +243,7 @@
   },
   "lastSelectedAgents": [
     "amp",
+    "cline",
     "codex",
     "cursor",
     "gemini-cli",
