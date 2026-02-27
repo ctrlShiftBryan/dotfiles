@@ -20,18 +20,10 @@ When presenting any implementation plan or strategy to the user, always:
 3. Example: `plans/2025-01-07-02-30pm-refactor-auth-system.md`
 
 4. The plan file should contain:
-
    - A clear title
    - Numbered steps or phases
    - Any relevant context or assumptions
    - Expected outcomes
-
-5. Always create this file BEFORE presenting the plan to the user, then reference it in your response
-
-6. When iterating or refining a plan based on user feedback:
-   - Update the existing plan file directly with the changes
-   - Do NOT just output changes in the prompt response
-   - Keep the plan clean and current without revision tracking
 
 This ensures all plans are:
 
@@ -39,41 +31,20 @@ This ensures all plans are:
 - Easily searchable and reviewable
 - Preserved for future reference
 - Organized in a dedicated location
-- Always reflect the current/latest version of the plan
 
-# when working with web urls and dev servers
+# Main Branch Plan Guard
 
-please write them to the file 'tmux-urls.cfg' in the root of the repository at the same level as the .git folder.
+After a plan is approved and before starting implementation, check if the current branch is the repo's main/default branch (main or master). If so:
 
-<example-tmux-urls.cfg>
-b: https://localhost:1234
-gg: http://localhost:3333/dev-login
-g: https://google.com
-</example-tmux-urls.cfg>
+1. Use AskUserQuestion to ask: "You're on the main branch. How should this plan be handled?"
+   - **Implement here on main** - proceed with implementation as normal
+   - **Post as GitHub issue** - create a GitHub issue with the plan title and full plan content as the body, then stop
 
-this will allow the user to quickly open a browser with the url using a keyboard shortcut, so this should be kept up to date
+When posting as a GitHub issue:
 
-use keyboard keys 'b,f,g,r,t,d,c,e' as needed
+- Use `gh issue create`
+- Title: the plan's heading
+- Body: full plan markdown content
+- After posting, show the issue URL and stop (do not implement)
 
-# LSP Code Intelligence
-
-Prefer LSP over Grep for semantic code operations:
-
-## Before Making Changes
-- `findReferences` - find all usages before modifying functions/types/interfaces
-- `incomingCalls` - find callers before changing signatures
-- `outgoingCalls` - understand dependencies before modifying
-- `goToImplementation` - find implementations before changing interfaces
-- `hover` - check types, docs, deprecation status
-
-## Understanding Code
-- `goToDefinition` - trace definitions
-- `documentSymbol` - file structure overview
-- `workspaceSymbol` - find existing code before writing new
-
-## After Changes
-- Check diagnostics for type errors/deprecations
-- `findReferences` to verify all usages updated
-
-## Use Grep For
-- Text/regex in strings, comments, non-code files
+If NOT on the main/default branch, skip this check and proceed normally.
