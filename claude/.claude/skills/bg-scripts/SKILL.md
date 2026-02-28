@@ -157,6 +157,10 @@ case "${1:-help}" in
     is_running "$EXPO_PID" && echo "Expo: running (PID: $(cat "$EXPO_PID"))" || echo "Expo: not running"
     is_running "$CONVEX_PID" && echo "Convex: running (PID: $(cat "$CONVEX_PID"))" || echo "Convex: not running"
     ;;
+  logs)
+    echo "=== Expo ===" && tail -50 "$EXPO_LOG" 2>/dev/null || echo "(no logs)"
+    echo "" && echo "=== Convex ===" && tail -50 "$CONVEX_LOG" 2>/dev/null || echo "(no logs)"
+    ;;
   restart)       stop_expo; stop_convex; sleep 2; start_expo; start_convex ;;
   expo:up)       start_expo ;;
   expo:down)     stop_expo ;;
@@ -187,6 +191,7 @@ Use `bg:<service>:<action>` naming. Combined commands omit the service name.
   "bg:up": "./scripts/bg.sh up",
   "bg:down": "./scripts/bg.sh down",
   "bg:status": "./scripts/bg.sh status",
+  "bg:logs": "./scripts/bg.sh logs",
   "bg:restart": "./scripts/bg.sh restart",
   "bg:clean": "./scripts/bg.sh clean",
   "bg:expo:up": "./scripts/bg.sh expo:up",
