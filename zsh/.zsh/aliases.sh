@@ -166,11 +166,23 @@ function gw() {
         return 0
     fi
 
-    # Branch must exist
+    # Branch must exist locally or on remote
     if ! git show-ref --verify --quiet "refs/heads/$1"; then
-        echo "Error: Branch '$1' does not exist"
-        echo "Use 'gwct $1' to create a new branch + worktree"
-        return 1
+        # Fetch latest remote refs before checking
+        git fetch origin --quiet 2>/dev/null
+        # Check if it exists on remote
+        if git show-ref --verify --quiet "refs/remotes/origin/$1"; then
+            # Create local tracking branch via worktree add
+            mkdir -p "$worktrees_dir"
+            git worktree add --track -b "$1" "$new_worktree_path" "origin/$1"
+            cd "$new_worktree_path"
+            echo "Changed to worktree: $PWD"
+            return 0
+        else
+            echo "Error: Branch '$1' does not exist locally or on origin"
+            echo "Use 'gwct $1' to create a new branch + worktree"
+            return 1
+        fi
     fi
 
     mkdir -p "$worktrees_dir"
