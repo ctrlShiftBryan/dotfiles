@@ -502,6 +502,7 @@ function gwc() {
 
     # Declare loop variables upfront (zsh quirk: local inside loops prints)
     local worktrees=()
+    declare -A wt_paths
     local wt_path wt_name wt_branch line name
 
     # Build worktree list (excluding main)
@@ -512,6 +513,7 @@ function gwc() {
         # Extract branch or detect detached
         if [[ "$line" =~ \(detached\ HEAD\) ]]; then
             worktrees+=("$wt_name")
+            wt_paths[$wt_name]="$wt_path"
             continue
         fi
 
@@ -520,6 +522,7 @@ function gwc() {
         # Skip main/master
         if [[ -n "$wt_branch" && "$wt_branch" != "$main_branch" ]]; then
             worktrees+=("$wt_branch")
+            wt_paths[$wt_branch]="$wt_path"
         fi
     done < <(git worktree list)
 
@@ -535,10 +538,6 @@ function gwc() {
         return 0
     fi
 
-    # Get repo name for worktree path
-    local current_dir=$(basename "$PWD")
-    local worktrees_dir="../${current_dir}-worktrees"
-
     # Process each argument
     for arg in "$@"; do
         if [[ "$arg" =~ ^[0-9]+$ ]]; then
@@ -553,7 +552,11 @@ function gwc() {
             name="$arg"
         fi
 
-        wt_path="${worktrees_dir}/${name}"
+        wt_path="${wt_paths[$name]}"
+        if [[ -z "$wt_path" ]]; then
+            echo "Skipping $name: not found in worktree list"
+            continue
+        fi
 
         # Remove worktree
         if git worktree remove "$wt_path" 2>/dev/null; then
