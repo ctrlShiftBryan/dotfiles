@@ -84,9 +84,19 @@ elif [[ "$ISSUE_LABELS" == *"enhancement"* ]]; then
     TYPE="feat"
 fi
 
-# Slugify title
-SLUG=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
-SLUG="${SLUG:0:50}"
+# Generate short slug via LLM, fallback to naive slugify
+if command -v claude &>/dev/null; then
+    echo -e "${CYAN}Generating short branch name...${NC}"
+    LLM_SLUG=$(claude -p --model haiku "Given this issue title, respond with ONLY 3-4 lowercase hyphenated words that capture the essence. No explanation, no quotes, just the words. Example input: 'Upgrade GM2 Expo SDK 52-54 for iOS 26 SDK requirements' Example output: upgrade-expo-52-54. Title: '${ISSUE_TITLE}'" 2>/dev/null | tr -d '[:space:]' | sed 's/[^a-z0-9-]//g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+fi
+
+if [[ -z "$LLM_SLUG" ]]; then
+    # Fallback: naive slugify truncated
+    SLUG=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+    SLUG="${SLUG:0:30}"
+else
+    SLUG="$LLM_SLUG"
+fi
 
 if [[ -n "$ISSUE_NUM" ]]; then
     BRANCH="${TYPE}/${ISSUE_NUM}-${SLUG}"
