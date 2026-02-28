@@ -99,3 +99,11 @@ export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 
 # opencode
 export PATH=/Users/bryanarendt/.opencode/bin:$PATH
+
+# pnpm
+export PNPM_HOME="/Users/bryanarendt/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
