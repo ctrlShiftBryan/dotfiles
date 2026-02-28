@@ -670,7 +670,7 @@ alias codei="code-insiders"
 
 # eza (better ls)
 alias l="eza --icons -snew"
-alias ls="eza --icons -snew"
+alias ls="eza --icons -lag -snew"
 alias ll="eza -lg --icons -snew"
 alias la="eza -lag --icons -snew"
 
