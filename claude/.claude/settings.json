@@ -20,13 +20,24 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_HOOK_EVENT=PreToolUse node ~/.claude/hooks/main-branch-guard.js"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "ExitPlanMode",
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/hooks/plan-rename.js"
+            "command": "CLAUDE_HOOK_EVENT=PostToolUse node ~/.claude/hooks/main-branch-guard.js"
           }
         ]
       }
@@ -50,16 +61,7 @@
         ]
       }
     ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ~/.claude/hooks/plan-rename-cleanup.js"
-          }
-        ]
-      }
-    ],
+    "SessionEnd": [],
     "SessionStart": [
       {
         "matcher": ".*",
@@ -67,6 +69,10 @@
           {
             "type": "command",
             "command": "node ~/.claude/hooks/anders-session-start.js"
+          },
+          {
+            "type": "command",
+            "command": "rm -f /tmp/claude-main-guard-*"
           }
         ]
       }
