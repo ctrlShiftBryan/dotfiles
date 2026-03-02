@@ -3,6 +3,9 @@
 
 set +e
 
+# Interactive mode: GWI_INTERACTIVE=1 prompts, 0 accepts defaults (yes for y/N, skip for edits)
+INTERACTIVE="${GWI_INTERACTIVE:-1}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -21,8 +24,37 @@ die() { echo -e "${RED}Error: $1${NC}" >&2; exit 1; }
 git rev-parse --is-inside-work-tree &>/dev/null || die "not in a git repo"
 
 CURRENT_BRANCH=$(git branch --show-current)
-[[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]] || \
-    die "must be on main/master (currently on $CURRENT_BRANCH)"
+MAIN_REPO=""
+
+__gwi_resolve_main_repo() {
+    local git_common_dir git_dir
+    git_common_dir=$(cd "$(git rev-parse --git-common-dir 2>/dev/null)" && pwd) || return 1
+    git_dir=$(cd "$(git rev-parse --git-dir 2>/dev/null)" && pwd) || return 1
+
+    if [[ "$git_common_dir" != "$git_dir" ]]; then
+        # Inside a worktree
+        echo -e "${YELLOW}⚠  You're in worktree '${CURRENT_BRANCH}'.${NC}" >&2
+        if [[ "$INTERACTIVE" == "1" ]]; then
+            printf "${BOLD}Create from main repo? [y/N]:${NC} " >&2
+            read -r reply
+            if [[ ! "$reply" =~ ^[Yy]$ ]]; then
+                echo "Aborted." >&2
+                return 1
+            fi
+        else
+            echo -e "${CYAN}Creating from main repo (auto)${NC}" >&2
+        fi
+        git worktree list --porcelain | head -1 | sed 's/^worktree //'
+    else
+        if [[ "$CURRENT_BRANCH" != "main" && "$CURRENT_BRANCH" != "master" ]]; then
+            echo -e "${RED}Error: must be on main/master (currently on $CURRENT_BRANCH)${NC}" >&2
+            return 1
+        fi
+        pwd
+    fi
+}
+
+MAIN_REPO=$(__gwi_resolve_main_repo) || exit 1
 
 [[ -n "$1" ]] || die "usage: gwi <issue-url|issue-number|\"text\">"
 
@@ -104,16 +136,18 @@ else
     BRANCH="${TYPE}/${SLUG}"
 fi
 
-# Interactive confirm — let user edit branch name
+# Branch name confirm
 echo -e "${BOLD}Branch:${NC} $BRANCH"
-printf "New name (enter to accept): "
-read -r USER_BRANCH
-[[ -n "$USER_BRANCH" ]] && BRANCH="$USER_BRANCH"
+if [[ "$INTERACTIVE" == "1" ]]; then
+    printf "New name (enter to accept): "
+    read -r USER_BRANCH
+    [[ -n "$USER_BRANCH" ]] && BRANCH="$USER_BRANCH"
+fi
 
 # ── 4. Create Worktree ──────────────────────────────────────────────────────
 
-REPO_DIR=$(basename "$PWD")
-WORKTREES_DIR="../${REPO_DIR}-worktrees"
+REPO_DIR=$(basename "$MAIN_REPO")
+WORKTREES_DIR="$(dirname "$MAIN_REPO")/${REPO_DIR}-worktrees"
 WT_PATH="${WORKTREES_DIR}/${BRANCH}"
 
 if [[ -d "$WT_PATH" ]]; then
@@ -121,10 +155,10 @@ if [[ -d "$WT_PATH" ]]; then
     summary_add "${GREEN}+ worktree (existing)${NC}"
 else
     mkdir -p "$WORKTREES_DIR"
-    if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
-        git worktree add "$WT_PATH" "$BRANCH" || die "worktree creation failed"
+    if git -C "$MAIN_REPO" show-ref --verify --quiet "refs/heads/$BRANCH"; then
+        git -C "$MAIN_REPO" worktree add "$WT_PATH" "$BRANCH" || die "worktree creation failed"
     else
-        git worktree add "$WT_PATH" -b "$BRANCH" || die "worktree creation failed"
+        git -C "$MAIN_REPO" worktree add "$WT_PATH" -b "$BRANCH" || die "worktree creation failed"
     fi
     summary_add "${GREEN}+ worktree created${NC}"
 fi
@@ -179,8 +213,11 @@ fi
 # ── 7. Assign Issue (optional, issue mode only) ─────────────────────────────
 
 if [[ "$MODE" == "issue" && -n "$ISSUE_NUM" ]]; then
-    printf "${BOLD}Assign issue #${ISSUE_NUM} to yourself? [y/N]:${NC} "
-    read -r ASSIGN_REPLY
+    ASSIGN_REPLY="y"
+    if [[ "$INTERACTIVE" == "1" ]]; then
+        printf "${BOLD}Assign issue #${ISSUE_NUM} to yourself? [y/N]:${NC} "
+        read -r ASSIGN_REPLY
+    fi
     if [[ "$ASSIGN_REPLY" =~ ^[Yy]$ ]]; then
         ASSIGN_ARGS=""
         [[ -n "$REPO" ]] && ASSIGN_ARGS="--repo $REPO"
@@ -206,8 +243,11 @@ fi
 
 # ── 8. Push + Draft PR (optional) ───────────────────────────────────────────
 
-printf "${BOLD}Push + open draft PR? [y/N]:${NC} "
-read -r PR_REPLY
+PR_REPLY="y"
+if [[ "$INTERACTIVE" == "1" ]]; then
+    printf "${BOLD}Push + open draft PR? [y/N]:${NC} "
+    read -r PR_REPLY
+fi
 if [[ "$PR_REPLY" =~ ^[Yy]$ ]]; then
     # Commit PRD
     git add PRD.*.md 2>/dev/null

@@ -139,7 +139,46 @@ function cccdw() {
     claude --dangerously-skip-permissions --resume query --add-dir "$worktrees_dir" "$@"
 }
 
-# git worktree helper
+# ── worktree helpers ──────────────────────────────────────────────────────────
+
+# Resolve main repo path — works from main repo or inside a worktree.
+# If in a worktree, warns and prompts for confirmation.
+# Prints the main repo absolute path on success; returns 1 on decline.
+__gw_resolve_main_repo() {
+    local git_common_dir git_dir
+    git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null) || return 1
+    git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 1
+
+    # Normalise to absolute paths for comparison
+    git_common_dir=$(cd "$git_common_dir" && pwd)
+    git_dir=$(cd "$git_dir" && pwd)
+
+    if [[ "$git_common_dir" != "$git_dir" ]]; then
+        # We're inside a worktree
+        local current_branch
+        current_branch=$(git branch --show-current)
+        echo "⚠  You're in worktree '${current_branch}'." >&2
+        printf "Create from main repo? [y/N]: " >&2
+        read -r reply
+        if [[ ! "$reply" =~ ^[Yy]$ ]]; then
+            echo "Aborted." >&2
+            return 1
+        fi
+        # First entry of `git worktree list` is always the main working tree
+        git worktree list --porcelain | head -1 | sed 's/^worktree //'
+    else
+        # Already in main repo — but still enforce main/master branch
+        local current_branch
+        current_branch=$(git branch --show-current)
+        if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
+            echo "Error: Must be on main/master to create a worktree" >&2
+            echo "Current branch: $current_branch" >&2
+            return 1
+        fi
+        pwd
+    fi
+}
+
 # git worktree - checkout existing branch into worktree and navigate to it
 function gw() {
     if [[ -z "$1" ]]; then
@@ -148,15 +187,11 @@ function gw() {
         return 1
     fi
 
-    local current_branch=$(git branch --show-current)
-    if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
-        echo "Error: Must be on main/master to create a worktree"
-        echo "Current branch: $current_branch"
-        return 1
-    fi
+    local base_repo
+    base_repo=$(__gw_resolve_main_repo) || return 1
 
-    local current_dir=$(basename "$PWD")
-    local worktrees_dir="../${current_dir}-worktrees"
+    local current_dir=$(basename "$base_repo")
+    local worktrees_dir="$(dirname "$base_repo")/${current_dir}-worktrees"
     local new_worktree_path="${worktrees_dir}/$1"
 
     # Already exists as worktree dir — just navigate
@@ -167,14 +202,14 @@ function gw() {
     fi
 
     # Branch must exist locally or on remote
-    if ! git show-ref --verify --quiet "refs/heads/$1"; then
+    if ! git -C "$base_repo" show-ref --verify --quiet "refs/heads/$1"; then
         # Fetch latest remote refs before checking
-        git fetch origin --quiet 2>/dev/null
+        git -C "$base_repo" fetch origin --quiet 2>/dev/null
         # Check if it exists on remote
-        if git show-ref --verify --quiet "refs/remotes/origin/$1"; then
+        if git -C "$base_repo" show-ref --verify --quiet "refs/remotes/origin/$1"; then
             # Create local tracking branch via worktree add
             mkdir -p "$worktrees_dir"
-            git worktree add --track -b "$1" "$new_worktree_path" "origin/$1"
+            git -C "$base_repo" worktree add --track -b "$1" "$new_worktree_path" "origin/$1"
             cd "$new_worktree_path"
             echo "Changed to worktree: $PWD"
             return 0
@@ -186,7 +221,7 @@ function gw() {
     fi
 
     mkdir -p "$worktrees_dir"
-    git worktree add "$new_worktree_path" "$1"
+    git -C "$base_repo" worktree add "$new_worktree_path" "$1"
     cd "$new_worktree_path"
     echo "Changed to worktree: $PWD"
 }
@@ -199,15 +234,11 @@ function gwct() {
         return 1
     fi
 
-    local current_branch=$(git branch --show-current)
-    if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
-        echo "Error: Must be on main/master to create a worktree"
-        echo "Current branch: $current_branch"
-        return 1
-    fi
+    local base_repo
+    base_repo=$(__gw_resolve_main_repo) || return 1
 
-    local current_dir=$(basename "$PWD")
-    local worktrees_dir="../${current_dir}-worktrees"
+    local current_dir=$(basename "$base_repo")
+    local worktrees_dir="$(dirname "$base_repo")/${current_dir}-worktrees"
     local new_worktree_path="${worktrees_dir}/$1"
 
     if [[ -d "$new_worktree_path" ]]; then
@@ -216,7 +247,7 @@ function gwct() {
         return 1
     fi
 
-    if git show-ref --verify --quiet "refs/heads/$1"; then
+    if git -C "$base_repo" show-ref --verify --quiet "refs/heads/$1"; then
         echo "Error: Branch '$1' already exists"
         echo "Use 'gw $1' to check it out as a worktree"
         return 1
@@ -224,15 +255,29 @@ function gwct() {
 
     mkdir -p "$worktrees_dir"
     echo "Creating branch '$1' + worktree at: $new_worktree_path"
-    git worktree add "$new_worktree_path" -b "$1"
+    git -C "$base_repo" worktree add "$new_worktree_path" -b "$1"
     cd "$new_worktree_path"
     echo "Changed to worktree: $PWD"
 }
 
-# git worktree intake - parse issue, create worktree, install deps, PRD, assign, draft PR
+# git worktree intake - non-interactive, accepts all defaults
 function gwi() {
     local tmpfile=$(mktemp)
-    GWI_RESULT_FILE="$tmpfile" "$HOME/.zsh/scripts/gwi-exec" "$@"
+    GWI_INTERACTIVE=0 GWI_RESULT_FILE="$tmpfile" "$HOME/.zsh/scripts/gwi-exec" "$@"
+    local rc=$?
+    local cd_path=$(cat "$tmpfile" 2>/dev/null)
+    rm -f "$tmpfile"
+    if [[ -n "$cd_path" && -d "$cd_path" ]]; then
+        cd "$cd_path"
+        echo "Changed to worktree: $PWD"
+    fi
+    return $rc
+}
+
+# git worktree intake - interactive with prompts
+function gwip() {
+    local tmpfile=$(mktemp)
+    GWI_INTERACTIVE=1 GWI_RESULT_FILE="$tmpfile" "$HOME/.zsh/scripts/gwi-exec" "$@"
     local rc=$?
     local cd_path=$(cat "$tmpfile" 2>/dev/null)
     rm -f "$tmpfile"
