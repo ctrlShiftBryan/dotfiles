@@ -1,11 +1,13 @@
 ---
 name: review-address
-description: 'Auto-resolve ALL PR review feedback (human + bot). Fetches unhandled comments, fixes or pushes back, commits, pushes, replies inline, optionally requests re-review. Re-runnable.'
+description: 'Auto-resolve ALL PR review feedback (human + bot). Fetches ALL comments, fixes or pushes back on each, commits, pushes, replies inline on every run, optionally requests re-review. Re-runnable.'
 ---
 
 # Review Address — Automatic PR Review Resolver
 
-Fully automatic. Fetches ALL review comments from the current PR (human reviewers, bots, everyone), fixes or pushes back on each, commits, pushes, replies inline. CodeRabbit `@coderabbitai resolve` is a special case triggered only when all CR comments are cleared.
+MANDATORY: Post an inline reply to every non-author inline comment on the PR, regardless of resolved/handled state.
+
+Fully automatic. Fetches ALL review comments from the current PR (human reviewers, bots, everyone), fixes or pushes back on each, commits, pushes, replies inline on every run. CodeRabbit `@coderabbitai resolve` is a special case triggered only when all CR comments are cleared.
 
 ## Process (Default — Not in Plan Mode)
 
@@ -40,14 +42,14 @@ Three paginated API calls (no login filter):
 
 Discard all comments where `.user.login == PR_AUTHOR`. These are the PR author's own comments — not review feedback.
 
-### 4. Filter Unhandled
+### 4. Select Comments (reply to all)
 
-A comment is "handled" if its thread has a reply from `PR_AUTHOR` (not just "any non-bot" — a bot replying to another bot doesn't count).
+Keep every review comment where `.user.login != PR_AUTHOR`. Compute `handled_by_author` (whether PR_AUTHOR already replied in thread) only as metadata for reply wording — never skip a comment because of it.
 
-- **Inline comments:** check `in_reply_to_id` chain for a reply where `.user.login == PR_AUTHOR`
-- **Top-level comments:** check subsequent comments by PR_AUTHOR
+- **Inline comments:** check `in_reply_to_id` chain for a reply where `.user.login == PR_AUTHOR` → set `handled_by_author: true`
+- **Top-level comments:** check subsequent comments by PR_AUTHOR → set `handled_by_author: true`
 
-Skip handled comments.
+Triage every kept comment (address or push back), even if already handled/resolved.
 
 ### 5. Group by Reviewer
 
@@ -120,9 +122,9 @@ If triggered while in plan mode: **do not act**. Instead produce a triage table 
 
 ## Principles
 
+- **Every reviewer comment gets a response on each run** — including previously handled/resolved
+- **Re-runnable means safe to run repeatedly** — not "skip handled"
 - **KISS** — minimal fixes, no over-engineering
-- **Re-runnable** — skip already-handled comments (PR_AUTHOR replied)
-- **Every comment gets a response** — nothing ignored silently
 - **Push back when warranted** — not all suggestions are improvements
 - **Single commit** — one commit for all fixes
 - **Reviewer-grouped** — triage organized by commenter for clarity
@@ -134,7 +136,7 @@ If triggered while in plan mode: **do not act**. Instead produce a triage table 
 | No open PR | stop with message |
 | No review comments | stop with message |
 | All from PR author | stop: "no reviewer comments to address" |
-| All already handled | stop: "all comments already addressed" |
+| All previously handled | still reply to all with follow-up status |
 | All push-backs | skip commit/push, only reply |
 | No human reviewers addressed | skip re-review prompt |
 | No CodeRabbit comments | skip `@coderabbitai resolve` |
