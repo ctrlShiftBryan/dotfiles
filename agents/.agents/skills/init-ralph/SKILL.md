@@ -1,3 +1,9 @@
+---
+name: init-ralph
+description: "Convert plan markdown into Ralph Agent implementation tracking docs with phase beans."
+user_invocable: true
+---
+
 # /init-ralph - Convert Plan to Ralph Agent Implementation Docs
 
 Convert plan markdown into Ralph Agent implementation tracking docs.

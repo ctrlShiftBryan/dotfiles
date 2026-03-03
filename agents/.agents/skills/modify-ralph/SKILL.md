@@ -1,3 +1,9 @@
+---
+name: modify-ralph
+description: "Update existing Ralph tracking docs and beans when a plan changes mid-implementation."
+user_invocable: true
+---
+
 # /modify-ralph - Modify Ralph Agent Phases with New Plan
 
 Update existing Ralph tracking docs and beans when a plan changes mid-implementation. Adds new phases, replaces incomplete phases, or inserts sub-phases based on a revised plan.
