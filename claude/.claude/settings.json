@@ -89,5 +89,6 @@
   },
   "alwaysThinkingEnabled": true,
   "plansDirectory": "./plans/",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "high"
 }
