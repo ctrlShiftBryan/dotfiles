@@ -79,12 +79,16 @@ case "${1:-help}" in
     sleep 2
     "$0" up
     ;;
+  logs:clear)
+    truncate -s 0 "$LOG_FILE" 2>/dev/null || true
+    echo "Logs cleared"
+    ;;
   clean)
     rm -rf tmp/
     echo "Cleaned tmp/"
     ;;
   *)
-    echo "Usage: $0 {up|down|status|logs|logs-watch|restart|clean}"
+    echo "Usage: $0 {up|down|status|logs|logs-watch|logs:clear|restart|clean}"
     ;;
 esac
 ```
@@ -97,6 +101,7 @@ esac
   "bg:down": "./scripts/bg.sh down",
   "bg:logs": "./scripts/bg.sh logs",
   "bg:logs-watch": "./scripts/bg.sh logs-watch",
+  "bg:logs:clear": "./scripts/bg.sh logs:clear",
   "bg:status": "./scripts/bg.sh status",
   "bg:restart": "./scripts/bg.sh restart",
   "bg:clean": "./scripts/bg.sh clean"
@@ -174,10 +179,17 @@ case "${1:-help}" in
   convex:logs)   tail -50 "$CONVEX_LOG" ;;
   convex:logs-watch) tail -f "$CONVEX_LOG" ;;
   convex:restart) stop_convex; sleep 2; start_convex ;;
+  logs:clear)
+    truncate -s 0 "$EXPO_LOG" 2>/dev/null || true
+    truncate -s 0 "$CONVEX_LOG" 2>/dev/null || true
+    echo "Logs cleared"
+    ;;
+  expo:logs-clear)  truncate -s 0 "$EXPO_LOG" 2>/dev/null; echo "Expo logs cleared" ;;
+  convex:logs-clear) truncate -s 0 "$CONVEX_LOG" 2>/dev/null; echo "Convex logs cleared" ;;
   clean)         rm -rf tmp/; echo "Cleaned tmp/" ;;
   *)
-    echo "Usage: bg.sh {up|down|status|restart|clean}"
-    echo "  Per-service: bg.sh {expo|convex}:{up|down|status|logs|logs-watch|restart}"
+    echo "Usage: bg.sh {up|down|status|restart|logs:clear|clean}"
+    echo "  Per-service: bg.sh {expo|convex}:{up|down|status|logs|logs-watch|logs-clear|restart}"
     ;;
 esac
 ```
@@ -192,6 +204,7 @@ Use `bg:<service>:<action>` naming. Combined commands omit the service name.
   "bg:down": "./scripts/bg.sh down",
   "bg:status": "./scripts/bg.sh status",
   "bg:logs": "./scripts/bg.sh logs",
+  "bg:logs:clear": "./scripts/bg.sh logs:clear",
   "bg:restart": "./scripts/bg.sh restart",
   "bg:clean": "./scripts/bg.sh clean",
   "bg:expo:up": "./scripts/bg.sh expo:up",
@@ -199,12 +212,14 @@ Use `bg:<service>:<action>` naming. Combined commands omit the service name.
   "bg:expo:status": "./scripts/bg.sh expo:status",
   "bg:expo:logs": "./scripts/bg.sh expo:logs",
   "bg:expo:logs-watch": "./scripts/bg.sh expo:logs-watch",
+  "bg:expo:logs-clear": "./scripts/bg.sh expo:logs-clear",
   "bg:expo:restart": "./scripts/bg.sh expo:restart",
   "bg:convex:up": "./scripts/bg.sh convex:up",
   "bg:convex:down": "./scripts/bg.sh convex:down",
   "bg:convex:status": "./scripts/bg.sh convex:status",
   "bg:convex:logs": "./scripts/bg.sh convex:logs",
   "bg:convex:logs-watch": "./scripts/bg.sh convex:logs-watch",
+  "bg:convex:logs-clear": "./scripts/bg.sh convex:logs-clear",
   "bg:convex:restart": "./scripts/bg.sh convex:restart"
 }
 ```
