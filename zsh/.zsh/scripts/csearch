@@ -1,0 +1,264 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HISTORY_FILE="$HOME/.claude/history.jsonl"
+PROJECTS_DIR="$HOME/.claude/projects"
+TERM_WIDTH=$(tput cols 2>/dev/null || echo 80)
+
+# colors (disabled when piped)
+if [[ -t 1 ]]; then
+  C_HEADER=$'\033[1;36m'  # bold cyan
+  C_DIM=$'\033[2m'        # dim
+  C_MATCH=$'\033[1;33m'   # bold yellow
+  C_RESET=$'\033[0m'
+else
+  C_HEADER="" C_DIM="" C_MATCH="" C_RESET=""
+fi
+
+usage() {
+  cat <<'EOF'
+Usage: csearch <pattern> [options]
+
+Search Claude conversation history for user messages.
+
+Options:
+  -f, --full        Search full JSONL session files (slower, more detail)
+  -p, --project     Filter results by project name substring
+  -n, --limit       Max results (default: 20)
+  -r, --range       Only show results from last N days (default: 7, 0 for all)
+  -s, --sensitive   Case sensitive (default: case insensitive)
+  -h, --help        Show this help
+EOF
+  exit 0
+}
+
+# defaults
+FULL=0
+PROJECT_FILTER=""
+LIMIT=20
+RANGE_DAYS="7"
+CASE_FLAG="-i"
+PATTERN=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f|--full) FULL=1; shift ;;
+    -p|--project) PROJECT_FILTER="$2"; shift 2 ;;
+    -n|--limit) LIMIT="$2"; shift 2 ;;
+    -r|--range) RANGE_DAYS="$2"; shift 2 ;;
+    -s|--sensitive) CASE_FLAG=""; shift ;;
+    -h|--help) usage ;;
+    -*) echo "Unknown option: $1" >&2; exit 1 ;;
+    *) PATTERN="$1"; shift ;;
+  esac
+done
+
+if [[ -z "$PATTERN" ]]; then
+  usage
+fi
+
+# compute cutoff epoch seconds if range specified
+CUTOFF_EPOCH=0
+if [[ "$RANGE_DAYS" -gt 0 ]] 2>/dev/null; then
+  CUTOFF_EPOCH=$(( $(date +%s) - (RANGE_DAYS * 86400) ))
+fi
+
+ts_to_epoch() {
+  local ts="$1"
+  if [[ "$ts" =~ ^[0-9]+$ ]]; then
+    echo "$((ts / 1000))"
+  else
+    date -j -f "%Y-%m-%dT%H:%M:%S" "${ts%%.*}" "+%s" 2>/dev/null || echo "0"
+  fi
+}
+
+format_ts() {
+  date -r "$1" "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown"
+}
+
+shorten_path() {
+  echo "${1/#$HOME/~}"
+}
+
+# render sorted results as cards
+# input: tab-delimited lines (epoch \t timestamp \t short_name \t project_path \t session_id \t message)
+render_results() {
+  local tmpfile="$1"
+  local indent="  "
+  local wrap_width=$((TERM_WIDTH - 2))
+  [[ $wrap_width -lt 40 ]] && wrap_width=40
+
+  sort -t$'\t' -k1 -rn "$tmpfile" | head -n "$LIMIT" | while IFS=$'\t' read -r _epoch formatted_ts short_name project_path session_id message; do
+    # header line
+    local header="── ${formatted_ts} ── ${short_name} "
+    local pad_len=$((TERM_WIDTH - ${#header}))
+    local padding=""
+    if [[ $pad_len -gt 0 ]]; then
+      padding=$(printf '%*s' "$pad_len" '' | tr ' ' '─')
+    fi
+    echo "${C_HEADER}${header}${padding}${C_RESET}"
+
+    # path + session (highlight matches in path)
+    local sed_flag=""
+    [[ -n "$CASE_FLAG" ]] && sed_flag="I"
+    echo "${C_DIM}${indent}$(shorten_path "$project_path")${C_RESET}" | sed -E "s/(${PATTERN})/${C_MATCH}\1${C_DIM}/g${sed_flag}"
+    echo "${C_DIM}${indent}session: ${session_id}${C_RESET}"
+
+    echo ""
+
+    # decode unit separator back to newlines, extract 500-char window around match, wrap, highlight
+    local decoded
+    decoded=$(printf '%s' "$message" | tr $'\x1f' '\n')
+    local body
+    if [[ ${#decoded} -le 500 ]]; then
+      body="$decoded"
+    else
+      # find match position and center 500-char window around it
+      local grep_flags="-ob"
+      [[ -n "$CASE_FLAG" ]] && grep_flags="-obi"
+      local match_pos
+      match_pos=$(echo "$decoded" | grep $grep_flags -m1 "$PATTERN" 2>/dev/null | head -1 | cut -d: -f1)
+      if [[ -n "$match_pos" ]]; then
+        local start=$((match_pos - 250))
+        [[ $start -lt 0 ]] && start=0
+        body="${decoded:$start:500}"
+        [[ $start -gt 0 ]] && body="...${body}"
+        [[ $((start + 500)) -lt ${#decoded} ]] && body="${body}..."
+      else
+        body="${decoded:0:500}"
+        [[ ${#decoded} -gt 500 ]] && body="${body}..."
+      fi
+    fi
+    echo "${indent}${body}" | fold -s -w "$wrap_width" | sed -E "s/(${PATTERN})/${C_MATCH}\1${C_RESET}/g${sed_flag}"
+
+    echo ""
+  done
+}
+
+search_history() {
+  if [[ ! -f "$HISTORY_FILE" ]]; then
+    echo "No history.jsonl found at $HISTORY_FILE" >&2
+    exit 1
+  fi
+
+  local rg_args=(${CASE_FLAG:+"$CASE_FLAG"} --no-filename "$PATTERN" "$HISTORY_FILE")
+  local tmpfile
+  tmpfile=$(mktemp)
+  trap "rm -f '$tmpfile'" EXIT
+
+  rg "${rg_args[@]}" 2>/dev/null | while IFS= read -r line; do
+    local project ts display session_id
+    project=$(echo "$line" | jq -r '.project // empty' 2>/dev/null) || continue
+    [[ -z "$project" ]] && continue
+
+    if [[ -n "$PROJECT_FILTER" ]]; then
+      echo "$project" | grep ${CASE_FLAG:+"$CASE_FLAG"} -q "$PROJECT_FILTER" || continue
+    fi
+
+    ts=$(echo "$line" | jq -r '.timestamp // empty' 2>/dev/null) || continue
+    display=$(echo "$line" | jq -r '.display // empty' 2>/dev/null) || continue
+    [[ -z "$display" ]] && continue
+
+    # expand [Pasted text #N ...] placeholders with actual content
+    if [[ "$display" == *"[Pasted text #"* ]]; then
+      local expanded
+      expanded=$(echo "$line" | jq -r '
+        (.pastedContents // {}) as $pc |
+        .display |
+        gsub("\\[Pasted text #(?<n>[0-9]+)[^]]*\\]";
+          ($pc[.n].content // "[pasted content unavailable]"))
+      ' 2>/dev/null) && [[ -n "$expanded" ]] && display="$expanded"
+    fi
+    # re-check pattern matches display or project (rg may have matched other JSON fields)
+    if [[ -n "$CASE_FLAG" ]]; then
+      { echo "$display" | grep -qi "$PATTERN" || echo "$project" | grep -qi "$PATTERN"; } || continue
+    else
+      { echo "$display" | grep -q "$PATTERN" || echo "$project" | grep -q "$PATTERN"; } || continue
+    fi
+
+    session_id=$(echo "$line" | jq -r '.sessionId // "n/a"' 2>/dev/null)
+
+    local epoch
+    epoch=$(ts_to_epoch "$ts")
+    [[ $CUTOFF_EPOCH -gt 0 && $epoch -lt $CUTOFF_EPOCH ]] && continue
+
+    local short_name="${project##*/}"
+    local formatted_ts
+    formatted_ts=$(format_ts "$epoch")
+
+    # encode newlines as unit separator for tab-delimited storage
+    local encoded_display
+    encoded_display=$(printf '%s' "$display" | tr '\n' $'\x1f')
+    printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$epoch" "$formatted_ts" "$short_name" "$project" "$session_id" "$encoded_display"
+  done > "$tmpfile"
+
+  render_results "$tmpfile"
+}
+
+search_full() {
+  if [[ ! -d "$PROJECTS_DIR" ]]; then
+    echo "No projects dir at $PROJECTS_DIR" >&2
+    exit 1
+  fi
+
+  local rg_args=(${CASE_FLAG:+"$CASE_FLAG"} "$PATTERN" "$PROJECTS_DIR" --glob '*.jsonl' --glob '!**/subagents/**' --with-filename)
+  local tmpfile
+  tmpfile=$(mktemp)
+  trap "rm -f '$tmpfile'" EXIT
+
+  rg "${rg_args[@]}" 2>/dev/null \
+    | grep '"type"' \
+    | grep '"user"' \
+    | while IFS= read -r line; do
+        local filepath="${line%%:*}"
+        local json="${line#*:}"
+
+        local msg_type content_type
+        msg_type=$(echo "$json" | jq -r '.type // empty' 2>/dev/null) || continue
+        [[ "$msg_type" != "user" ]] && continue
+
+        content_type=$(echo "$json" | jq -r '.message.content | type' 2>/dev/null) || continue
+        [[ "$content_type" != "string" ]] && continue
+
+        local content ts session_id
+        content=$(echo "$json" | jq -r '.message.content // empty' 2>/dev/null) || continue
+        [[ -z "$content" ]] && continue
+
+        if [[ -n "$CASE_FLAG" ]]; then
+          echo "$content" | grep -qi "$PATTERN" || continue
+        else
+          echo "$content" | grep -q "$PATTERN" || continue
+        fi
+
+        ts=$(echo "$json" | jq -r '.timestamp // empty' 2>/dev/null) || continue
+        session_id=$(echo "$json" | jq -r '.sessionId // "n/a"' 2>/dev/null)
+
+        local epoch
+        epoch=$(ts_to_epoch "$ts")
+        [[ $CUTOFF_EPOCH -gt 0 && $epoch -lt $CUTOFF_EPOCH ]] && continue
+
+        local project_path
+        project_path=$(echo "$json" | jq -r '.cwd // empty' 2>/dev/null) || continue
+        [[ -z "$project_path" ]] && continue
+
+        if [[ -n "$PROJECT_FILTER" ]]; then
+          echo "$project_path" | grep ${CASE_FLAG:+"$CASE_FLAG"} -q "$PROJECT_FILTER" || continue
+        fi
+
+        local short_name="${project_path##*/}"
+        local formatted_ts
+        formatted_ts=$(format_ts "$epoch")
+
+        local encoded_content
+        encoded_content=$(printf '%s' "$content" | tr '\n' $'\x1f')
+        printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$epoch" "$formatted_ts" "$short_name" "$project_path" "$session_id" "$encoded_content"
+      done > "$tmpfile"
+
+  render_results "$tmpfile"
+}
+
+if [[ $FULL -eq 1 ]]; then
+  search_full
+else
+  search_history
+fi
