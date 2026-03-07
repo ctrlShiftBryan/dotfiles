@@ -188,6 +188,23 @@ else
     summary_add "${YELLOW}~ deps skipped (no package.json)${NC}"
 fi
 
+# Run bootstrap script if defined in package.json
+if [[ -f "package.json" ]] && command -v jq &>/dev/null; then
+    BOOTSTRAP_SCRIPT=$(jq -r '.scripts.bootstrap // empty' package.json)
+    if [[ -n "$BOOTSTRAP_SCRIPT" ]]; then
+        echo -e "${CYAN}Running bootstrap script...${NC}"
+        if [[ -f "pnpm-lock.yaml" ]]; then
+            pnpm run bootstrap && summary_add "${GREEN}+ bootstrap ran (pnpm)${NC}" || summary_add "${RED}! bootstrap failed${NC}"
+        elif [[ -f "yarn.lock" ]]; then
+            yarn run bootstrap && summary_add "${GREEN}+ bootstrap ran (yarn)${NC}" || summary_add "${RED}! bootstrap failed${NC}"
+        elif [[ -f "bun.lockb" || -f "bun.lock" ]]; then
+            bun run bootstrap && summary_add "${GREEN}+ bootstrap ran (bun)${NC}" || summary_add "${RED}! bootstrap failed${NC}"
+        else
+            npm run bootstrap && summary_add "${GREEN}+ bootstrap ran (npm)${NC}" || summary_add "${RED}! bootstrap failed${NC}"
+        fi
+    fi
+fi
+
 # ── 6. Create PRD (non-fatal) ───────────────────────────────────────────────
 
 PRD_NAME="PRD.$(echo "$BRANCH" | tr '/' '.').md"
