@@ -1,0 +1,33 @@
+{
+  "name": "@searls/turbocommit",
+  "version": "0.10.2",
+  "description": "Auto-commit after every Claude Code turn",
+  "bin": {
+    "turbocommit": "./cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "cli.js",
+    "lib/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ctrlShiftBryan/turbocommit.git"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "git",
+    "auto-commit"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "lint": "npx standard --fix"
+  },
+  "devDependencies": {
+    "standard": "^17.1.0"
+  },
+  "license": "MIT"
+}

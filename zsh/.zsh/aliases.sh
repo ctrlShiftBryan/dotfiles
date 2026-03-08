@@ -1,5 +1,8 @@
+# turbocommit
+alias tc='node ~/.claude/skills/turbocommit/cli.js'
+
 # claude code
-# claude 
+# claude
 # Function to preserve original directory for hooks
 cc() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
