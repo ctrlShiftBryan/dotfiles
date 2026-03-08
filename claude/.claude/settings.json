@@ -22,15 +22,6 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "CLAUDE_HOOK_EVENT=PreToolUse node ~/.claude/hooks/main-branch-guard.js"
-          }
-        ]
-      },
-      {
         "hooks": [
           {
             "type": "command",
@@ -40,35 +31,7 @@
         "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*"
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "CLAUDE_HOOK_EVENT=PostToolUse node ~/.claude/hooks/main-branch-guard.js"
-          }
-        ]
-      }
-    ],
     "Stop": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ~/.claude/hooks/generate-session-url.js"
-          },
-          {
-            "type": "command",
-            "command": "node ~/.claude/hooks/anders-session-end.js"
-          },
-          {
-            "type": "command",
-            "command": "node ~/.claude/hooks/extract-assistant-urls.js"
-          }
-        ]
-      },
       {
         "hooks": [
           {
@@ -79,19 +42,6 @@
       }
     ],
     "SessionStart": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ~/.claude/hooks/anders-session-start.js"
-          },
-          {
-            "type": "command",
-            "command": "rm -f /tmp/claude-main-guard-*"
-          }
-        ]
-      },
       {
         "hooks": [
           {
