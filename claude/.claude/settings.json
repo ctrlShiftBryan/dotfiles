@@ -29,6 +29,15 @@
             "command": "CLAUDE_HOOK_EVENT=PreToolUse node ~/.claude/hooks/main-branch-guard.js"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook pre-tool-use"
+          }
+        ],
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*"
       }
     ],
     "PostToolUse": [
@@ -59,9 +68,16 @@
             "command": "node ~/.claude/hooks/extract-assistant-urls.js"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook stop"
+          }
+        ]
       }
     ],
-    "SessionEnd": [],
     "SessionStart": [
       {
         "matcher": ".*",
@@ -73,6 +89,24 @@
           {
             "type": "command",
             "command": "rm -f /tmp/claude-main-guard-*"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook session-start"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook session-end"
           }
         ]
       }
