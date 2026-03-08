@@ -14,6 +14,7 @@ git diff --staged > diff.txt
 
 # Set original directory for Claude hooks
 export CLAUDE_ORIGINAL_DIR="$PWD"
+export TURBOCOMMIT_DISABLED=1
 
 # Run claude to generate commit message, filter to show only text output
 claude --dangerously-skip-permissions -p '/cc-msg' --model haiku --verbose --output-format stream-json | ~/.zsh/scripts/claude-stream-filter
