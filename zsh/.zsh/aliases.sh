@@ -81,8 +81,8 @@ plan-rename() {
         echo "No plans/ directory in $project_dir"
         return 0
     fi
-    CLAUDE_PROJECT_DIR="$project_dir" node ~/.claude/hooks/plan-rename.js
-    CLAUDE_PROJECT_DIR="$project_dir" node ~/.claude/hooks/plan-rename-cleanup.js
+    CLAUDE_PROJECT_DIR="$project_dir" node ~/.zsh/scripts/plan-rename.js
+    CLAUDE_PROJECT_DIR="$project_dir" node ~/.zsh/scripts/plan-rename-cleanup.js
 }
 
 sshs() {
