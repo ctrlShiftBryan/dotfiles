@@ -181,7 +181,7 @@
       "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
       "pluginName": "example-skills",
       "installedAt": "2026-02-27T11:14:32.246Z",
-      "updatedAt": "2026-02-27T11:14:32.246Z"
+      "updatedAt": "2026-03-09T10:47:23.399Z"
     },
     "subagent-driven-development": {
       "source": "obra/superpowers",
@@ -254,6 +254,26 @@
       "skillFolderHash": "03e32534802aed8be03cd1febc2c7ddb26526920",
       "installedAt": "2026-03-08T14:27:45.098Z",
       "updatedAt": "2026-03-08T14:27:45.098Z"
+    },
+    "internal-comms": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/internal-comms/SKILL.md",
+      "skillFolderHash": "8e2c21adc81f221477a4d3ecec07abcbc8a9320a",
+      "pluginName": "example-skills",
+      "installedAt": "2026-03-09T10:47:23.662Z",
+      "updatedAt": "2026-03-09T10:47:23.662Z"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "skillFolderHash": "98a510d1cfef9f82c3b1eec200229ca68725e613",
+      "pluginName": "example-skills",
+      "installedAt": "2026-03-09T10:47:23.989Z",
+      "updatedAt": "2026-03-09T10:47:23.989Z"
     }
   },
   "dismissed": {
