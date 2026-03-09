@@ -71,6 +71,10 @@ ccpi() {
 }
 
 # Rename plan files to timestamped format
+plan-issue() {
+    node ~/.zsh/scripts/plan-to-issue.mjs
+}
+
 plan-rename() {
     local project_dir=$(git rev-parse --show-toplevel 2>/dev/null)
     if [[ -z "$project_dir" ]]; then
