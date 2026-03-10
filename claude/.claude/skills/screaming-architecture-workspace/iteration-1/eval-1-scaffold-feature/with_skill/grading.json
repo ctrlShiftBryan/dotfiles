@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "scaffold-pack-members-feature",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Starts from backend before frontend", "passed": true, "evidence": "Steps: 1-Schema, 2-Helpers, 3-API, 4-Types, 5-Hooks, 6-Components, 7-Screens"},
+    {"text": "Includes Convex schema with defineTable and validators", "passed": true, "evidence": "Step 1a: defineTable with v.string(), v.id(), v.union(), indexes"},
+    {"text": "Shows helper functions with QueryCtx/MutationCtx", "passed": true, "evidence": "Step 2: helpers.ts with getPackMembers(ctx: QueryCtx), createInvitation(ctx: MutationCtx)"},
+    {"text": "Places hooks in features/pack-members/hooks/", "passed": true, "evidence": "Step 5: three hooks in features/pack-members/hooks/"},
+    {"text": "Places components in features/pack-members/components/", "passed": true, "evidence": "Step 6: four components in features/pack-members/components/"},
+    {"text": "Screen examples are thin (<50 lines)", "passed": true, "evidence": "All three screens are ~18-22 lines each"},
+    {"text": "Uses @/ path alias", "passed": true, "evidence": "@/features/, @/components/ui/, @/convex/_generated/ used throughout"},
+    {"text": "Addresses list, view, and invite", "passed": true, "evidence": "PackMemberList, PackMemberProfile, InviteMemberForm + corresponding screens"}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "audit-expo-convex-project",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Correctly identifies project as Expo React Native", "passed": true, "evidence": "Header: 'Project Type: Expo React Native + Convex'"},
+    {"text": "Identifies Convex as the backend layer", "passed": true, "evidence": "Backend Structure section, ConvexProvider mention, empty schema noted"},
+    {"text": "Mentions features/demo/ as existing feature domain", "passed": true, "evidence": "'Domains found: demo', features/demo/ analyzed throughout"},
+    {"text": "Evaluates screen files for thickness/complexity", "passed": true, "evidence": "Screen Thickness table with line counts for all 5 screen files"},
+    {"text": "Checks import boundaries between layers", "passed": true, "evidence": "Import Boundaries table with 7 violation types checked, found shared/theme/fonts.ts issue"},
+    {"text": "Output is structured with sections/headings", "passed": true, "evidence": "Full audit template: Summary, Score, Findings (violations/warnings/notes), Detailed Sections, Recommendations"},
+    {"text": "Includes specific actionable recommendations", "passed": true, "evidence": "7 numbered recommendations with HIGH/MED/LOW severity"}
+  ]
+}

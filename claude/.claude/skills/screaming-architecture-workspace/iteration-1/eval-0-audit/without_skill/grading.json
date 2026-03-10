@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "audit-expo-convex-project",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Correctly identifies project as Expo React Native", "passed": true, "evidence": "'React Native / Expo app (SDK 55)' in overview"},
+    {"text": "Identifies Convex as the backend layer", "passed": true, "evidence": "'Convex (backend)' listed, backend emptiness noted"},
+    {"text": "Mentions features/demo/ as existing feature domain", "passed": true, "evidence": "'features/ has only one feature: demo'"},
+    {"text": "Evaluates screen files for thickness/complexity", "passed": false, "evidence": "Mentions _layout.tsx leaked business logic but no screen thickness table or line count analysis"},
+    {"text": "Checks import boundaries between layers", "passed": true, "evidence": "'Layer boundaries: Good' in summary, UI primitives and shared purity verified"},
+    {"text": "Output is structured with sections/headings", "passed": true, "evidence": "Has Directory Structure, What's Working Well, Issues, Summary Table, Recommendations sections"},
+    {"text": "Includes specific actionable recommendations", "passed": true, "evidence": "6 numbered recommendations (extract components, theme tokens, rename route, add tests)"}
+  ]
+}

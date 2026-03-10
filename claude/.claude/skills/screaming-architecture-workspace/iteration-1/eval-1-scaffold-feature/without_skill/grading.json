@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "scaffold-pack-members-feature",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Starts from backend before frontend", "passed": true, "evidence": "Steps: 1-Schema, 2-Backend functions, 3-Feature module, 4-Screens"},
+    {"text": "Includes Convex schema with defineTable and validators", "passed": true, "evidence": "Step 1: defineSchema with defineTable, validators, indexes for 3 tables"},
+    {"text": "Shows helper functions with QueryCtx/MutationCtx", "passed": false, "evidence": "All logic inline in query/mutation handlers in convex/packMembers.ts — no helpers.ts file"},
+    {"text": "Places hooks in features/pack-members/hooks/", "passed": true, "evidence": "Step 3b: hooks/use-pack-members.ts and hooks/use-invite-member.ts"},
+    {"text": "Places components in features/pack-members/components/", "passed": true, "evidence": "Step 3d-3g: member-card.tsx, member-list.tsx, member-profile.tsx, invite-form.tsx"},
+    {"text": "Screen examples are thin (<50 lines)", "passed": true, "evidence": "List screen ~38 lines (includes headerRight setup), profile ~12 lines, invite ~31 lines"},
+    {"text": "Uses @/ path alias", "passed": true, "evidence": "@/features/, @/components/ui/, @/convex/ used consistently"},
+    {"text": "Addresses list, view, and invite", "passed": true, "evidence": "MemberList, MemberProfile, InviteForm + 3 screens + acceptInvite mutation"}
+  ]
+}

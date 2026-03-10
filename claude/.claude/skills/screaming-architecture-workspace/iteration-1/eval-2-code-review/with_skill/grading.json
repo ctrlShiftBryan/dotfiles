@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "review-violating-screen",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Identifies useQuery/api.* in screen as boundary violation", "passed": true, "evidence": "Violation #1: 'Direct api.* import in a screen'"},
+    {"text": "Identifies filter/sort as misplaced business logic", "passed": true, "evidence": "Violation #2: 'Business logic in app/ (filtering + sorting)'"},
+    {"text": "Notes screen is too thick", "passed": true, "evidence": "Violation #3: 'Inline renderItem with layout logic in the screen', final section shows 3-line target"},
+    {"text": "Recommends features/pack-members/hooks/ or similar", "passed": true, "evidence": "Fix: 'features/pack-members/hooks/use-pack-members.ts'"},
+    {"text": "Shows refactored code with proper separation", "passed": true, "evidence": "'What the Screen Should Look Like After Fixes' section with 3-line screen"},
+    {"text": "Notes project uses NativeWind/Tailwind", "passed": true, "evidence": "Warning #4: 'Inline styles instead of NativeWind classes'"}
+  ]
+}

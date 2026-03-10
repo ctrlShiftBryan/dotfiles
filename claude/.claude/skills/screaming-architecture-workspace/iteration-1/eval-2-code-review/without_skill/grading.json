@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "review-violating-screen",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Identifies useQuery/api.* in screen as boundary violation", "passed": true, "evidence": "Finding #1: 'Direct Convex access in a screen (Critical)', quotes CLAUDE.md rule"},
+    {"text": "Identifies filter/sort as misplaced business logic", "passed": true, "evidence": "Finding #3: '.sort() mutates in place' — notes the logic but frames it as mutation risk, not architectural violation"},
+    {"text": "Notes screen is too thick", "passed": false, "evidence": "Individual issues found but never frames the overall problem as 'fat/thick screen that should be thin' — no concept of screen thickness"},
+    {"text": "Recommends features/pack-members/hooks/ or similar", "passed": true, "evidence": "Finding #1 fix shows features/pack-members/hooks/use-pack-members.ts"},
+    {"text": "Shows refactored code with proper separation", "passed": true, "evidence": "Finding #1 shows refactored screen importing from feature hook"},
+    {"text": "Notes project uses NativeWind/Tailwind", "passed": true, "evidence": "Finding #4: 'Inline styles instead of Nativewind/Tailwind (Medium)'"}
+  ]
+}

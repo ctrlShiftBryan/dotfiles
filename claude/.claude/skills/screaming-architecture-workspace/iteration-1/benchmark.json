@@ -1,0 +1,89 @@
+{
+  "skill_name": "screaming-architecture",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "evals": [
+        {
+          "eval_name": "audit-expo-convex-project",
+          "pass_rate": 1.0,
+          "passed": 7,
+          "total": 7,
+          "duration_seconds": 305.4,
+          "total_tokens": 62884
+        },
+        {
+          "eval_name": "scaffold-pack-members-feature",
+          "pass_rate": 1.0,
+          "passed": 8,
+          "total": 8,
+          "duration_seconds": 257.4,
+          "total_tokens": 51409
+        },
+        {
+          "eval_name": "review-violating-screen",
+          "pass_rate": 1.0,
+          "passed": 6,
+          "total": 6,
+          "duration_seconds": 83.8,
+          "total_tokens": 30727
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 1.0,
+        "stddev_pass_rate": 0.0,
+        "mean_duration_seconds": 215.5,
+        "mean_tokens": 48340
+      }
+    },
+    {
+      "name": "without_skill",
+      "evals": [
+        {
+          "eval_name": "audit-expo-convex-project",
+          "pass_rate": 0.857,
+          "passed": 6,
+          "total": 7,
+          "duration_seconds": 184.9,
+          "total_tokens": 57234
+        },
+        {
+          "eval_name": "scaffold-pack-members-feature",
+          "pass_rate": 0.875,
+          "passed": 7,
+          "total": 8,
+          "duration_seconds": 165.3,
+          "total_tokens": 44695
+        },
+        {
+          "eval_name": "review-violating-screen",
+          "pass_rate": 0.833,
+          "passed": 5,
+          "total": 6,
+          "duration_seconds": 109.5,
+          "total_tokens": 29573
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.855,
+        "stddev_pass_rate": 0.021,
+        "mean_duration_seconds": 153.2,
+        "mean_tokens": 43834
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate": "+14.5%",
+    "duration": "+40.7% slower",
+    "tokens": "+10.3% more tokens"
+  },
+  "analyst_observations": [
+    "The skill achieves 100% pass rate across all assertions vs 85.5% baseline — the 3 failures without the skill were: missing screen thickness analysis (audit), missing helpers pattern (scaffold), and missing 'thin screen' framing (code review).",
+    "The baseline performs surprisingly well (85.5%) because the project's CLAUDE.md already contains detailed architecture rules. The skill's advantage is in the screaming-architecture-specific concepts: screen thickness tracking, Convex helpers pattern, and the 'thin screen' mental model.",
+    "The skill runs ~41% slower and uses ~10% more tokens. This is expected — agents with the skill read reference files (expo-patterns.md, convex-patterns.md, audit-report-template.md) before doing work. The tradeoff is worthwhile given the quality improvement.",
+    "Non-discriminating assertions: 'detects-expo-project-type', 'detects-convex-backend', 'identifies-feature-domains' pass for both configurations — these test basic project understanding, not skill-specific value.",
+    "The with-skill audit used the structured report template (score, violation/warning/note categories, detailed section tables) while the without-skill audit used a more freeform structure. Both were readable but the templated version is more consistent and scannable.",
+    "For the scaffold eval, the key differentiator was the Convex helpers pattern — the skill explicitly teaches separating business logic into helpers.ts with QueryCtx/MutationCtx, while the baseline put all logic inline in handlers. This mirrors the actual screaming architecture principle of separating concerns within the backend too."
+  ]
+}
