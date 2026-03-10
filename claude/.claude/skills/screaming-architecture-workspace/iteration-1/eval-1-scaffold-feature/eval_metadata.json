@@ -1,0 +1,47 @@
+{
+  "eval_id": 1,
+  "eval_name": "scaffold-pack-members-feature",
+  "prompt": "I want to add a pack-members feature. Users belong to packs and I need to list members, view a member profile, and invite new members. Guide me through building this.",
+  "assertions": [
+    {
+      "id": "bottom-up-order",
+      "text": "Guides creation starting from backend (Convex schema) before frontend (hooks, components, screens)",
+      "type": "content_check"
+    },
+    {
+      "id": "convex-schema-included",
+      "text": "Includes a Convex schema definition with defineTable, validators, and indexes",
+      "type": "content_check"
+    },
+    {
+      "id": "convex-helpers-pattern",
+      "text": "Shows helper functions with QueryCtx/MutationCtx (not just inline handler logic)",
+      "type": "content_check"
+    },
+    {
+      "id": "hooks-in-feature-dir",
+      "text": "Places hooks in features/pack-members/hooks/ (not app/ or root hooks/)",
+      "type": "content_check"
+    },
+    {
+      "id": "components-in-feature-dir",
+      "text": "Places components in features/pack-members/components/",
+      "type": "content_check"
+    },
+    {
+      "id": "thin-screens",
+      "text": "Screen examples are thin wrappers (<50 lines) that compose feature components",
+      "type": "content_check"
+    },
+    {
+      "id": "uses-path-alias",
+      "text": "Uses @/ path alias in imports (matching project convention)",
+      "type": "content_check"
+    },
+    {
+      "id": "covers-all-three-use-cases",
+      "text": "Addresses all three requested features: list members, view profile, invite members",
+      "type": "content_check"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "skill_name": "screaming-architecture",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "audit the architecture of this project — check if the structure follows good patterns",
+      "expected_output": "A structured audit report detecting project type (Expo+Convex), listing features found, checking screen thickness, import boundaries, and feature-route alignment.",
+      "files": [],
+      "assertions": [
+        {"id": "detects-expo-project-type", "text": "Correctly identifies project as Expo React Native"},
+        {"id": "detects-convex-backend", "text": "Identifies Convex as the backend layer"},
+        {"id": "identifies-feature-domains", "text": "Mentions features/demo/ as existing feature domain"},
+        {"id": "checks-screen-thickness", "text": "Evaluates screen files for thickness/complexity"},
+        {"id": "checks-import-boundaries", "text": "Checks import boundaries between layers"},
+        {"id": "structured-report", "text": "Output is structured with sections/headings"},
+        {"id": "actionable-recommendations", "text": "Includes specific actionable recommendations"}
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I want to add a pack-members feature. Users belong to packs and I need to list members, view a member profile, and invite new members. Guide me through building this.",
+      "expected_output": "Step-by-step guide for full vertical slice: Convex schema → helpers → API → hooks → components → screens.",
+      "files": [],
+      "assertions": [
+        {"id": "bottom-up-order", "text": "Starts from backend before frontend"},
+        {"id": "convex-schema-included", "text": "Includes Convex schema with defineTable and validators"},
+        {"id": "convex-helpers-pattern", "text": "Shows helper functions with QueryCtx/MutationCtx"},
+        {"id": "hooks-in-feature-dir", "text": "Places hooks in features/pack-members/hooks/"},
+        {"id": "components-in-feature-dir", "text": "Places components in features/pack-members/components/"},
+        {"id": "thin-screens", "text": "Screen examples are thin (<50 lines)"},
+        {"id": "uses-path-alias", "text": "Uses @/ path alias"},
+        {"id": "covers-all-three-use-cases", "text": "Addresses list, view, and invite"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review screen code with multiple architecture violations",
+      "expected_output": "Code review catching boundary violations, business logic in screen, fat screen, and inline styles.",
+      "files": [],
+      "assertions": [
+        {"id": "flags-convex-import-in-screen", "text": "Identifies useQuery/api.* in screen as boundary violation"},
+        {"id": "flags-business-logic-in-screen", "text": "Identifies filter/sort as misplaced business logic"},
+        {"id": "flags-fat-screen", "text": "Notes screen is too thick"},
+        {"id": "suggests-feature-hooks-dir", "text": "Recommends features/pack-members/hooks/ or similar"},
+        {"id": "provides-refactored-example", "text": "Shows refactored code with proper separation"},
+        {"id": "mentions-project-styling", "text": "Notes project uses NativeWind/Tailwind"}
+      ]
+    }
+  ]
+}

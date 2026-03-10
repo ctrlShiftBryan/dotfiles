@@ -125,26 +125,36 @@ When auditing, check that:
 The root `app/_layout.tsx` sets up the provider chain. Providers go here — not in screens.
 
 ```tsx
-// app/_layout.tsx
+// app/_layout.tsx — real-world example with conditional Convex + theme + navigation
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Stack } from "expo-router";
+import { ThemeProvider } from "@react-navigation/native";
+import { Drawer } from "expo-router/drawer";
+import { StatusBar } from "expo-status-bar";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
+
+// Conditional provider — useful during early development
+function MaybeConvex({ children }: { children: React.ReactNode }) {
+  if (!process.env.EXPO_PUBLIC_CONVEX_URL) return <>{children}</>;
+  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+}
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ConvexProvider client={convex}>
-        <ThemeProvider>
-          <Stack />
+      <MaybeConvex>
+        <ThemeProvider value={navTheme}>
+          <StatusBar style={isDark ? "light" : "dark"} />
+          <Drawer />
         </ThemeProvider>
-      </ConvexProvider>
+      </MaybeConvex>
     </GestureHandlerRootView>
   );
 }
 ```
+
+The navigator type (Stack, Tabs, Drawer) varies by app. The provider chain pattern stays the same.
 
 Important: `app/_layout.tsx` is the ONE place that may import from `convex/react` directly (for provider setup). All other Convex access goes through `features/*/hooks/`.
 

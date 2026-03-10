@@ -1,0 +1,42 @@
+{
+  "eval_id": 0,
+  "eval_name": "audit-expo-convex-project",
+  "prompt": "audit the architecture of this project — check if the structure follows good patterns",
+  "assertions": [
+    {
+      "id": "detects-expo-project-type",
+      "text": "Correctly identifies project as Expo React Native (not web React)",
+      "type": "content_check"
+    },
+    {
+      "id": "detects-convex-backend",
+      "text": "Identifies Convex as the backend layer",
+      "type": "content_check"
+    },
+    {
+      "id": "identifies-feature-domains",
+      "text": "Mentions features/demo/ as an existing feature domain",
+      "type": "content_check"
+    },
+    {
+      "id": "checks-screen-thickness",
+      "text": "Evaluates screen files in app/ for thickness / complexity",
+      "type": "content_check"
+    },
+    {
+      "id": "checks-import-boundaries",
+      "text": "Checks whether import boundaries between layers are respected",
+      "type": "content_check"
+    },
+    {
+      "id": "structured-report",
+      "text": "Output is a structured report with sections/headings, not just prose paragraphs",
+      "type": "format_check"
+    },
+    {
+      "id": "actionable-recommendations",
+      "text": "Includes specific, actionable recommendations (not just 'looks good')",
+      "type": "content_check"
+    }
+  ]
+}

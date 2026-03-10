@@ -1,0 +1,37 @@
+{
+  "eval_id": 2,
+  "eval_name": "review-violating-screen",
+  "prompt": "Review screen code with multiple architecture violations",
+  "assertions": [
+    {
+      "id": "flags-convex-import-in-screen",
+      "text": "Identifies useQuery/api.* import in screen as a boundary violation",
+      "type": "content_check"
+    },
+    {
+      "id": "flags-business-logic-in-screen",
+      "text": "Identifies filter/sort logic in screen as misplaced business logic",
+      "type": "content_check"
+    },
+    {
+      "id": "flags-fat-screen",
+      "text": "Notes the screen is too thick / doing too much",
+      "type": "content_check"
+    },
+    {
+      "id": "suggests-feature-hooks-dir",
+      "text": "Recommends moving data access to features/pack-members/hooks/ or similar feature hook location",
+      "type": "content_check"
+    },
+    {
+      "id": "provides-refactored-example",
+      "text": "Shows a refactored version of the code with proper separation",
+      "type": "content_check"
+    },
+    {
+      "id": "mentions-project-styling",
+      "text": "Notes the project uses NativeWind/Tailwind, not inline styles",
+      "type": "content_check"
+    }
+  ]
+}
