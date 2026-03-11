@@ -1,0 +1,92 @@
+{
+  "/Users/bryanarendt/code/dynasty-nerds-monorepo": {
+    "display_name": "Dynasty Nerds Monorepo",
+    "atlas_note": "Atlas/I - Repositories/A. Dynasty Nerds Monorepo.md",
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code/dynasty-nerds-three": {
+    "display_name": "Dynasty Nerds Three",
+    "atlas_note": "Atlas/I - Repositories/B. Dynasty Nerds Three.md",
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code/wordpress": {
+    "display_name": "WordPress",
+    "atlas_note": "Atlas/I - Repositories/C. WordPress.md",
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code/dynasty-nerds-members": {
+    "display_name": "Dynasty Nerds Members",
+    "atlas_note": "Atlas/I - Repositories/D. Dynasty Nerds Members.md",
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code/dynasty-nerds-theme": {
+    "display_name": "Dynasty Nerds Theme",
+    "atlas_note": "Atlas/I - Repositories/E. Dynasty Nerds Theme.md",
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code2/gm3-ranker-proto": {
+    "display_name": "GM3 Ranker Proto",
+    "atlas_note": "Atlas/II - Prototyping Repositories/A. GM3 Ranker Proto.md",
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/gm3-db-proto-values": {
+    "display_name": "GM3 DB Proto Values",
+    "atlas_note": "Atlas/II - Prototyping Repositories/B. GM3 DB Proto Values.md",
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/member-admin": {
+    "display_name": "Member Admin",
+    "atlas_note": "Atlas/II - Prototyping Repositories/C. Member Admin.md",
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/anders-wolfpack": {
+    "display_name": "Anders Wolfpack",
+    "atlas_note": "Atlas/II - Prototyping Repositories/D. Anders Wolfpack.md",
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/dotfiles": {
+    "display_name": "Dotfiles",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt": {
+    "display_name": "Home (Global)",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code2/plannotator": {
+    "display_name": "Plannotator",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/openclaw": {
+    "display_name": "OpenClaw",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/brayn-frame": {
+    "display_name": "BraynFrame",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/local-portal": {
+    "display_name": "Local Portal",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code2/wordpress-azure": {
+    "display_name": "WordPress Azure",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/ccc-viz": {
+    "display_name": "CCC Viz",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code5/portal": {
+    "display_name": "Portal",
+    "atlas_note": null,
+    "classification": "production"
+  }
+}
