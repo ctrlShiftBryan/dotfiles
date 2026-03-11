@@ -88,5 +88,15 @@
     "display_name": "Portal",
     "atlas_note": null,
     "classification": "production"
+  },
+  "/Users/bryanarendt/frames/ranks-proto": {
+    "display_name": "Ranks Proto",
+    "atlas_note": "Atlas/II - Prototyping Repositories/E. Ranks Proto.md",
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/youtube": {
+    "display_name": "YouTube",
+    "atlas_note": "Atlas/IV - Utilities/A. YouTube.md",
+    "classification": "utility"
   }
 }
