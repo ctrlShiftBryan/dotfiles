@@ -1,0 +1,21 @@
+{
+  "tool_calls": {
+    "Read": 15,
+    "Write": 4,
+    "Bash": 5,
+    "Edit": 0,
+    "Glob": 0,
+    "Grep": 0
+  },
+  "total_tool_calls": 24,
+  "total_steps": 8,
+  "files_created": [
+    "~/.claude/skills/obsidian-vault-workspace/iteration-1/eval-2/without_skill/run-1/outputs/triage_table.md",
+    "~/.claude/skills/obsidian-vault-workspace/iteration-1/eval-2/without_skill/run-1/outputs/inbox_listing.txt",
+    "~/.claude/skills/obsidian-vault-workspace/iteration-1/eval-2/without_skill/run-1/outputs/transcript.md",
+    "~/.claude/skills/obsidian-vault-workspace/iteration-1/eval-2/without_skill/run-1/outputs/metrics.json"
+  ],
+  "errors_encountered": 0,
+  "output_chars": 5800,
+  "transcript_chars": 2150
+}
