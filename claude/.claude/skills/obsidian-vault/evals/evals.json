@@ -1,0 +1,51 @@
+{
+  "skill_name": "obsidian-vault",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Create a new Obsidian vault called 'BrainFrame' at ~/obsidian/BrainFrame",
+      "expected_output": "A fully scaffolded ACE vault with .obsidian config at ~/obsidian/BrainFrame, added to the vault registry",
+      "files": [],
+      "expectations": [
+        "Created the directory ~/obsidian/BrainFrame/",
+        "Created the +/ folder inside the vault",
+        "Created the Atlas/ folder inside the vault",
+        "Created Calendar/Daily/ folder inside the vault",
+        "Created Calendar/Weekly/ folder inside the vault",
+        "Created Calendar/Monthly/ folder inside the vault",
+        "Created the Efforts/ folder inside the vault",
+        "Created .obsidian/daily-notes.json with folder set to Calendar/Daily",
+        "Created .obsidian/core-plugins.json with daily-notes in the enabled list",
+        "Registry file ~/.config/obsidian-ace/vaults.json exists and contains an entry with name BrainFrame and path pointing to ~/obsidian/BrainFrame"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Save this Zustand guide to my Dynasty Nerds vault. It's reference material I'll keep using.\n\n# Zustand State Management\n\nZustand is a small, fast state management library for React.\n\n## Basic Store\n```ts\nimport { create } from 'zustand'\n\nconst useStore = create((set) => ({\n  count: 0,\n  increment: () => set((state) => ({ count: state.count + 1 })),\n}))\n```\n\n## With Selectors\nAlways use selectors to prevent unnecessary re-renders:\n```ts\nconst count = useStore((state) => state.count)\n```\n\n## Persist Middleware\n```ts\nimport { persist } from 'zustand/middleware'\nconst useStore = create(persist((set) => ({ ... }), { name: 'my-store' }))\n```",
+      "expected_output": "File saved in Atlas/ of the Dynasty Nerds vault with Roman numeral folder and alpha file prefix",
+      "files": [],
+      "expectations": [
+        "File was created inside the Dynasty Nerds vault, not the Personal vault or any other vault",
+        "File was placed in Atlas/ (not + or Efforts or Calendar)",
+        "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
+        "The file name uses an alpha letter prefix (e.g. A. , B. , C. )",
+        "The file contains the Zustand guide content including the code examples",
+        "The vault registry was consulted to find the Dynasty Nerds vault path"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Triage the inbox in my Personal vault",
+      "expected_output": "Read all files in +/, classified each into ACE categories, presented a summary table, and waited for confirmation before moving anything",
+      "files": [],
+      "expectations": [
+        "Read the contents of the +/ directory in the Personal vault",
+        "Read the content of at least 3 files from the +/ inbox",
+        "Classified items into ACE categories (Atlas, Calendar, Efforts, or stay/delete)",
+        "Presented a structured summary with proposed destinations and reasoning",
+        "Did NOT move or delete any files without asking for user confirmation first",
+        "Identified any empty files and flagged them for deletion"
+      ]
+    }
+  ]
+}

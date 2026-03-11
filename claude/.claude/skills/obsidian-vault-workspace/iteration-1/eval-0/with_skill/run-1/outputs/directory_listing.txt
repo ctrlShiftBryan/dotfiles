@@ -1,0 +1,7 @@
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/app.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/appearance.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/core-plugins-migration.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/core-plugins.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/daily-notes.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/workspace.json
+/Users/bryanarendt/obsidian/BrainFrame/README.md
