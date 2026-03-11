@@ -1,0 +1,22 @@
+.rw-r--r--@  523 bryanarendt staff  1 Mar 11:25 'slack ui clone.md'
+.rw-r--r--@  16k bryanarendt staff  2 Mar 15:19 'Zustand Rules.md'
+.rw-r--r--@    0 bryanarendt staff  3 Mar 11:52 'staff job.md'
+.rw-r--r--@  545 bryanarendt staff  4 Mar 08:55 Scott.md
+.rw-r--r--@    0 bryanarendt staff  9 Mar 08:14 Planning.md
+.rw-r--r--@  218 bryanarendt staff  9 Mar 08:27 'Brayn features idea log.md'
+.rw-r--r--@ 5.7k bryanarendt staff  9 Mar 09:11 'how to get organized.md'
+.rw-r--r--@    0 bryanarendt staff  9 Mar 10:34 terraform.md
+.rw-r--r--@    0 bryanarendt staff  9 Mar 10:52 Untitled.md
+.rw-r--r--@  238 bryanarendt staff  9 Mar 10:53 'portal flags.md'
+.rw-r--r--@    0 bryanarendt staff  9 Mar 10:58 jackie-prs.md
+.rw-r--r--@  56k bryanarendt staff 10 Mar 07:13 dotfiles-architecture.excalidraw
+.rw-r--r--@ 587k bryanarendt staff 10 Mar 07:41 pr-381-subscription-reconciliation.png
+.rw-r--r--@  37k bryanarendt staff 10 Mar 07:43 pr-381-subscription-reconciliation.excalidraw
+.rw-r--r--@  23k bryanarendt staff 10 Mar 09:28 github-deploy-workflow.excalidraw
+.rw-r--r--@ 601k bryanarendt staff 10 Mar 09:28 github-deploy-workflow.png
+.rw-r--r--@    3 bryanarendt staff 10 Mar 13:47 'portal screaming arch v2.md'
+.rw-r--r--@  247 bryanarendt staff 11 Mar 08:09 'react server components notes.md'
+.rw-r--r--@  115 bryanarendt staff 11 Mar 08:09 'dentist appointment march 15.md'
+.rw-r--r--@  235 bryanarendt staff 11 Mar 08:09 'home office desk setup.md'
+.rw-r--r--@    0 bryanarendt staff 11 Mar 08:09 'empty note.md'
+.rw-r--r--@  208 bryanarendt staff 11 Mar 08:09 'git rebase cheatsheet.md'
