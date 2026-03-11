@@ -3,7 +3,7 @@
     {
       "text": "File was created inside the Dynasty Nerds vault, not the Personal vault or any other vault",
       "passed": true,
-      "evidence": "File created at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/Zustand State Management.md — confirmed on disk. The DynastyNerds vault path is correct."
+      "evidence": "File created at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/Zustand State Management.md \u2014 confirmed on disk. The DynastyNerds vault path is correct."
     },
     {
       "text": "File was placed in Atlas/ (not + or Efforts or Calendar)",
@@ -52,7 +52,7 @@
     "output_chars": 484,
     "transcript_chars": 1187
   },
-  "timing": null,
+  "timing": {},
   "claims": [
     {
       "claim": "Atlas is the appropriate location for reference/technical material",
@@ -75,14 +75,16 @@
   ],
   "user_notes_summary": {
     "uncertainties": [],
-    "needs_review": ["Executor noticed pre-existing correctly-formatted file at Atlas/II - Web Development/A. Zustand State Management.md but created a duplicate without Roman numeral folder or alpha prefix at Atlas root instead."],
+    "needs_review": [
+      "Executor noticed pre-existing correctly-formatted file at Atlas/II - Web Development/A. Zustand State Management.md but created a duplicate without Roman numeral folder or alpha prefix at Atlas root instead."
+    ],
     "workarounds": []
   },
   "eval_feedback": {
     "suggestions": [
       {
         "assertion": "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
-        "reason": "This assertion is well-targeted and caught a clear failure. However, consider also asserting that the file is NOT at the Atlas root level — a separate assertion like 'File is inside a subdirectory of Atlas/, not at the Atlas root' would make the structural failure even more explicit."
+        "reason": "This assertion is well-targeted and caught a clear failure. However, consider also asserting that the file is NOT at the Atlas root level \u2014 a separate assertion like 'File is inside a subdirectory of Atlas/, not at the Atlas root' would make the structural failure even more explicit."
       },
       {
         "reason": "The executor noticed a pre-existing correctly-placed file but chose to create a new file at the wrong location rather than treating the existing one as canonical. An assertion like 'No duplicate file with identical content exists in the vault' or 'Only one copy of the Zustand guide exists in the vault' would catch this behavior."

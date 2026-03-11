@@ -1,0 +1,395 @@
+{
+  "metadata": {
+    "skill_name": "obsidian-vault",
+    "skill_path": "/Users/bryanarendt/.claude/skills/obsidian-vault",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-03-11T12:16:13Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 76.9,
+        "tokens": 20872,
+        "tool_calls": 22,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "Created the directory ~/obsidian/BrainFrame/",
+          "passed": true,
+          "evidence": "Filesystem confirms directory exists at /Users/bryanarendt/obsidian/BrainFrame/ with correct contents."
+        },
+        {
+          "text": "Created the +/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows '+' directory inside ~/obsidian/BrainFrame/. Transcript step 6: 'mkdir -p ~/obsidian/BrainFrame/{+,Atlas,Efforts}'."
+        },
+        {
+          "text": "Created the Atlas/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows 'Atlas' directory inside ~/obsidian/BrainFrame/. Transcript step 6: 'mkdir -p ~/obsidian/BrainFrame/{+,Atlas,Efforts}'."
+        },
+        {
+          "text": "Created Calendar/Daily/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows 'Daily' directory inside ~/obsidian/BrainFrame/Calendar/. Transcript step 6: 'mkdir -p ~/obsidian/BrainFrame/Calendar/{Daily,Weekly,Monthly}'."
+        },
+        {
+          "text": "Created Calendar/Weekly/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows 'Weekly' directory inside ~/obsidian/BrainFrame/Calendar/."
+        },
+        {
+          "text": "Created Calendar/Monthly/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows 'Monthly' directory inside ~/obsidian/BrainFrame/Calendar/."
+        },
+        {
+          "text": "Created the Efforts/ folder inside the vault",
+          "passed": true,
+          "evidence": "Filesystem listing shows 'Efforts' directory inside ~/obsidian/BrainFrame/. Transcript step 6 confirms creation."
+        },
+        {
+          "text": "Created .obsidian/daily-notes.json with folder set to Calendar/Daily",
+          "passed": false,
+          "evidence": "The actual file at ~/obsidian/BrainFrame/.obsidian/daily-notes.json contains '\"folder\": \"Notes/Daily\"', not 'Calendar/Daily'. The output snapshot (daily_notes_config.json) shows the correct value, but it does not reflect what was actually written to disk \u2014 the real file diverges, likely because Obsidian rewrote it after the vault was opened."
+        },
+        {
+          "text": "Created .obsidian/core-plugins.json with daily-notes in the enabled list",
+          "passed": true,
+          "evidence": "Filesystem file ~/obsidian/BrainFrame/.obsidian/core-plugins.json confirmed to contain 'daily-notes' in the list. Output snapshot core_plugins_config.json also shows the same. Transcript step 7 confirms this file was written."
+        },
+        {
+          "text": "Registry file ~/.config/obsidian-ace/vaults.json exists and contains an entry with name BrainFrame and path pointing to ~/obsidian/BrainFrame",
+          "passed": true,
+          "evidence": "~/.config/obsidian-ace/vaults.json contains: {\"name\": \"BrainFrame\", \"path\": \"/Users/bryanarendt/obsidian/BrainFrame\"}. Transcript step 9 documents the registry update."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 72.8,
+        "tokens": 18103,
+        "tool_calls": 12,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "File was created inside the Dynasty Nerds vault, not the Personal vault or any other vault",
+          "passed": true,
+          "evidence": "File confirmed on disk at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/II - Web Development/A. Zustand State Management.md. Registry shows Dynasty Nerds vault path is /Users/bryanarendt/obsidian/DynastyNerds. registry_check.json output shows both Personal and Dynasty Nerds vaults; executor chose the correct one."
+        },
+        {
+          "text": "File was placed in Atlas/ (not + or Efforts or Calendar)",
+          "passed": true,
+          "evidence": "File is at Atlas/II - Web Development/A. Zustand State Management.md, confirmed by directory_listing.txt and disk verification. Transcript Step 3 states: 'user said reference material I'll keep using \u2192 Atlas (not inbox +)'."
+        },
+        {
+          "text": "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
+          "passed": true,
+          "evidence": "Folder is named 'II - Web Development', confirmed by ls output of Atlas/ showing 'II - Web Development' directory created at 11 Mar 08:11."
+        },
+        {
+          "text": "The file name uses an alpha letter prefix (e.g. A. , B. , C. )",
+          "passed": true,
+          "evidence": "File is named 'A. Zustand State Management.md'. Transcript Step 7 states: 'Counted files in the new folder (0) \u2192 first file gets prefix A \u2192 filename: A. Zustand State Management.md'. Confirmed on disk."
+        },
+        {
+          "text": "The file contains the Zustand guide content including the code examples",
+          "passed": true,
+          "evidence": "saved_file_content.md and disk file both contain: Basic Store code block with create() usage, With Selectors section with selector code, and Persist Middleware section with persist() code. Three distinct TypeScript code examples are present."
+        },
+        {
+          "text": "The vault registry was consulted to find the Dynasty Nerds vault path",
+          "passed": true,
+          "evidence": "Transcript Step 2: 'Read the vault registry at ~/.config/obsidian-ace/vaults.json to resolve the Dynasty Nerds vault path \u2192 /Users/bryanarendt/obsidian/DynastyNerds'. The registry_check.json output artifact captures the registry contents showing both vaults."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 82.4,
+        "tokens": 21907,
+        "tool_calls": 17,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Read the contents of the +/ directory in the Personal vault",
+          "passed": true,
+          "evidence": "Transcript step 3: 'Listed inbox contents via `ls ~/obsidian/Personal/+` \u2014 found 22 files total'. Output file inbox_listing.txt confirms all 22 files were listed."
+        },
+        {
+          "text": "Read the content of at least 3 files from the +/ inbox",
+          "passed": true,
+          "evidence": "Transcript step 4 shows all 5 pre-condition inbox files were read in parallel. file_contents.md contains the full content of all 5 files: react server components notes.md, dentist appointment march 15.md, home office desk setup.md, empty note.md, git rebase cheatsheet.md."
+        },
+        {
+          "text": "Classified items into ACE categories (Atlas, Calendar, Efforts, or stay/delete)",
+          "passed": true,
+          "evidence": "Triage table classifies all 5 files: react\u2192Atlas, dentist\u2192Calendar/Daily, home office\u2192Efforts, empty note\u2192DELETE, git rebase\u2192Atlas. Transcript step 7 shows explicit ACE reasoning for each classification."
+        },
+        {
+          "text": "Presented a structured summary with proposed destinations and reasoning",
+          "passed": true,
+          "evidence": "triage_table.md is a markdown table with columns: File, Destination, New Name, Reasoning. Every file has a destination path and rationale (e.g. 'Reference knowledge, evergreen how-to that'll be looked up again', 'Active project with budget, deadline, and deliverables')."
+        },
+        {
+          "text": "Did NOT move or delete any files without asking for user confirmation first",
+          "passed": true,
+          "evidence": "Transcript step 9: 'Stopped and waited for user confirmation \u2014 did NOT move any files.' Verified directly: all 5 pre-condition files (react server components notes.md, dentist appointment march 15.md, home office desk setup.md, empty note.md, git rebase cheatsheet.md) still exist in ~/obsidian/Personal/+/."
+        },
+        {
+          "text": "Identified any empty files and flagged them for deletion",
+          "passed": true,
+          "evidence": "Transcript step 7: 'empty note.md \u2192 DELETE (empty, no content)'. triage_table.md row: 'empty note.md | DELETE | \u2014 | Empty file, no content'. file_contents.md also notes '(empty file \u2014 0 bytes)' for that file."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3,
+        "passed": 3,
+        "failed": 7,
+        "total": 10,
+        "time_seconds": 126.7,
+        "tokens": 19181,
+        "tool_calls": 17,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "Created the directory ~/obsidian/BrainFrame/",
+          "passed": true,
+          "evidence": "Transcript step 2 shows mkdir -p was run to create the vault directory. directory_listing.txt confirms files exist at /Users/bryanarendt/obsidian/BrainFrame/. Filesystem confirms the directory exists."
+        },
+        {
+          "text": "Created the +/ folder inside the vault",
+          "passed": false,
+          "evidence": "The +/ folder exists on the filesystem (created 08:11), but the without_skill transcript does not mention creating it. Transcript step 2 lists only: .obsidian/, Inbox/, Notes/, Projects/, Areas/, Resources/, Archive/, Templates/. The +/ folder is an ACE convention and appears to be a remnant from the with_skill run that preceded this one. The rm -rf in step 1 reportedly encountered a benign error, suggesting cleanup may have failed. The without_skill agent cannot be credited with creating this folder."
+        },
+        {
+          "text": "Created Atlas/ folder inside the vault",
+          "passed": false,
+          "evidence": "Same reasoning as +/ \u2014 Atlas/ exists on the filesystem (created 08:11) but is not mentioned in the without_skill transcript. The agent created PARA-style folders (Inbox, Notes, Projects, Areas, etc.), not ACE-convention folders like Atlas/."
+        },
+        {
+          "text": "Created Calendar/Daily/ folder inside the vault",
+          "passed": false,
+          "evidence": "Calendar/ and Calendar/Daily/ exist on the filesystem. However, the without_skill transcript does not mention creating Calendar/ or Calendar/Daily/. The transcript mentions Notes/Daily/ instead (step 14: 'Created Notes/Daily/ subdirectory'). The Calendar/ structure is an ACE convention not present in the agent's PARA-based approach."
+        },
+        {
+          "text": "Created Calendar/Weekly/ folder inside the vault",
+          "passed": false,
+          "evidence": "Calendar/Weekly/ exists on filesystem but is not mentioned in the without_skill transcript. Same reasoning as Calendar/Daily/ \u2014 this is an ACE-specific folder structure the without_skill agent did not create."
+        },
+        {
+          "text": "Created Calendar/Monthly/ folder inside the vault",
+          "passed": false,
+          "evidence": "Calendar/Monthly/ exists on filesystem but is not mentioned in the without_skill transcript. Same reasoning \u2014 ACE convention not adopted by the without_skill agent."
+        },
+        {
+          "text": "Created the Efforts/ folder inside the vault",
+          "passed": false,
+          "evidence": "Efforts/ exists on filesystem (created 08:11) but the without_skill transcript does not mention creating it. The agent used PARA structure; Efforts/ is an ACE convention not in its folder list."
+        },
+        {
+          "text": "Created .obsidian/daily-notes.json with folder set to Calendar/Daily",
+          "passed": false,
+          "evidence": "daily-notes.json exists and was created by the without_skill agent (confirmed in transcript step 8 and metrics.json files_created list). However, the folder is set to 'Notes/Daily' not 'Calendar/Daily'. Filesystem confirms: cat output shows {\"folder\": \"Notes/Daily\", \"format\": \"YYYY-MM-DD\", \"template\": \"Templates/Daily Note\"}. The expectation requires 'Calendar/Daily' which is the ACE convention \u2014 the without_skill agent used its own PARA-based path instead."
+        },
+        {
+          "text": "Created .obsidian/core-plugins.json with daily-notes in the enabled list",
+          "passed": true,
+          "evidence": "core-plugins.json was created by the without_skill agent (transcript step 6, metrics.json files_created list). Filesystem confirms content includes 'daily-notes' in the enabled array: [...\"daily-notes\"...]."
+        },
+        {
+          "text": "Registry file ~/.config/obsidian-ace/vaults.json exists and contains an entry with name BrainFrame and path pointing to ~/obsidian/BrainFrame",
+          "passed": true,
+          "evidence": "registry_snapshot.json in outputs confirms the entry exists: {\"name\": \"BrainFrame\", \"path\": \"/Users/bryanarendt/obsidian/BrainFrame\"}. Transcript step 16 states 'Checked ~/.config/obsidian-ace/vaults.json \u2014 registry exists and already includes BrainFrame entry.' Live filesystem at ~/.config/obsidian-ace/vaults.json also confirms this. Note: the agent did not create the registry entry \u2014 it found it pre-existing (created by the with_skill run). However, the expectation only checks existence, which passes."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.67,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 65.4,
+        "tokens": 15614,
+        "tool_calls": 12,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "File was created inside the Dynasty Nerds vault, not the Personal vault or any other vault",
+          "passed": true,
+          "evidence": "File created at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/Zustand State Management.md \u2014 confirmed on disk. The DynastyNerds vault path is correct."
+        },
+        {
+          "text": "File was placed in Atlas/ (not + or Efforts or Calendar)",
+          "passed": true,
+          "evidence": "Transcript Step 5-6 and saved_file_path.txt confirm placement in Atlas/. Directory listing shows the file at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/Zustand State Management.md."
+        },
+        {
+          "text": "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
+          "passed": false,
+          "evidence": "File was placed directly at the Atlas/ root level, not inside a Roman-numeral-prefixed subfolder. Transcript explicitly notes: 'The new file was created at the root Atlas level without the numbered subfolder structure.' A pre-existing correctly-placed file exists at Atlas/II - Web Development/A. Zustand State Management.md, which the executor noticed but did not follow."
+        },
+        {
+          "text": "The file name uses an alpha letter prefix (e.g. A. , B. , C. )",
+          "passed": false,
+          "evidence": "File is named 'Zustand State Management.md', not 'A. Zustand State Management.md'. The pre-existing file at Atlas/II - Web Development/A. Zustand State Management.md shows the expected pattern, but without_skill run did not replicate it."
+        },
+        {
+          "text": "The file contains the Zustand guide content including the code examples",
+          "passed": true,
+          "evidence": "saved_file_content.md and direct disk read both confirm three sections (Basic Store, With Selectors, Persist Middleware) with TypeScript code examples. The actual file on disk matches the expected content."
+        },
+        {
+          "text": "The vault registry was consulted to find the Dynasty Nerds vault path",
+          "passed": true,
+          "evidence": "Transcript Step 1: 'Read the vault registry at ~/.config/obsidian-ace/vaults.json to confirm the Dynasty Nerds vault path (/Users/bryanarendt/obsidian/DynastyNerds/).' Registry was consulted before any file operations."
+        }
+      ],
+      "notes": [
+        "Executor noticed pre-existing correctly-formatted file at Atlas/II - Web Development/A. Zustand State Management.md but created a duplicate without Roman numeral folder or alpha prefix at Atlas root instead."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 105.0,
+        "tokens": 29180,
+        "tool_calls": 24,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Read the contents of the +/ directory in the Personal vault",
+          "passed": true,
+          "evidence": "Transcript step 1: 'Listed the contents of ~/obsidian/Personal/+/ (the inbox folder) \u2014 found 22 files'. inbox_listing.txt confirms all 22 files with sizes and dates were captured."
+        },
+        {
+          "text": "Read the content of at least 3 files from the +/ inbox",
+          "passed": true,
+          "evidence": "Transcript step 6: 'Read all 22 inbox files to understand their content and determine classification'. metrics.json shows 15 Read tool calls. The triage_table.md includes content summaries for all 22 files (e.g., 'Brayn features idea log.md: Feature ideas list for Brayn (chat, screenshot, surgeon, onboarding, heartbeat, etc.)', 'how to get organized.md: Long note about personal productivity system', etc.)."
+        },
+        {
+          "text": "Classified items into ACE categories (Atlas, Calendar, Efforts, or stay/delete)",
+          "passed": true,
+          "evidence": "triage_table.md groups all 22 files into explicit ACE categories: DELETE (7 files), Move to Efforts/I - Dynasty Nerds/ (5-6 files), Move to Efforts/II - Brayn/ (2-3 files), Move to Atlas/II - Claude Code/ (2-3 files), Move to Calendar/ (1 file), new Efforts/ folders (2 files), and Unclear (2 files). All four ACE categories plus delete/stay are represented."
+        },
+        {
+          "text": "Presented a structured summary with proposed destinations and reasoning",
+          "passed": true,
+          "evidence": "triage_table.md presents a Markdown table with columns File, Content Summary, Action, and Destination for all 22 files, followed by a 'Summary by Action' section grouping files by destination with reasoning (e.g., 'portal flags.md \u2014 portal is DN's legacy product', 'git rebase cheatsheet.md \u2014 dev reference/cheatsheet'). The transcript Result section also provides a structured summary."
+        },
+        {
+          "text": "Did NOT move or delete any files without asking for user confirmation first",
+          "passed": true,
+          "evidence": "The transcript and outputs contain only recommendations (triage_table.md is titled 'Inbox Triage Recommendations'). No Bash commands moving or deleting files appear in the transcript. metrics.json shows Bash: 5 calls, all used for directory listings (steps 1-5 in transcript). No files were modified in the vault."
+        },
+        {
+          "text": "Identified any empty files and flagged them for deletion",
+          "passed": true,
+          "evidence": "triage_table.md identifies 6 zero-byte files (staff job.md, Planning.md, terraform.md, Untitled.md, jackie-prs.md, empty note.md) all flagged DELETE with reason '(empty file \u2014 discard)'. Also flags 'portal screaming arch v2.md' as near-empty ('contains only \"x m\" \u2014 likely accidental'). inbox_listing.txt confirms the 0-byte sizes. All empty files correctly identified."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9667,
+        "stddev": 0.0577,
+        "min": 0.9,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 77.3667,
+        "stddev": 4.817,
+        "min": 72.8,
+        "max": 82.4
+      },
+      "tokens": {
+        "mean": 20294.0,
+        "stddev": 1966.7656,
+        "min": 18103,
+        "max": 21907
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.6567,
+        "stddev": 0.3502,
+        "min": 0.3,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 99.0333,
+        "stddev": 31.0825,
+        "min": 65.4,
+        "max": 126.7
+      },
+      "tokens": {
+        "mean": 21325.0,
+        "stddev": 7032.5416,
+        "min": 15614,
+        "max": 29180
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.31",
+      "time_seconds": "-21.7",
+      "tokens": "-1031"
+    }
+  },
+  "notes": []
+}

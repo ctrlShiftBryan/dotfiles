@@ -38,7 +38,7 @@
     {
       "text": "Created .obsidian/daily-notes.json with folder set to Calendar/Daily",
       "passed": false,
-      "evidence": "The actual file at ~/obsidian/BrainFrame/.obsidian/daily-notes.json contains '\"folder\": \"Notes/Daily\"', not 'Calendar/Daily'. The output snapshot (daily_notes_config.json) shows the correct value, but it does not reflect what was actually written to disk — the real file diverges, likely because Obsidian rewrote it after the vault was opened."
+      "evidence": "The actual file at ~/obsidian/BrainFrame/.obsidian/daily-notes.json contains '\"folder\": \"Notes/Daily\"', not 'Calendar/Daily'. The output snapshot (daily_notes_config.json) shows the correct value, but it does not reflect what was actually written to disk \u2014 the real file diverges, likely because Obsidian rewrote it after the vault was opened."
     },
     {
       "text": "Created .obsidian/core-plugins.json with daily-notes in the enabled list",
@@ -79,13 +79,13 @@
     "output_chars": 1850,
     "transcript_chars": 1642
   },
-  "timing": null,
+  "timing": {},
   "claims": [
     {
       "claim": "daily-notes.json sets Calendar/Daily as folder",
       "type": "factual",
       "verified": false,
-      "evidence": "The transcript and output snapshot (daily_notes_config.json) claim folder is 'Calendar/Daily', but the actual file on disk has 'Notes/Daily' — likely overwritten by Obsidian after the vault was opened."
+      "evidence": "The transcript and output snapshot (daily_notes_config.json) claim folder is 'Calendar/Daily', but the actual file on disk has 'Notes/Daily' \u2014 likely overwritten by Obsidian after the vault was opened."
     },
     {
       "claim": "Vault is ready to open in Obsidian",
@@ -97,7 +97,7 @@
       "claim": "BrainFrame added to registry as entry 3 (alongside Personal and Dynasty Nerds)",
       "type": "factual",
       "verified": true,
-      "evidence": "vaults.json on disk shows exactly 3 entries: Personal, Dynasty Nerds, and BrainFrame — matching the claim."
+      "evidence": "vaults.json on disk shows exactly 3 entries: Personal, Dynasty Nerds, and BrainFrame \u2014 matching the claim."
     },
     {
       "claim": "Executor encountered 2 errors",

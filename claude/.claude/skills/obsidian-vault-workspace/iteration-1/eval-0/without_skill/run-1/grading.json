@@ -1,0 +1,123 @@
+{
+  "expectations": [
+    {
+      "text": "Created the directory ~/obsidian/BrainFrame/",
+      "passed": true,
+      "evidence": "Transcript step 2 shows mkdir -p was run to create the vault directory. directory_listing.txt confirms files exist at /Users/bryanarendt/obsidian/BrainFrame/. Filesystem confirms the directory exists."
+    },
+    {
+      "text": "Created the +/ folder inside the vault",
+      "passed": false,
+      "evidence": "The +/ folder exists on the filesystem (created 08:11), but the without_skill transcript does not mention creating it. Transcript step 2 lists only: .obsidian/, Inbox/, Notes/, Projects/, Areas/, Resources/, Archive/, Templates/. The +/ folder is an ACE convention and appears to be a remnant from the with_skill run that preceded this one. The rm -rf in step 1 reportedly encountered a benign error, suggesting cleanup may have failed. The without_skill agent cannot be credited with creating this folder."
+    },
+    {
+      "text": "Created Atlas/ folder inside the vault",
+      "passed": false,
+      "evidence": "Same reasoning as +/ \u2014 Atlas/ exists on the filesystem (created 08:11) but is not mentioned in the without_skill transcript. The agent created PARA-style folders (Inbox, Notes, Projects, Areas, etc.), not ACE-convention folders like Atlas/."
+    },
+    {
+      "text": "Created Calendar/Daily/ folder inside the vault",
+      "passed": false,
+      "evidence": "Calendar/ and Calendar/Daily/ exist on the filesystem. However, the without_skill transcript does not mention creating Calendar/ or Calendar/Daily/. The transcript mentions Notes/Daily/ instead (step 14: 'Created Notes/Daily/ subdirectory'). The Calendar/ structure is an ACE convention not present in the agent's PARA-based approach."
+    },
+    {
+      "text": "Created Calendar/Weekly/ folder inside the vault",
+      "passed": false,
+      "evidence": "Calendar/Weekly/ exists on filesystem but is not mentioned in the without_skill transcript. Same reasoning as Calendar/Daily/ \u2014 this is an ACE-specific folder structure the without_skill agent did not create."
+    },
+    {
+      "text": "Created Calendar/Monthly/ folder inside the vault",
+      "passed": false,
+      "evidence": "Calendar/Monthly/ exists on filesystem but is not mentioned in the without_skill transcript. Same reasoning \u2014 ACE convention not adopted by the without_skill agent."
+    },
+    {
+      "text": "Created the Efforts/ folder inside the vault",
+      "passed": false,
+      "evidence": "Efforts/ exists on filesystem (created 08:11) but the without_skill transcript does not mention creating it. The agent used PARA structure; Efforts/ is an ACE convention not in its folder list."
+    },
+    {
+      "text": "Created .obsidian/daily-notes.json with folder set to Calendar/Daily",
+      "passed": false,
+      "evidence": "daily-notes.json exists and was created by the without_skill agent (confirmed in transcript step 8 and metrics.json files_created list). However, the folder is set to 'Notes/Daily' not 'Calendar/Daily'. Filesystem confirms: cat output shows {\"folder\": \"Notes/Daily\", \"format\": \"YYYY-MM-DD\", \"template\": \"Templates/Daily Note\"}. The expectation requires 'Calendar/Daily' which is the ACE convention \u2014 the without_skill agent used its own PARA-based path instead."
+    },
+    {
+      "text": "Created .obsidian/core-plugins.json with daily-notes in the enabled list",
+      "passed": true,
+      "evidence": "core-plugins.json was created by the without_skill agent (transcript step 6, metrics.json files_created list). Filesystem confirms content includes 'daily-notes' in the enabled array: [...\"daily-notes\"...]."
+    },
+    {
+      "text": "Registry file ~/.config/obsidian-ace/vaults.json exists and contains an entry with name BrainFrame and path pointing to ~/obsidian/BrainFrame",
+      "passed": true,
+      "evidence": "registry_snapshot.json in outputs confirms the entry exists: {\"name\": \"BrainFrame\", \"path\": \"/Users/bryanarendt/obsidian/BrainFrame\"}. Transcript step 16 states 'Checked ~/.config/obsidian-ace/vaults.json \u2014 registry exists and already includes BrainFrame entry.' Live filesystem at ~/.config/obsidian-ace/vaults.json also confirms this. Note: the agent did not create the registry entry \u2014 it found it pre-existing (created by the with_skill run). However, the expectation only checks existence, which passes."
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 7,
+    "total": 10,
+    "pass_rate": 0.3
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 0,
+      "Write": 5,
+      "Bash": 12,
+      "Edit": 0,
+      "Glob": 0,
+      "Grep": 0
+    },
+    "total_tool_calls": 17,
+    "total_steps": 16,
+    "errors_encountered": 2,
+    "output_chars": 4200,
+    "transcript_chars": 1850
+  },
+  "timing": {},
+  "claims": [
+    {
+      "claim": "rm -rf ~/obsidian/BrainFrame cleaned up any existing vault",
+      "type": "process",
+      "verified": false,
+      "evidence": "The transcript says 'none existed, got benign error from trash utility.' However ACE-convention folders (+/, Atlas/, Efforts/, Calendar/) exist with timestamp 08:11 matching the with_skill run time. The cleanup likely failed silently, leaving with_skill artifacts in the vault. This means the without_skill agent was working on top of a partially-existing vault, not a fresh directory."
+    },
+    {
+      "claim": "BrainFrame is listed in the obsidian-ace registry at ~/.config/obsidian-ace/vaults.json",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Confirmed via registry_snapshot.json output and live filesystem check \u2014 BrainFrame entry with correct path is present."
+    },
+    {
+      "claim": "Agent created PARA-method folder structure",
+      "type": "process",
+      "verified": true,
+      "evidence": "Transcript and directory_listing.txt confirm Inbox/, Notes/, Projects/, Areas/, Resources/, Archive/, Templates/ were created. These match PARA methodology, not ACE conventions."
+    },
+    {
+      "claim": "daily-notes.json points to Notes/Daily/",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Live filesystem confirms {\"folder\": \"Notes/Daily\"} \u2014 this is a deviation from the ACE-expected Calendar/Daily path."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Registry file ~/.config/obsidian-ace/vaults.json exists and contains an entry with name BrainFrame and path pointing to ~/obsidian/BrainFrame",
+        "reason": "This assertion passed but the without_skill agent did not create the registry entry \u2014 it was created by the with_skill run that preceded it. The agent only checked that it pre-existed. The eval setup should ensure a clean state (registry entry removed) before each run so this expectation actually tests whether the agent registers the vault."
+      },
+      {
+        "assertion": "Created the directory ~/obsidian/BrainFrame/",
+        "reason": "This trivially passes for any run because the rm cleanup step failed silently, making it impossible to distinguish between 'agent created the vault directory' and 'agent found a pre-existing directory.' Eval setup should verify the directory is deleted before execution begins."
+      },
+      {
+        "reason": "No assertion checks that the agent did NOT create random extra folders beyond the spec. The without_skill agent created PARA folders (Inbox, Notes, Projects, Areas, etc.) that are not part of the ACE structure. An assertion like 'The vault does not contain an Inbox/ or Projects/ folder' would catch PARA-vs-ACE confusion."
+      }
+    ],
+    "overall": "The eval suffers from state pollution: the with_skill run ran first and left artifacts (ACE folders, registry entry) that the without_skill run inherited. Without clean isolation between runs, it is impossible to determine what each agent actually created. The setup script must delete the vault and registry entry before each individual run."
+  }
+}

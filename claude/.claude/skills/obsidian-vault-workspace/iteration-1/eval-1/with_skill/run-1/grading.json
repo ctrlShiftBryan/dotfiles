@@ -8,7 +8,7 @@
     {
       "text": "File was placed in Atlas/ (not + or Efforts or Calendar)",
       "passed": true,
-      "evidence": "File is at Atlas/II - Web Development/A. Zustand State Management.md, confirmed by directory_listing.txt and disk verification. Transcript Step 3 states: 'user said reference material I'll keep using → Atlas (not inbox +)'."
+      "evidence": "File is at Atlas/II - Web Development/A. Zustand State Management.md, confirmed by directory_listing.txt and disk verification. Transcript Step 3 states: 'user said reference material I'll keep using \u2192 Atlas (not inbox +)'."
     },
     {
       "text": "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
@@ -18,7 +18,7 @@
     {
       "text": "The file name uses an alpha letter prefix (e.g. A. , B. , C. )",
       "passed": true,
-      "evidence": "File is named 'A. Zustand State Management.md'. Transcript Step 7 states: 'Counted files in the new folder (0) → first file gets prefix A → filename: A. Zustand State Management.md'. Confirmed on disk."
+      "evidence": "File is named 'A. Zustand State Management.md'. Transcript Step 7 states: 'Counted files in the new folder (0) \u2192 first file gets prefix A \u2192 filename: A. Zustand State Management.md'. Confirmed on disk."
     },
     {
       "text": "The file contains the Zustand guide content including the code examples",
@@ -28,7 +28,7 @@
     {
       "text": "The vault registry was consulted to find the Dynasty Nerds vault path",
       "passed": true,
-      "evidence": "Transcript Step 2: 'Read the vault registry at ~/.config/obsidian-ace/vaults.json to resolve the Dynasty Nerds vault path → /Users/bryanarendt/obsidian/DynastyNerds'. The registry_check.json output artifact captures the registry contents showing both vaults."
+      "evidence": "Transcript Step 2: 'Read the vault registry at ~/.config/obsidian-ace/vaults.json to resolve the Dynasty Nerds vault path \u2192 /Users/bryanarendt/obsidian/DynastyNerds'. The registry_check.json output artifact captures the registry contents showing both vaults."
     }
   ],
   "summary": {
@@ -52,7 +52,7 @@
     "output_chars": 1180,
     "transcript_chars": 1087
   },
-  "timing": null,
+  "timing": {},
   "claims": [
     {
       "claim": "Atlas folder contains two topic subfolders: I - Fantasy Football and II - Web Development",
@@ -76,7 +76,7 @@
       "claim": "File was placed inside the subfolder, not at the Atlas root",
       "type": "factual",
       "verified": true,
-      "evidence": "Correct file A. Zustand State Management.md is inside II - Web Development/. However, a stray unprefixed 'Zustand State Management.md' also exists at the Atlas root — likely an artifact from an earlier failed write attempt before the subfolder was created. The primary file with correct naming is in the right location."
+      "evidence": "Correct file A. Zustand State Management.md is inside II - Web Development/. However, a stray unprefixed 'Zustand State Management.md' also exists at the Atlas root \u2014 likely an artifact from an earlier failed write attempt before the subfolder was created. The primary file with correct naming is in the right location."
     }
   ],
   "user_notes_summary": {
@@ -94,6 +94,6 @@
         "reason": "The saved content is minimal (551 chars, 3 short code blocks). If the original eval prompt included a more detailed Zustand guide, verifying the content matches the input would be more discriminating than just checking that code examples are present."
       }
     ],
-    "overall": "All 6 assertions pass with clear evidence. The stray file at the Atlas root is a correctness issue not covered by any assertion — worth adding a 'no files outside the target subfolder' check."
+    "overall": "All 6 assertions pass with clear evidence. The stray file at the Atlas root is a correctness issue not covered by any assertion \u2014 worth adding a 'no files outside the target subfolder' check."
   }
 }
