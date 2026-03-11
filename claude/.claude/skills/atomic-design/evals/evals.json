@@ -1,0 +1,49 @@
+{
+  "skill_name": "atomic-design",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "audit the components in my project and tell me how to organize them",
+      "expected_output": "A structured audit report classifying each component by atomic level, identifying mixed-level directories, dependency direction violations, and misplaced screen components.",
+      "files": [],
+      "assertions": [
+        {"id": "detects-framework", "text": "Correctly identifies framework (React/Expo) and UI library (shadcn/NativeWind)"},
+        {"id": "classifies-atoms", "text": "Identifies atom-level components (Button, Input, Badge, etc.)"},
+        {"id": "classifies-organisms", "text": "Identifies organism-level components (forms, cards with actions, headers)"},
+        {"id": "flags-mixed-levels", "text": "Flags directories containing mixed atomic levels"},
+        {"id": "flags-misplaced-screens", "text": "Identifies screen components in ui/atoms folders as misplaced"},
+        {"id": "structured-report", "text": "Output follows structured report with inventory table and recommendations"},
+        {"id": "actionable-recommendations", "text": "Includes specific move/restructure actions with file paths"}
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I need to build a PlayerComparisonCard that shows two player avatars, names, and stats side by side — where should I put this?",
+      "expected_output": "Classification as organism with clear reasoning and exact file path placement.",
+      "files": [],
+      "assertions": [
+        {"id": "classifies-as-organism", "text": "Correctly classifies PlayerComparisonCard as an organism"},
+        {"id": "explains-why-not-molecule", "text": "Explains why it's not a molecule (4+ elements, multiple concerns)"},
+        {"id": "identifies-sub-components", "text": "Identifies constituent atoms/molecules (Avatar, Text, StatRow)"},
+        {"id": "gives-file-path", "text": "Provides exact file path (components/sections/ or features/*/components/)"},
+        {"id": "lists-dependencies", "text": "Lists what it should import and what should import it"},
+        {"id": "uses-decision-flowchart", "text": "References or applies the decision flowchart logic"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "set up atomic design folder structure for my Expo project that uses NativeWind and shadcn-rn",
+      "expected_output": "Scaffold using shadcn-rn conventions: ui/ for atoms, composed/ for molecules, sections/ for organisms, templates/ for layouts.",
+      "files": [],
+      "assertions": [
+        {"id": "detects-shadcn-rn", "text": "Detects shadcn-rn and adapts naming (ui/composed/sections vs atoms/molecules/organisms)"},
+        {"id": "preserves-ui-dir", "text": "Keeps components/ui/ as-is for atoms (shadcn primitives)"},
+        {"id": "creates-composed", "text": "Creates components/composed/ for molecules"},
+        {"id": "creates-sections", "text": "Creates components/sections/ for organisms"},
+        {"id": "creates-templates", "text": "Creates components/templates/ for layouts"},
+        {"id": "respects-app-dir", "text": "Does not create a pages/ folder — app/ routes are pages"},
+        {"id": "handles-feature-folders", "text": "Explains feature-specific components stay in features/"}
+      ]
+    }
+  ]
+}
