@@ -1,0 +1,99 @@
+{
+  "expectations": [
+    {
+      "text": "File was created inside the Dynasty Nerds vault, not the Personal vault or any other vault",
+      "passed": true,
+      "evidence": "File confirmed on disk at /Users/bryanarendt/obsidian/DynastyNerds/Atlas/II - Web Development/A. Zustand State Management.md. Registry shows Dynasty Nerds vault path is /Users/bryanarendt/obsidian/DynastyNerds. registry_check.json output shows both Personal and Dynasty Nerds vaults; executor chose the correct one."
+    },
+    {
+      "text": "File was placed in Atlas/ (not + or Efforts or Calendar)",
+      "passed": true,
+      "evidence": "File is at Atlas/II - Web Development/A. Zustand State Management.md, confirmed by directory_listing.txt and disk verification. Transcript Step 3 states: 'user said reference material I'll keep using → Atlas (not inbox +)'."
+    },
+    {
+      "text": "The containing folder uses a Roman numeral prefix (e.g. I - , II - , III - )",
+      "passed": true,
+      "evidence": "Folder is named 'II - Web Development', confirmed by ls output of Atlas/ showing 'II - Web Development' directory created at 11 Mar 08:11."
+    },
+    {
+      "text": "The file name uses an alpha letter prefix (e.g. A. , B. , C. )",
+      "passed": true,
+      "evidence": "File is named 'A. Zustand State Management.md'. Transcript Step 7 states: 'Counted files in the new folder (0) → first file gets prefix A → filename: A. Zustand State Management.md'. Confirmed on disk."
+    },
+    {
+      "text": "The file contains the Zustand guide content including the code examples",
+      "passed": true,
+      "evidence": "saved_file_content.md and disk file both contain: Basic Store code block with create() usage, With Selectors section with selector code, and Persist Middleware section with persist() code. Three distinct TypeScript code examples are present."
+    },
+    {
+      "text": "The vault registry was consulted to find the Dynasty Nerds vault path",
+      "passed": true,
+      "evidence": "Transcript Step 2: 'Read the vault registry at ~/.config/obsidian-ace/vaults.json to resolve the Dynasty Nerds vault path → /Users/bryanarendt/obsidian/DynastyNerds'. The registry_check.json output artifact captures the registry contents showing both vaults."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Write": 6,
+      "Bash": 4,
+      "Edit": 0,
+      "Glob": 0,
+      "Grep": 0
+    },
+    "total_tool_calls": 12,
+    "total_steps": 11,
+    "errors_encountered": 0,
+    "output_chars": 1180,
+    "transcript_chars": 1087
+  },
+  "timing": null,
+  "claims": [
+    {
+      "claim": "Atlas folder contains two topic subfolders: I - Fantasy Football and II - Web Development",
+      "type": "factual",
+      "verified": true,
+      "evidence": "ls of Atlas/ confirms both I - Fantasy Football and II - Web Development directories exist"
+    },
+    {
+      "claim": "I - Fantasy Football already existed with A. Dynasty Trade Values.md",
+      "type": "factual",
+      "verified": true,
+      "evidence": "directory_listing.txt shows /Users/bryanarendt/obsidian/DynastyNerds/Atlas/I - Fantasy Football/A. Dynasty Trade Values.md"
+    },
+    {
+      "claim": "New folder II - Web Development was created for the Zustand guide",
+      "type": "process",
+      "verified": true,
+      "evidence": "Folder exists on disk, timestamp 11 Mar 08:11 matches executor run time"
+    },
+    {
+      "claim": "File was placed inside the subfolder, not at the Atlas root",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct file A. Zustand State Management.md is inside II - Web Development/. However, a stray unprefixed 'Zustand State Management.md' also exists at the Atlas root — likely an artifact from an earlier failed write attempt before the subfolder was created. The primary file with correct naming is in the right location."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks that no stray files were created at wrong locations. A disk inspection found 'Zustand State Management.md' (no prefix) at the Atlas root alongside the correctly-placed file. The executor may have made an initial write to the wrong path before correcting itself. An assertion like 'No files were created outside the designated subfolder' would catch this."
+      },
+      {
+        "assertion": "The file contains the Zustand guide content including the code examples",
+        "reason": "The saved content is minimal (551 chars, 3 short code blocks). If the original eval prompt included a more detailed Zustand guide, verifying the content matches the input would be more discriminating than just checking that code examples are present."
+      }
+    ],
+    "overall": "All 6 assertions pass with clear evidence. The stray file at the Atlas root is a correctness issue not covered by any assertion — worth adding a 'no files outside the target subfolder' check."
+  }
+}
