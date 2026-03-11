@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { execSync } = require('child_process')
-const { run, formatModelName, resolveCoauthor, readClaudeAttribution } = require('../lib/run')
+const { run, formatModelName, resolveCoauthor, readClaudeAttribution, condensePairs } = require('../lib/run')
 const { handleTrack } = require('../lib/track')
 const { savePending, chainDir, saveWatermark, readWatermark } = require('../lib/session')
 const { ensureDir } = require('../lib/io')
@@ -666,9 +666,13 @@ describe('run', () => {
     assert.ok(body.includes('$$'), `expected $$ in body but got: ${body}`)
   })
 
-  it('appends coauthor trailer when model present in transcript', () => {
+  it('appends coauthor trailer when coauthor: true and model present', () => {
     const dir = makeRepo()
     enableAndCommit(dir)
+    // Override config to opt into coauthor auto-detect
+    fs.writeFileSync(path.join(dir, '.claude', 'turbocommit.json'), JSON.stringify({
+      enabled: true, title: { type: 'transcript' }, coauthor: true
+    }))
     fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
     trackWrite(dir, 'S1', path.join(dir, 'file.txt'))
     const transcript = makeTranscript(
@@ -764,6 +768,10 @@ describe('run', () => {
   it('uses Claude Code attribution.commit instead of auto-detect when CLAUDECODE=1', () => {
     const dir = makeRepo()
     enableAndCommit(dir)
+    // Override config to opt into coauthor auto-detect
+    fs.writeFileSync(path.join(dir, '.claude', 'turbocommit.json'), JSON.stringify({
+      enabled: true, title: { type: 'transcript' }, coauthor: true
+    }))
     // Write Claude settings with custom attribution
     const claudeDir = path.join(process.env.HOME, '.claude')
     fs.mkdirSync(claudeDir, { recursive: true })
@@ -1034,6 +1042,10 @@ describe('run', () => {
   it('appends coauthor after Planning/Implementation body', () => {
     const dir = makeRepo()
     enableAndCommit(dir)
+    // Override config to opt into coauthor auto-detect
+    fs.writeFileSync(path.join(dir, '.claude', 'turbocommit.json'), JSON.stringify({
+      enabled: true, title: { type: 'transcript' }, coauthor: true
+    }))
 
     // Buffer pending from ancestor
     savePending(dir, 'A', 'Prompt:\nTurn 1\n\nResponse:\nThinking...')
@@ -1110,6 +1122,68 @@ describe('run', () => {
     })
     const body = lastBody(dir)
     assert.ok(body.includes(longResponse), 'long line should not be wrapped')
+  })
+
+  it('no coauthor when config.coauthor is undefined (new default)', () => {
+    const dir = makeRepo()
+    enableAndCommit(dir)
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
+    trackWrite(dir, 'S1', path.join(dir, 'file.txt'))
+    const transcript = makeTranscript(
+      [{ prompt: 'Add file', response: 'Done.' }],
+      { model: 'claude-opus-4-6' }
+    )
+    withCwd(dir, () => {
+      run(JSON.stringify({ transcript_path: transcript, session_id: 'S1' }))
+    })
+    const body = lastBody(dir)
+    assert.ok(!body.includes('Co-Authored-By'), 'no trailer when coauthor is undefined')
+  })
+
+  it('uses agent body by default when body.type absent', () => {
+    const dir = makeRepo()
+    const claudeDir = path.join(dir, '.claude')
+    fs.mkdirSync(claudeDir, { recursive: true })
+    fs.writeFileSync(path.join(claudeDir, 'turbocommit.json'), JSON.stringify({
+      enabled: true,
+      title: { type: 'transcript' },
+      coauthor: false,
+      body: { command: 'echo "Agent body default"' }
+    }))
+    fs.writeFileSync(path.join(dir, 'README.md'), 'init')
+    execSync('git add -A && git commit -m "Initial"', { cwd: dir, stdio: 'pipe' })
+
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
+    trackWrite(dir, 'S1', path.join(dir, 'file.txt'))
+    const transcript = makeTranscript([{ prompt: 'Add file', response: 'Done.' }])
+    withCwd(dir, () => {
+      run(JSON.stringify({ transcript_path: transcript, session_id: 'S1' }))
+    })
+    assert.equal(lastBody(dir), 'Agent body default')
+  })
+
+  it('uses transcript body when body.type is "transcript" (explicit opt-out)', () => {
+    const dir = makeRepo()
+    const claudeDir = path.join(dir, '.claude')
+    fs.mkdirSync(claudeDir, { recursive: true })
+    fs.writeFileSync(path.join(claudeDir, 'turbocommit.json'), JSON.stringify({
+      enabled: true,
+      title: { type: 'transcript' },
+      coauthor: false,
+      body: { type: 'transcript' }
+    }))
+    fs.writeFileSync(path.join(dir, 'README.md'), 'init')
+    execSync('git add -A && git commit -m "Initial"', { cwd: dir, stdio: 'pipe' })
+
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
+    trackWrite(dir, 'S1', path.join(dir, 'file.txt'))
+    const transcript = makeTranscript([{ prompt: 'Add file', response: 'Done.' }])
+    withCwd(dir, () => {
+      run(JSON.stringify({ transcript_path: transcript, session_id: 'S1' }))
+    })
+    const body = lastBody(dir)
+    assert.ok(body.includes('Prompt:'), 'transcript body should contain Prompt: markers')
+    assert.ok(body.includes('Add file'))
   })
 })
 
@@ -1267,11 +1341,11 @@ describe('resolveCoauthor', () => {
     )
   })
 
-  it('returns null when model is not in transcript (auto-detect)', () => {
+  it('returns null when coauthor is undefined (default)', () => {
     assert.equal(resolveCoauthor({}, '/dev/null'), null)
   })
 
-  it('uses Claude attribution when coauthor not set and CLAUDECODE=1', () => {
+  it('uses Claude attribution when coauthor: true and CLAUDECODE=1', () => {
     const home = fs.mkdtempSync(path.join(os.tmpdir(), 'tc-home-'))
     const claudeDir = path.join(home, '.claude')
     fs.mkdirSync(claudeDir, { recursive: true })
@@ -1283,7 +1357,7 @@ describe('resolveCoauthor', () => {
     process.env.CLAUDECODE = '1'
     try {
       assert.equal(
-        resolveCoauthor({}, '/dev/null', '/nonexistent'),
+        resolveCoauthor({ coauthor: true }, '/dev/null', '/nonexistent'),
         'Co-Authored-By: Claude <claude@anthropic.com>'
       )
     } finally {
@@ -1303,7 +1377,7 @@ describe('resolveCoauthor', () => {
     process.env.HOME = home
     process.env.CLAUDECODE = '1'
     try {
-      assert.equal(resolveCoauthor({}, '/dev/null', '/nonexistent'), null)
+      assert.equal(resolveCoauthor({ coauthor: true }, '/dev/null', '/nonexistent'), null)
     } finally {
       process.env.HOME = origHome
       delete process.env.CLAUDECODE
@@ -1320,7 +1394,7 @@ describe('resolveCoauthor', () => {
     process.env.CLAUDECODE = '1'
     try {
       // No attribution key → falls through to tier 3 (auto-detect), which returns null for /dev/null
-      assert.equal(resolveCoauthor({}, '/dev/null', '/nonexistent'), null)
+      assert.equal(resolveCoauthor({ coauthor: true }, '/dev/null', '/nonexistent'), null)
     } finally {
       process.env.HOME = origHome
       delete process.env.CLAUDECODE
@@ -1432,5 +1506,100 @@ describe('readClaudeAttribution', () => {
       process.env.HOME = origHome
       delete process.env.CLAUDECODE
     }
+  })
+})
+
+describe('condensePairs', () => {
+  it('condenses hook feedback prompt via agent', () => {
+    const hookText = 'Stop hook feedback:\n' + 'x'.repeat(300)
+    const pairs = [{ prompt: hookText, response: 'ok' }]
+    condensePairs('/tmp', { condense: { command: 'echo "Build passed with warnings"' } }, pairs)
+    assert.equal(pairs[0].prompt, 'Build passed with warnings')
+  })
+
+  it('leaves short hook feedback untouched', () => {
+    const hookText = 'Stop hook feedback:\nShort'
+    const pairs = [{ prompt: hookText, response: 'ok' }]
+    condensePairs('/tmp', {}, pairs)
+    assert.equal(pairs[0].prompt, hookText)
+  })
+
+  it('leaves non-hook prompts unaffected', () => {
+    const pairs = [{ prompt: 'Fix the bug in auth module', response: 'Done' }]
+    condensePairs('/tmp', { condense: { command: 'echo "should not appear"' } }, pairs)
+    assert.equal(pairs[0].prompt, 'Fix the bug in auth module')
+  })
+
+  it('falls back to truncation on agent failure', () => {
+    const hookText = 'Stop hook feedback:\n' + Array.from({ length: 20 }, (_, i) => `line${i} ${'x'.repeat(20)}`).join('\n')
+    const pairs = [{ prompt: hookText, response: 'ok' }]
+    condensePairs('/tmp', { condense: { command: 'bash -c "exit 1"' } }, pairs)
+    assert.ok(pairs[0].prompt.includes('Stop hook feedback:'))
+    assert.ok(pairs[0].prompt.includes('[...'))
+    assert.ok(pairs[0].prompt.includes('truncated]'))
+  })
+
+  it('respects custom minLength', () => {
+    const hookText = 'Stop hook feedback:\n' + 'x'.repeat(50)
+    const pairs = [{ prompt: hookText, response: 'ok' }]
+    condensePairs('/tmp', { condense: { minLength: 10, command: 'echo "condensed"' } }, pairs)
+    assert.equal(pairs[0].prompt, 'condensed')
+  })
+})
+
+describe('run condense integration', () => {
+  let realHome
+  before(() => { realHome = process.env.HOME })
+  beforeEach(() => { process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'tc-home-')) })
+  after(() => { process.env.HOME = realHome })
+
+  it('condenses hook feedback in commit body', () => {
+    const dir = makeRepo()
+    const claudeDir = path.join(dir, '.claude')
+    fs.mkdirSync(claudeDir, { recursive: true })
+    fs.writeFileSync(path.join(claudeDir, 'turbocommit.json'), JSON.stringify({
+      enabled: true,
+      title: { type: 'transcript' },
+      body: { type: 'transcript' },
+      condense: { command: 'echo "Build passed, 2 warnings"' }
+    }))
+    fs.writeFileSync(path.join(dir, 'README.md'), 'init')
+    execSync('git add -A && git commit -m "Initial"', { cwd: dir, stdio: 'pipe' })
+
+    const hookText = 'Stop hook feedback:\n' + 'x'.repeat(300)
+    const transcript = makeTranscript([{ prompt: hookText, response: 'acknowledged' }])
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
+    trackWrite(dir, 'S1')
+    withCwd(dir, () => {
+      run(JSON.stringify({ transcript_path: transcript, session_id: 'S1' }))
+    })
+    const body = lastBody(dir)
+    assert.ok(body.includes('Build passed, 2 warnings'))
+    assert.ok(!body.includes('x'.repeat(100)))
+  })
+
+  it('skips condensing when condense.enabled is false', () => {
+    const dir = makeRepo()
+    const claudeDir = path.join(dir, '.claude')
+    fs.mkdirSync(claudeDir, { recursive: true })
+    fs.writeFileSync(path.join(claudeDir, 'turbocommit.json'), JSON.stringify({
+      enabled: true,
+      title: { type: 'transcript' },
+      body: { type: 'transcript' },
+      condense: { enabled: false }
+    }))
+    fs.writeFileSync(path.join(dir, 'README.md'), 'init')
+    execSync('git add -A && git commit -m "Initial"', { cwd: dir, stdio: 'pipe' })
+
+    const hookText = 'Stop hook feedback:\n' + 'x'.repeat(300)
+    const transcript = makeTranscript([{ prompt: hookText, response: 'acknowledged' }])
+    fs.writeFileSync(path.join(dir, 'file.txt'), 'content')
+    trackWrite(dir, 'S1')
+    withCwd(dir, () => {
+      run(JSON.stringify({ transcript_path: transcript, session_id: 'S1' }))
+    })
+    const body = lastBody(dir)
+    // Raw hook text preserved when condensing disabled
+    assert.ok(body.includes('x'.repeat(100)))
   })
 })

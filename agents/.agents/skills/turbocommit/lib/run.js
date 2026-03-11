@@ -2,8 +2,8 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const { loadJson, mergeConfig } = require('./io')
-const { parseTranscript, formatBody, formatTitleTranscript, extractHeadline, extractModel } = require('./transcript')
-const { runTitleAgent, runBodyAgent } = require('./agent')
+const { parseTranscript, formatBody, formatTitleTranscript, extractHeadline, extractModel, isHookFeedback, truncateHookFeedback } = require('./transcript')
+const { runTitleAgent, runBodyAgent, runCondenseAgent } = require('./agent')
 const { gitRoot, hasChanges, addAndCommit, hasCommits, currentBranch } = require('./git')
 const { logEvent } = require('./log')
 const { wrapText } = require('./wrap')
@@ -54,8 +54,8 @@ function readClaudeAttribution (root) {
  * Tier 3: auto-detect model from transcript
  */
 function resolveCoauthor (config, transcriptPath, root) {
-  // Tier 1: explicit turbocommit config
-  if (config.coauthor === false) return null
+  // Tier 1: explicit turbocommit config (default: no trailer)
+  if (config.coauthor === false || config.coauthor === undefined) return null
 
   if (typeof config.coauthor === 'string') {
     return `Co-Authored-By: ${config.coauthor}`
@@ -72,6 +72,20 @@ function resolveCoauthor (config, transcriptPath, root) {
   if (!model) return null
   const name = formatModelName(model)
   return `Co-Authored-By: ${name} <noreply@anthropic.com>`
+}
+
+/**
+ * Condense verbose hook feedback in pairs via a summarizer agent.
+ * Mutates pairs in place.
+ */
+function condensePairs (root, config, pairs) {
+  const condenseCfg = config.condense || {}
+  const minLength = condenseCfg.minLength || 200
+  for (const pair of pairs) {
+    if (!isHookFeedback(pair.prompt) || pair.prompt.length < minLength) continue
+    const summary = runCondenseAgent(root, condenseCfg, pair.prompt)
+    pair.prompt = summary || truncateHookFeedback(pair.prompt)
+  }
 }
 
 /**
@@ -141,6 +155,10 @@ function run (input) {
 
     logEvent('start', { project, branch, context })
 
+    if (config.condense?.enabled !== false) {
+      condensePairs(root, config, effectivePairs)
+    }
+
     const formattedTranscript = formatBody(effectivePairs)
 
     // Title: agent by default, transcript if opted out
@@ -151,10 +169,10 @@ function run (input) {
     }
     headline = headline || extractHeadline(effectivePairs)
 
-    // Body: transcript by default, agent if opted in
+    // Body: agent by default, transcript if opted out
     let body
-    if (config.body?.type === 'agent') {
-      body = runBodyAgent(root, config.body, formattedTranscript)
+    if (config.body?.type !== 'transcript') {
+      body = runBodyAgent(root, config.body || {}, formattedTranscript)
     }
     body = body || formattedTranscript
 
@@ -205,4 +223,4 @@ function run (input) {
   }
 }
 
-module.exports = { run, formatModelName, resolveCoauthor, readClaudeAttribution }
+module.exports = { run, formatModelName, resolveCoauthor, readClaudeAttribution, condensePairs }

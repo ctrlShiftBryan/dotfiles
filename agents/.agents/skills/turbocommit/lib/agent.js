@@ -5,10 +5,10 @@ const DEFAULT_COMMAND = 'claude -p --model haiku'
 const DEFAULT_TITLE_PROMPT = `You have 10 seconds. Write a single-line git commit headline (max 72 chars) from this coding session transcript. Speed over perfection — a rough title beats no title.
 
 Rules:
-- Imperative mood ("Add", "Fix", "Update")
-- Specific about what changed
-- No trailing period
-- No conventional commit prefixes unless clearly a fix/feat
+- Conventional Commit format: type(scope): subject  or  type: subject
+- Allowed types: feat, fix, chore, refactor, docs, test, perf
+- Subject in imperative mood, lowercase start, no trailing period
+- Scope is optional — use when it clarifies the change
 
 Transcript:
 {{transcript}}
@@ -18,9 +18,9 @@ Respond with ONLY the headline, nothing else. Do not deliberate.`
 const DEFAULT_BODY_PROMPT = `Given this transcript of a coding session, write a concise git commit body.
 
 Rules:
-- Summarize what was done and why
-- Be concise — a few sentences or bullet points
-- Focus on the "why" more than the "what"
+- First line: the exact first user prompt, verbatim
+- Then a blank line
+- Then a concise summary of what was done and why
 
 Transcript:
 {{transcript}}
@@ -66,12 +66,30 @@ function runBodyAgent (root, bodyCfg, transcript) {
   return runAgent(root, command, prompt)
 }
 
+const DEFAULT_CONDENSE_PROMPT = `Summarize this CI/build/lint output in 2-4 sentences.
+Focus on: what checks ran, what passed, what failed, and key error details.
+Do not include raw logs or file paths.
+
+Output:
+{{transcript}}
+
+Respond with ONLY the summary, nothing else.`
+
+function runCondenseAgent (root, condenseCfg, text) {
+  const command = condenseCfg.command || DEFAULT_COMMAND
+  const template = condenseCfg.prompt || DEFAULT_CONDENSE_PROMPT
+  const prompt = renderPrompt(template, text)
+  return runAgent(root, command, prompt)
+}
+
 module.exports = {
   DEFAULT_COMMAND,
   DEFAULT_TITLE_PROMPT,
   DEFAULT_BODY_PROMPT,
+  DEFAULT_CONDENSE_PROMPT,
   renderPrompt,
   runAgent,
   runTitleAgent,
-  runBodyAgent
+  runBodyAgent,
+  runCondenseAgent
 }

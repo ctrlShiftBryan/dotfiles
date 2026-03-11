@@ -6,9 +6,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/brainstorming/SKILL.md",
-      "skillFolderHash": "d28aa4ed67fe5a3f1336f0fcccb1e548c67dc864",
+      "skillFolderHash": "c4b586a97565a90f7a95b1080ecbc49698ae7bc9",
       "installedAt": "2026-01-27T11:26:08.893Z",
-      "updatedAt": "2026-02-27T11:16:03.597Z"
+      "updatedAt": "2026-03-11T19:49:33.594Z"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
@@ -33,27 +33,27 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/wshobson/agents.git",
       "skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
-      "skillFolderHash": "55f639b507c63d6494292b9fd56fb6619b4ee46d",
+      "skillFolderHash": "0dc67032a28f3a4a60c6c8b766e2b089df26bcb3",
       "installedAt": "2026-01-27T11:34:28.145Z",
-      "updatedAt": "2026-01-27T11:34:28.145Z"
+      "updatedAt": "2026-03-11T19:49:36.820Z"
     },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
       "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
       "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
-      "skillFolderHash": "986c64ad9b8e196a4a737c01872c2eda790daba1",
+      "skillFolderHash": "75e1acaafe8b08e59d4b86fc253ac7873aff6bba",
       "installedAt": "2026-01-27T11:35:25.999Z",
-      "updatedAt": "2026-01-27T11:35:25.999Z"
+      "updatedAt": "2026-03-11T19:49:40.415Z"
     },
     "writing-skills": {
       "source": "obra/superpowers",
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/writing-skills/SKILL.md",
-      "skillFolderHash": "6396b432b11f15010bb3121d010ca3c3e50088bc",
+      "skillFolderHash": "657cdd6aef472054ffd3f0e7798494d79be9f807",
       "installedAt": "2026-01-27T12:20:13.354Z",
-      "updatedAt": "2026-01-27T12:20:13.354Z"
+      "updatedAt": "2026-03-11T19:49:43.081Z"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
@@ -78,19 +78,18 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/conorluddy/ios-simulator-skill.git",
       "skillPath": "ios-simulator-skill/SKILL.md",
-      "skillFolderHash": "ffa4cdb0d51a8fafa3aa38fe054ba6ceb6f97982",
+      "skillFolderHash": "6214ba13342c46c21053194e4a9cd39b6153d2df",
       "installedAt": "2026-02-17T14:18:35.910Z",
-      "updatedAt": "2026-02-17T14:18:35.910Z"
+      "updatedAt": "2026-03-11T19:49:45.645Z"
     },
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "88b7e785240d14ab80eb11abdd0cbd27b20055c6",
-      "pluginName": "agent-browser",
+      "skillFolderHash": "ef3abe1fe6f259718037dc6131d332c7571292c3",
       "installedAt": "2026-02-26T09:44:35.254Z",
-      "updatedAt": "2026-02-27T11:16:30.189Z"
+      "updatedAt": "2026-03-11T19:49:48.401Z"
     },
     "building-native-ui": {
       "source": "expo/skills",
@@ -160,9 +159,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/expo/skills.git",
       "skillPath": "plugins/upgrading-expo/skills/upgrading-expo/SKILL.md",
-      "skillFolderHash": "cfcc9ba12542031f7332426e2eb1ccf38c113c5e",
+      "skillFolderHash": "23cb4cb2d723d4c8d1a7996e37288f28a44f23dc",
       "installedAt": "2026-02-27T11:10:40.993Z",
-      "updatedAt": "2026-02-27T11:10:40.993Z"
+      "updatedAt": "2026-03-11T19:49:50.872Z"
     },
     "use-dom": {
       "source": "expo/skills",
@@ -188,9 +187,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/subagent-driven-development/SKILL.md",
-      "skillFolderHash": "0a57c1590ddebe07ab4963238b6429447459659a",
+      "skillFolderHash": "c6793c453fe1d8e1a2efaf035f7333ca10be6ed9",
       "installedAt": "2026-02-27T11:16:03.704Z",
-      "updatedAt": "2026-02-27T11:16:03.704Z"
+      "updatedAt": "2026-03-11T19:49:53.578Z"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
@@ -251,9 +250,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/ctrlshiftbryan/turbocommit.git",
       "skillPath": "SKILL.md",
-      "skillFolderHash": "03e32534802aed8be03cd1febc2c7ddb26526920",
+      "skillFolderHash": "7abd214322e58f1db1ac7971c95953c1bead6876",
       "installedAt": "2026-03-08T14:27:45.098Z",
-      "updatedAt": "2026-03-08T14:27:45.098Z"
+      "updatedAt": "2026-03-11T19:49:56.503Z"
     },
     "internal-comms": {
       "source": "anthropics/skills",
