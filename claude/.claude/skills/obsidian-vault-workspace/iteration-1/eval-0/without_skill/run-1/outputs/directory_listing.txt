@@ -1,0 +1,13 @@
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/app.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/appearance.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/core-plugins-migration.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/core-plugins.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/daily-notes.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/templates.json
+/Users/bryanarendt/obsidian/BrainFrame/.obsidian/workspace.json
+/Users/bryanarendt/obsidian/BrainFrame/Inbox/Welcome to BrainFrame.md
+/Users/bryanarendt/obsidian/BrainFrame/Notes/MOC - Index.md
+/Users/bryanarendt/obsidian/BrainFrame/README.md
+/Users/bryanarendt/obsidian/BrainFrame/Templates/Daily Note.md
+/Users/bryanarendt/obsidian/BrainFrame/Templates/New Note.md
+/Users/bryanarendt/obsidian/BrainFrame/Templates/Project.md
