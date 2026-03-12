@@ -1,0 +1,158 @@
+{
+  "skill_name": "dn3-add-component",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "add a new atom called Badge",
+      "expected_output": "Creates components/atoms/badge.tsx, updates atoms/index.ts barrel, creates app/stories/atoms/badge.tsx story, adds Badge to Atoms category in stories index (alphabetically sorted), adds registry.json entry with atomicLevel atom.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "creates-component",
+          "text": "Creates components/atoms/badge.tsx with Badge component, cn() import, className prop, and named exports"
+        },
+        {
+          "id": "updates-barrel",
+          "text": "Appends export { Badge } and export type { BadgeProps } to components/atoms/index.ts"
+        },
+        {
+          "id": "creates-story",
+          "text": "Creates app/stories/atoms/badge.tsx with StorySection wrapper and ScrollView"
+        },
+        {
+          "id": "updates-stories-index",
+          "text": "Adds { name: 'Badge', href: '/stories/atoms/badge' } to Atoms category in app/stories/index.tsx, alphabetically sorted"
+        },
+        {
+          "id": "updates-registry",
+          "text": "Adds entry to registry.json with name: badge, type: registry:ui, atomicLevel: atom, files pointing to components/atoms/badge.tsx"
+        },
+        {
+          "id": "kebab-case-file",
+          "text": "Atom component file uses kebab-case filename (badge.tsx not Badge.tsx)"
+        },
+        {
+          "id": "no-folder",
+          "text": "Atom is a flat file, NOT inside a badge/ folder"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "create a molecule for player card",
+      "expected_output": "Creates components/molecules/player-card/ folder with PlayerCard.tsx and index.ts, updates molecules barrel, creates story, updates stories index, adds registry entry.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "creates-folder",
+          "text": "Creates components/molecules/player-card/ directory"
+        },
+        {
+          "id": "pascal-case-file",
+          "text": "Main component file is PascalCase: PlayerCard.tsx"
+        },
+        {
+          "id": "creates-folder-barrel",
+          "text": "Creates components/molecules/player-card/index.ts re-exporting PlayerCard"
+        },
+        {
+          "id": "updates-level-barrel",
+          "text": "Appends export to components/molecules/index.ts"
+        },
+        {
+          "id": "creates-story",
+          "text": "Creates app/stories/molecules/player-card.tsx with correct import path"
+        },
+        {
+          "id": "updates-stories-index",
+          "text": "Adds entry to Molecules category in stories index"
+        },
+        {
+          "id": "registry-files-include-both",
+          "text": "Registry entry files array includes both PlayerCard.tsx and index.ts paths"
+        },
+        {
+          "id": "registry-molecule-level",
+          "text": "Registry entry has atomicLevel: molecule"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "add a new organism called draft board",
+      "expected_output": "Creates components/organisms/draft-board/ folder with DraftBoard.tsx and index.ts, updates organisms barrel, creates story, updates stories index, adds registry entry with atomicLevel organism.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "creates-folder",
+          "text": "Creates components/organisms/draft-board/ directory"
+        },
+        {
+          "id": "pascal-case-file",
+          "text": "Main component file is DraftBoard.tsx"
+        },
+        {
+          "id": "creates-folder-barrel",
+          "text": "Creates components/organisms/draft-board/index.ts"
+        },
+        {
+          "id": "updates-level-barrel",
+          "text": "Appends export to components/organisms/index.ts"
+        },
+        {
+          "id": "creates-story",
+          "text": "Creates app/stories/organisms/draft-board.tsx"
+        },
+        {
+          "id": "updates-stories-index",
+          "text": "Adds entry to Organisms category in stories index"
+        },
+        {
+          "id": "registry-organism-level",
+          "text": "Registry entry has atomicLevel: organism"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "add an atom called stat-bar that needs static scoring categories data",
+      "expected_output": "Creates the atom component plus a lib/data/stat-bar.json data file and a separate registry entry for the data, with the component registry entry referencing the data as a registryDependency.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "creates-component",
+          "text": "Creates components/atoms/stat-bar.tsx"
+        },
+        {
+          "id": "creates-data-file",
+          "text": "Creates lib/data/stat-bar.json (or prompts user for data content)"
+        },
+        {
+          "id": "data-registry-entry",
+          "text": "Adds separate registry entry with name: stat-bar-data, type: registry:lib"
+        },
+        {
+          "id": "component-depends-on-data",
+          "text": "Component registry entry includes http://localhost:3999/r/stat-bar-data.json in registryDependencies"
+        },
+        {
+          "id": "all-standard-files",
+          "text": "Also creates story, updates barrel, updates stories index, adds component registry entry"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "audit my component structure and tell me what's wrong",
+      "expected_output": "This should NOT trigger dn3-add-component skill. It should trigger atomic-design instead.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "does-not-trigger",
+          "text": "Does NOT scaffold any new component files"
+        },
+        { "id": "no-registry-changes", "text": "Does NOT modify registry.json" }
+      ]
+    }
+  ]
+}

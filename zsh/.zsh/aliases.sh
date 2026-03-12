@@ -24,6 +24,10 @@ cccd() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
     claude --dangerously-skip-permissions -r "$@"
 }
+cccdf() {
+    export CLAUDE_ORIGINAL_DIR="$PWD"
+    claude --dangerously-skip-permissions -r --fork-session "$@"
+}
 cccds() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
     CLAUDE_SKIP_HOOKS=1 claude --dangerously-skip-permissions -r "$@"
