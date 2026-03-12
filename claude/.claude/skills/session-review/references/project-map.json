@@ -98,5 +98,125 @@
     "display_name": "YouTube",
     "atlas_note": "Atlas/IV - Utilities/A. YouTube.md",
     "classification": "utility"
+  },
+  "/Users/bryanarendt/brayn-frame": {
+    "display_name": "BraynFrame",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code": {
+    "display_name": "Code (Root)",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code-cmm": {
+    "display_name": "Code CMM",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code/intel-i9-14900k-rma": {
+    "display_name": "Intel i9 RMA",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code/nerds-ranks": {
+    "display_name": "Nerds Ranks",
+    "atlas_note": null,
+    "classification": "production"
+  },
+  "/Users/bryanarendt/code2": {
+    "display_name": "Code2 (Root)",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/code2/anberic": {
+    "display_name": "Anberic",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/apple-test": {
+    "display_name": "Apple Test",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/azure-keyvault-ui": {
+    "display_name": "Azure KeyVault UI",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/ba-vscode-ext": {
+    "display_name": "BA VSCode Ext",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/brayn": {
+    "display_name": "Brayn",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/chrome-automate-ext": {
+    "display_name": "Chrome Automate Ext",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/coding-agent-visualizer": {
+    "display_name": "Coding Agent Visualizer",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/cord": {
+    "display_name": "Cord",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/disk-space": {
+    "display_name": "Disk Space",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/expo-reference-app": {
+    "display_name": "Expo Reference App",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/knights": {
+    "display_name": "Knights",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/openclaw-install": {
+    "display_name": "OpenClaw Install",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/staff-job": {
+    "display_name": "Staff Job",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/teams-skill": {
+    "display_name": "Teams Skill",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/turbocommit": {
+    "display_name": "Turbocommit",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/code2/you-tube-transcripts": {
+    "display_name": "YouTube Transcripts",
+    "atlas_note": null,
+    "classification": "prototyping"
+  },
+  "/Users/bryanarendt/dotfiles/claude": {
+    "display_name": "Dotfiles Claude",
+    "atlas_note": null,
+    "classification": "other"
+  },
+  "/Users/bryanarendt/frames/planning-investigation": {
+    "display_name": "Planning Investigation",
+    "atlas_note": null,
+    "classification": "prototyping"
   }
 }
