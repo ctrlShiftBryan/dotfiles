@@ -250,9 +250,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/ctrlshiftbryan/turbocommit.git",
       "skillPath": "SKILL.md",
-      "skillFolderHash": "7abd214322e58f1db1ac7971c95953c1bead6876",
+      "skillFolderHash": "d8a66b780a15a82bda77574f873c7080eab7790c",
       "installedAt": "2026-03-08T14:27:45.098Z",
-      "updatedAt": "2026-03-11T19:49:56.503Z"
+      "updatedAt": "2026-03-13T05:03:25.416Z"
     },
     "internal-comms": {
       "source": "anthropics/skills",
