@@ -1,0 +1,5 @@
+#!/bin/bash
+# Runs after git pull — restow all packages so symlinks stay current
+cd ~/dotfiles
+stow zsh bavim tmux wezterm starship nvim agents 2>/dev/null
+echo "✓ Dotfiles restowed"
