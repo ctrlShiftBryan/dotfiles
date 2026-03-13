@@ -1,0 +1,16 @@
+{
+  "name": "folder-ai",
+  "version": "0.1.0",
+  "description": "Plain folders + markdown as AI workspace context with session tracking",
+  "bin": {
+    "folder-ai": "./cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "cli.js",
+    "lib/"
+  ],
+  "license": "MIT"
+}
