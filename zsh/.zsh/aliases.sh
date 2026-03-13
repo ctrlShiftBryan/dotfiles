@@ -1,6 +1,12 @@
 # turbocommit
 alias tc='node ~/.claude/skills/turbocommit/cli.js'
 
+# Update turbocommit from GitHub main, show what changed in dotfiles
+tcu() {
+  npx skills update
+  (cd "$HOME/dotfiles" && git diff --stat -- agents/.agents/skills/turbocommit agents/.agents/.skill-lock.json)
+}
+
 # claude code
 # claude
 # Function to preserve original directory for hooks
