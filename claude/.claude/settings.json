@@ -8,18 +8,6 @@
     "deny": []
   },
   "hooks": {
-    "PermissionRequest": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "plannotator",
-            "timeout": 1800
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "hooks": [
