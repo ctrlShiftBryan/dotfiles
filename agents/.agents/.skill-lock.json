@@ -6,9 +6,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/brainstorming/SKILL.md",
-      "skillFolderHash": "c4b586a97565a90f7a95b1080ecbc49698ae7bc9",
+      "skillFolderHash": "cb55eef29a446656b39f38ead06b4ea7232ab227",
       "installedAt": "2026-01-27T11:26:08.893Z",
-      "updatedAt": "2026-03-11T19:49:33.594Z"
+      "updatedAt": "2026-03-13T05:01:50.656Z"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
@@ -87,9 +87,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "ef3abe1fe6f259718037dc6131d332c7571292c3",
+      "skillFolderHash": "9c516d82c4378c6ed30466b27b80f7d3f340efd0",
       "installedAt": "2026-02-26T09:44:35.254Z",
-      "updatedAt": "2026-03-11T19:49:48.401Z"
+      "updatedAt": "2026-03-13T05:01:53.289Z"
     },
     "building-native-ui": {
       "source": "expo/skills",
@@ -187,9 +187,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/subagent-driven-development/SKILL.md",
-      "skillFolderHash": "c6793c453fe1d8e1a2efaf035f7333ca10be6ed9",
+      "skillFolderHash": "fbcd94ffcf589754a8ecfa59861cc8843313590e",
       "installedAt": "2026-02-27T11:16:03.704Z",
-      "updatedAt": "2026-03-11T19:49:53.578Z"
+      "updatedAt": "2026-03-13T05:01:55.753Z"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
@@ -205,9 +205,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
-      "skillFolderHash": "7c90f50b6fe4631ed73563396a8f87a505915509",
+      "skillFolderHash": "ebd0490e6b0bccfdb9f9c0cc9dd6a066036c8d89",
       "installedAt": "2026-02-27T11:16:03.808Z",
-      "updatedAt": "2026-02-27T11:16:03.808Z"
+      "updatedAt": "2026-03-13T05:01:58.003Z"
     },
     "excalidraw": {
       "source": "softaworks/agent-toolkit",
