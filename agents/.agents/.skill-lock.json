@@ -282,6 +282,15 @@
       "skillFolderHash": "8646fcc9f74f38539c6cdb4c969723336a96ddcd",
       "installedAt": "2026-03-10T10:32:55.699Z",
       "updatedAt": "2026-03-10T10:32:55.699Z"
+    },
+    "datadog-cli": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/davila7/claude-code-templates.git",
+      "skillPath": "cli-tool/components/skills/ai-research/datadog-cli/SKILL.md",
+      "skillFolderHash": "9cfb2176bd74e084f3c239dc175239cda9ea8a34",
+      "installedAt": "2026-03-13T03:57:48.006Z",
+      "updatedAt": "2026-03-13T03:57:48.006Z"
     }
   },
   "dismissed": {
