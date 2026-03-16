@@ -8,36 +8,7 @@
     "deny": []
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook pre-tool-use"
-          }
-        ],
-        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*"
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook stop"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook session-start"
-          }
-        ]
-      },
       {
         "hooks": [
           {
@@ -45,6 +16,25 @@
             "command": "python3 ~/.claude/skills/session-review/scripts/check-review-needed.py"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-start"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook pre-tool-use"
+          }
+        ],
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*"
       }
     ],
     "SessionEnd": [
@@ -52,7 +42,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/Users/bryanarendt/dotfiles/agents/.agents/skills/turbocommit/cli.js\" hook session-end"
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-end"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook stop"
           }
         ]
       }
@@ -68,7 +68,7 @@
     "clangd-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "plansDirectory": "./plans/",
-  "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high"
+  "skipDangerousModePermissionPrompt": true
 }
