@@ -1,178 +1,181 @@
 ---
 name: folder-ai
-description: "Create and manage AI workspace context using the folder method - plain folders + markdown files with session tracking"
+description: "Unified session tracking + auto-commits for Claude Code workspaces. Plain folders + markdown context with multi-repo support."
 ---
 
 # folder-ai
 
-Set up and manage AI workspace context using the "folder method": plain folders + markdown files as context, with automatic session tracking via hooks.
+Unified session tracking, auto-commits, and workspace context using plain folders + markdown.
 
-## Scripts
+## Routing
 
-All commands run via `cli.js`:
+Resolve the skill directory first:
 
 ```bash
 SKILL_DIR="$(dirname "$(readlink -f ~/.claude/skills/folder-ai/SKILL.md)")"
 ```
 
-- `node "$SKILL_DIR/cli.js" init` — Create workspace structure (non-interactive)
-- `node "$SKILL_DIR/cli.js" install` — Register SessionStart/SessionEnd hooks
-- `node "$SKILL_DIR/cli.js" uninstall` — Remove hooks
-- `node "$SKILL_DIR/cli.js" status` — Show workspace state
+Route based on the argument passed to `/folder-ai`:
 
-## `/folder-ai init` Flow
+| Command | Action |
+|---------|--------|
+| `/folder-ai` (no args) | Run `status` (see below) |
+| `/folder-ai version` | Read and display version from `$SKILL_DIR/package.json` |
+| `/folder-ai status` | Run `bun "$SKILL_DIR/src/cli.ts" status` and display output |
+| `/folder-ai init` | Follow the **Init Flow** below |
+| `/folder-ai new` | Follow the **New Issue Flow** below |
+| `/folder-ai register` | Run `bun "$SKILL_DIR/src/cli.ts" register` |
+| `/folder-ai unregister` | Run `bun "$SKILL_DIR/src/cli.ts" unregister` |
+| `/folder-ai discover` | Run `bun "$SKILL_DIR/src/cli.ts" discover` |
+| `/folder-ai install` | Run `bun "$SKILL_DIR/src/cli.ts" install` |
+| `/folder-ai uninstall` | Run `bun "$SKILL_DIR/src/cli.ts" uninstall` |
+| `/folder-ai watch install` | Run `bun "$SKILL_DIR/src/cli.ts" watch install` |
+| `/folder-ai watch uninstall` | Run `bun "$SKILL_DIR/src/cli.ts" watch uninstall` |
+| `/folder-ai watch status` | Run `bun "$SKILL_DIR/src/cli.ts" watch status` |
+| `/folder-ai watch run` | Run `bun "$SKILL_DIR/src/cli.ts" watch run` |
+| `/folder-ai watch backfill` | Run `bun "$SKILL_DIR/src/cli.ts" watch backfill` |
+| `/folder-ai create <name>` | Run `bun "$SKILL_DIR/src/cli.ts" create <name>` |
+
+For any version/about questions, read the version from package.json:
+```bash
+cat "$SKILL_DIR/package.json" | jq -r '.version'
+```
+
+## Init Flow (`/folder-ai init`)
 
 Interactive workspace setup orchestrated by Claude.
 
 ### Step 1: Check Existing
 
-Check if `repositories.md` or `sessions/` already exist in the current directory.
-
-If they exist, use AskUserQuestion: "folder-ai workspace already exists here. Overwrite or skip?"
-- If skip: exit with summary of existing state
-- If overwrite: continue
+Check if `repositories.md` or `sessions/` already exist.
+If they exist, ask: "folder-ai workspace already exists here. Overwrite or skip?"
 
 ### Step 2: Create Base Structure
 
 ```bash
-node "$SKILL_DIR/cli.js" init
+bun "$SKILL_DIR/src/cli.ts" init
 ```
 
-This creates: `sessions/`, `issues/`, `repositories.md`, `people.md`, `learnings.md`, and appends to `CLAUDE.md`.
+Creates: `sessions/`, `issues/`, `repositories.md`, `people.md`, `learnings.md`, and appends to `CLAUDE.md`.
 
 ### Step 3: Repositories
 
-Auto-detect git repos. Run:
+Auto-detect git repos:
 
 ```bash
 find ~/code -maxdepth 2 -name .git -type d 2>/dev/null | head -20 | while read d; do echo "$(dirname "$d")"; done
 ```
 
-Present the list via AskUserQuestion: "Found these repos. Select which to include (comma-separated numbers), or type paths manually:"
-
-For each selected repo, use AskUserQuestion: "Strategy for {repo}? (trunk/worktree/pullrequest)"
-
-Then update `repositories.md` with the selections. Use the init module:
-
-```javascript
-// Called by Claude after gathering repo info
-const { writeRepositories } = require('./lib/init')
-writeRepositories(root, [{ name: 'repo', path: '/path', strategy: 'trunk' }])
-```
+Present the list and ask which to include. For each, ask strategy (trunk/worktree/pullrequest).
+Update `repositories.md` with selections.
 
 ### Step 4: People
 
-Use AskUserQuestion: "Track people for this project? (yes/no)"
+Ask if people tracking is needed. If yes, collect name/role/context entries.
 
-If yes, use AskUserQuestion: "Enter people (one per line: name, role, context):"
-
-Update `people.md` with entries.
-
-### Step 5: Learnings
-
-`learnings.md` was already created in Step 2 with section headers. No interaction needed. Explain to user that Claude will read this every session and append new entries when something noteworthy is discovered.
-
-### Step 6: Turbocommit Integration
-
-Check if turbocommit is installed:
+### Step 5: Install Hooks
 
 ```bash
-test -f ~/.claude/skills/turbocommit/cli.js && echo "installed" || echo "not installed"
+bun "$SKILL_DIR/src/cli.ts" install
 ```
 
-If not installed, suggest: "turbocommit not found. Consider installing it for auto-commits."
+Registers PreToolUse, Stop, SessionStart, SessionEnd hooks. Replaces any existing turbocommit hooks.
 
-If installed, ask: "Run turbocommit init in this project? (yes/no)"
+### Step 6: .gitignore
 
-If yes:
-```bash
-node ~/.claude/skills/turbocommit/cli.js init
+Ask about adding `sessions/` to `.gitignore`.
+
+### Step 7: Summary
+
+Output what was created.
+
+## New Issue Flow (`/folder-ai new`)
+
+1. Ask: "What are you trying to accomplish?"
+2. Ask: "What does done look like?"
+3. Create `issues/{slug}.md` with goal + definition of done.
+
+## Auto-Commit System
+
+folder-ai includes turbocommit's auto-commit functionality. On every turn-end:
+
+1. **PreToolUse hook** tracks file-modifying tools (Write, Edit, Bash, etc.)
+2. **Stop hook** commits all changes across workspace + child repos
+3. **Two-phase async**: fast commit with `[tc-pending]` tag, background LLM refinement
+
+### Multi-Repo Support
+
+Child repos listed in `repositories.md` are committed independently. Each repo can have autocommit on/off via `.folder-ai.jsonl`:
+
+```jsonl
+{"autocommit":{"workspace":true,"children":{"~/code/app":true,"~/code/docs":false}}}
 ```
 
-### Step 7: Install Hooks
+### Commit Message Generation
 
-```bash
-node "$SKILL_DIR/cli.js" install
+- **Phase 1 (instant):** Extract headline from last user prompt
+- **Phase 2 (background):** LLM generates Conventional Commit title + body via `claude -p --model haiku`
+- Co-Authored-By trailer with model attribution
+
+## Watch System (Cron-Based Session Watcher)
+
+Reads Claude Code's session JSONL + metrics files directly. No reliance on Claude writing summaries.
+
+### Architecture
+
+- **Cron** runs `watch.ts` every minute via Bun
+- **watch.ts** scans registered projects, reads JSONL/metrics, creates session .md files
+- **No daemon** — cron handles scheduling, script is idempotent
+
+### Session Detection
+
+| Source | When Written | Used For |
+|--------|-------------|----------|
+| `{uuid}.jsonl` | During session | Transcript, model detection |
+| `{uuid}.metrics.json` | Session end | cost, duration, model |
+| `{uuid}/session-memory/summary.md` | During session | Rich summary (best source) |
+
+- `.metrics.json` exists → completed
+- `.metrics.json` missing + stale → abandoned
+- First event `type: "queue-operation"` → worker, skip
+- `cost_usd == 0` → empty, skip
+
+### Summary Priority Chain
+
+1. **session-memory/summary.md** — richest source, no LLM needed
+2. **Git log** — always available for repos with commits
+3. **LLM mode** — pipe git data to `claude -p --model haiku`
+4. **Fallback** — "No code changes recorded."
+
+### Per-Project Config: `.folder-ai.jsonl`
+
+```jsonl
+{"enabled":true,"staleTimeoutMs":7200000,"summaryMode":"session-memory","commitMode":"async","autoPush":false,"coauthor":true,"autocommit":{"workspace":true,"children":{}}}
 ```
 
-This registers SessionStart and SessionEnd hooks in `~/.claude/settings.json`. Chains safely with turbocommit hooks.
-
-### Step 8: .gitignore
-
-Use AskUserQuestion: "Add sessions/ to .gitignore? (yes/no) — sessions contain per-machine data"
-
-If yes, append `sessions/` to `.gitignore` (create if needed, check for existing entry).
-
-### Step 9: Summary
-
-Output what was created:
-
-```
-folder-ai workspace initialized:
-  - repositories.md (N repos)
-  - people.md
-  - learnings.md
-  - issues/README.md
-  - sessions/sessions.md
-  - CLAUDE.md updated with routing table
-  - Hooks: SessionStart, SessionEnd
-```
-
-## `/folder-ai new` Flow (Issue Intake)
-
-### Step 1: Goal
-
-Use AskUserQuestion (free-form): "What are you trying to accomplish?"
-
-### Step 2: Definition of Done
-
-Use AskUserQuestion (free-form): "What does done look like?"
-
-### Step 3: Create Issue
-
-Generate a short slug from the goal (e.g., "fix-auth-timeout"). Create `issues/{slug}.md`:
-
-```markdown
-# {title derived from goal}
-**Created:** {timestamp}
-**Status:** open
-
-## Goal
-{user's answer from step 1}
-
-## Definition of Done
-{user's answer from step 2}
-```
-
-Output confirmation with file path.
-
-## `/folder-ai status`
-
-```bash
-node "$SKILL_DIR/cli.js" status
-```
-
-Shows which files exist, session count, repo count, open issues.
+| Field | Default | Description |
+|-------|---------|-------------|
+| `enabled` | true | Enable/disable watcher |
+| `staleTimeoutMs` | 7200000 (2h) | Abandon timeout |
+| `summaryMode` | "session-memory" | "session-memory", "git", or "llm" |
+| `commitMode` | "async" | "async" or "sync" |
+| `autoPush` | false | Push after each commit |
+| `coauthor` | true | Add Co-Authored-By trailer |
+| `autocommit.workspace` | true | Auto-commit workspace repo |
+| `autocommit.children` | {} | Per-child path → true/false |
 
 ## Workspace Structure
 
 ```
 project-root/
-├── CLAUDE.md              # Routing table (the "floor plan")
-├── repositories.md        # Repo index with strategies
-├── people.md              # People involved
-├── learnings.md           # Accumulated knowledge (read every session, append when noteworthy)
+├── CLAUDE.md              # Routing table
+├── repositories.md        # Repo index + strategies
+├── people.md              # Team members
+├── learnings.md           # Accumulated knowledge
 ├── issues/                # Flexible issue tracking
 │   └── README.md
-└── sessions/              # Auto-tracked sessions
-    ├── sessions.md        # Chronological index
-    └── {session-id}.md    # Individual session files
-```
-
-## Example Usage
-
-```
-/folder-ai init          # Set up workspace interactively
-/folder-ai new           # Create a new issue
-/folder-ai status        # Check workspace state
+├── sessions/              # Auto-tracked sessions
+│   ├── sessions.md        # Index
+│   └── YYYY-MM-DD-HHMM-{shortId}.md  # Session detail (sorts chronologically)
+└── .folder-ai.jsonl       # Per-project config
 ```
