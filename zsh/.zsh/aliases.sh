@@ -1,3 +1,6 @@
+# folder-ai
+alias folder-ai-nuke='bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts nuke'
+
 # turbocommit
 alias tc='node ~/.claude/skills/turbocommit/cli.js'
 
@@ -1443,6 +1446,21 @@ psc() {
     return 1
   fi
   jq -r '.scripts // {} | to_entries[] | "\(.key)\t\(.value)"' package.json | column -t -s $'\t'
+}
+
+# macOS Gatekeeper / quarantine
+# Strip quarantine xattr from downloaded files
+# Usage: unq (all Downloads), unq file.zip, unq ~/path/to/file
+unq() {
+  if [[ $# -eq 0 ]]; then
+    xattr -dr com.apple.quarantine ~/Downloads/ 2>/dev/null
+    echo "Stripped quarantine from all files in ~/Downloads"
+  else
+    for f in "$@"; do
+      xattr -dr com.apple.quarantine "$f" 2>/dev/null
+      echo "Stripped quarantine from $f"
+    done
+  fi
 }
 
 # Neovim configurations
