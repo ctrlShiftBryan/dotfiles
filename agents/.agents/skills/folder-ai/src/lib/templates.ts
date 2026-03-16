@@ -65,13 +65,13 @@ No rigid format required. One file per issue or group however you prefer.
 export function sessionsMd(): string {
   return `# Sessions
 
-| Date | Session ID | Status | Cost | Notes |
-|------|-----------|--------|------|-------|
+| Date | Session ID | Status | Cost | Issue | Notes |
+|------|-----------|--------|------|-------|-------|
 `
 }
 
-export function sessionsIndexRow(date: string, shortId: string, status: string, notes?: string): string {
-  return `| ${date} | ${shortId} | ${status} | | ${notes || ''} |\n`
+export function sessionsIndexRow(date: string, shortId: string, status: string, issue?: string, notes?: string): string {
+  return `| ${date} | ${shortId} | ${status} | | ${issue || ''} | ${notes || ''} |\n`
 }
 
 export interface SessionFileData {
@@ -81,6 +81,7 @@ export interface SessionFileData {
   model?: string | null
   cost?: number
   durationMs?: number
+  issue?: string | null
   status: 'completed' | 'abandoned' | 'active'
   prompt?: string | null
   outcome?: string | null
@@ -112,6 +113,9 @@ export function sessionFileMd(data: SessionFileData): string {
 **Duration:** ${durationStr}
 **Status:** ${data.status}
 `
+  if (data.issue) {
+    md += `**Issue:** ${data.issue}\n`
+  }
 
   // Prompt section
   if (data.prompt) {

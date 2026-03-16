@@ -7,7 +7,7 @@ import { sessionFileMd, sessionsIndexRow, type SessionFileData } from './lib/tem
 import { gitLog, gitRoot } from './lib/git'
 import { parseRepositoriesMd } from './lib/repos'
 import { join, basename, dirname } from 'path'
-import { exists, writeFile, appendToFile, ensureDir, listDir, removeFile } from './lib/io'
+import { exists, writeFile, appendToFile, ensureDir, listDir, removeFile, readFile } from './lib/io'
 import { tryRun } from './lib/io'
 
 export async function runWatcher(backfill = false): Promise<void> {
@@ -71,7 +71,7 @@ export async function runWatcher(backfill = false): Promise<void> {
         const shortId = session.id.slice(0, 8)
         const note = (data.summary || '').split('\n')[0].slice(0, 80)
         const costStr = data.cost != null ? `$${data.cost.toFixed(4)}` : ''
-        appendToFile(indexFile, sessionsIndexRow(date, shortId, data.status, note))
+        appendToFile(indexFile, sessionsIndexRow(date, shortId, data.status, data.issue || '', note))
       }
 
       logEvent(data.status === 'abandoned' ? 'abandoned' : 'summarized', {
@@ -89,8 +89,24 @@ export async function runWatcher(backfill = false): Promise<void> {
   }
 }
 
+function readBindingIssue(sessionId: string, projectPath: string): string | null {
+  const shortId = sessionId.slice(0, 8)
+  const bindingPath = join(projectPath, 'session-issues', `${shortId}.md`)
+  if (exists(bindingPath)) {
+    const content = readFile(bindingPath)
+    if (content) {
+      const match = content.match(/^\*\*Issue:\*\*\s+(.+)$/m)
+      if (match) return match[1].trim()
+    }
+  }
+  return null
+}
+
 function buildSessionData(session: SessionInfo, projectPath: string, config: any): SessionFileData | null {
   const shortId = session.id.slice(0, 8)
+
+  // Read session-issue binding
+  const issue = readBindingIssue(session.id, projectPath)
 
   // Get timestamps
   const startedAt = getSessionStart(session.jsonlPath) || new Date().toISOString()
@@ -129,6 +145,7 @@ function buildSessionData(session: SessionInfo, projectPath: string, config: any
     model,
     cost: session.metrics?.cost_usd,
     durationMs: session.metrics?.session_duration_ms,
+    issue,
     status: session.status as 'completed' | 'abandoned',
     prompt,
     outcome,
@@ -254,6 +271,9 @@ export function updateLiveSession(sessionId: string, jsonlPath: string, projectP
   const prompt = extractFirstUserPrompt(jsonlPath)
   const stats = extractSessionStats(jsonlPath)
 
+  // Read session-issue binding
+  const issue = readBindingIssue(sessionId, projectPath)
+
   // Git summary from session timeframe
   const gitSummary = buildGitSummary(projectPath, startedAt, endedAt)
   const activity = buildActivity(projectPath, startedAt, endedAt)
@@ -263,6 +283,7 @@ export function updateLiveSession(sessionId: string, jsonlPath: string, projectP
     startedAt,
     endedAt,
     model,
+    issue,
     status: 'active',
     prompt,
     outcome: null, // skip LLM call for speed
