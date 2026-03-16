@@ -124,6 +124,7 @@ For machines without Homebrew:
 3. **Never commit sensitive data** - API keys, passwords, SSH keys stay in local.sh/env.sh
 4. **Backup on first run** - setup.sh backs up existing files to timestamped directory before creating symlinks
 5. **Package-based organization** - Each tool gets its own directory for clean separation
+6. **Portable paths** - Never use hardcoded usernames in config files (e.g. `/Users/bryanarendt/`). Use `~` or `$HOME` instead so dotfiles work across machines.
 
 ## Currently Managed Packages
 

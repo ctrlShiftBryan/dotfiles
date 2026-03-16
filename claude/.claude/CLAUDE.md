@@ -31,3 +31,7 @@ This ensures all plans are:
 - Easily searchable and reviewable
 - Preserved for future reference
 - Organized in a dedicated location
+
+## Portable Paths
+
+Never use hardcoded usernames or absolute home paths (e.g. `/Users/bryanarendt/`) in config files like `settings.json`. Always use `~` or `$HOME` so configs work across machines with different usernames.
