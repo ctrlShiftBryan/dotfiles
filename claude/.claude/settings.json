@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook session-start"
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-start"
           }
         ]
       }
@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook session-end"
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-end"
           }
         ]
       }
@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook stop"
+            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook stop"
           }
         ]
       }
