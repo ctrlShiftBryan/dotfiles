@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HISTORY_FILE="$HOME/.claude/history.jsonl"
+TERM_WIDTH=$(tput cols 2>/dev/null || echo 80)
+
+# colors (disabled when piped)
+if [[ -t 1 ]]; then
+  C_HEADER=$'\033[1;36m'  # bold cyan
+  C_DIM=$'\033[2m'        # dim
+  C_NUM=$'\033[1;33m'     # bold yellow
+  C_RESET=$'\033[0m'
+else
+  C_HEADER="" C_DIM="" C_NUM="" C_RESET=""
+fi
+
+usage() {
+  cat <<'EOF'
+Usage: cresume [options]
+
+List and resume Claude sessions for the current project directory,
+filtering out auto-generated "Summarize" sessions.
+
+Options:
+  -a, --all         Include Summarize sessions (don't filter)
+  -n, --limit       Max results (default: 30)
+  -d, --dir <path>  Use a specific project directory (default: pwd)
+  -l, --list        List only, don't prompt to resume
+  -h, --help        Show this help
+EOF
+  exit 0
+}
+
+# defaults
+FILTER_SUMMARIZE=1
+LIMIT=30
+PROJECT_DIR=""
+LIST_ONLY=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--all) FILTER_SUMMARIZE=0; shift ;;
+    -n|--limit) LIMIT="$2"; shift 2 ;;
+    -d|--dir) PROJECT_DIR="$2"; shift 2 ;;
+    -l|--list) LIST_ONLY=1; shift ;;
+    -h|--help) usage ;;
+    -*) echo "Unknown option: $1" >&2; exit 1 ;;
+    *) shift ;;
+  esac
+done
+
+if [[ -z "$PROJECT_DIR" ]]; then
+  PROJECT_DIR="$(pwd)"
+fi
+
+if [[ ! -f "$HISTORY_FILE" ]]; then
+  echo "No history.jsonl found at $HISTORY_FILE" >&2
+  exit 1
+fi
+
+format_age() {
+  local epoch="$1"
+  local now
+  now=$(date +%s)
+  local diff=$((now - epoch))
+
+  if [[ $diff -lt 60 ]]; then
+    echo "${diff}s ago"
+  elif [[ $diff -lt 3600 ]]; then
+    echo "$((diff / 60))m ago"
+  elif [[ $diff -lt 86400 ]]; then
+    echo "$((diff / 3600))h ago"
+  elif [[ $diff -lt 604800 ]]; then
+    echo "$((diff / 86400))d ago"
+  else
+    echo "$((diff / 604800))w ago"
+  fi
+}
+
+format_ts() {
+  date -r "$1" "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown"
+}
+
+shorten_path() {
+  echo "${1/#$HOME/~}"
+}
+
+render_cards() {
+  local input="$1"
+  local indent="  "
+  local wrap_width=$((TERM_WIDTH - 4))
+  [[ $wrap_width -lt 40 ]] && wrap_width=40
+  local num=1
+
+  echo "${C_HEADER}Sessions for: $(shorten_path "$PROJECT_DIR")${C_RESET}"
+  echo ""
+
+  while IFS=$'\t' read -r epoch sid msg; do
+    local age formatted_ts
+    age=$(format_age "$epoch")
+    formatted_ts=$(format_ts "$epoch")
+
+    local header="── ${C_NUM}#${num}${C_HEADER} ── ${formatted_ts} ── ${age} "
+    local header_plain="── #${num} ── ${formatted_ts} ── ${age} "
+    local pad_len=$((TERM_WIDTH - ${#header_plain}))
+    local padding=""
+    if [[ $pad_len -gt 0 ]]; then
+      padding=$(printf '%*s' "$pad_len" '' | tr ' ' '─')
+    fi
+    echo "${C_HEADER}${header}${padding}${C_RESET}"
+
+    echo "${indent}${C_DIM}session: ${sid}${C_RESET}"
+    echo ""
+
+    local decoded
+    decoded=$(printf '%s' "$msg" | tr '\n' ' ' | sed 's/\\n/ /g')
+    local body
+    if [[ ${#decoded} -le 300 ]]; then
+      body="$decoded"
+    else
+      body="${decoded:0:300}..."
+    fi
+    echo "${indent}${body}" | fold -s -w "$wrap_width" | sed "s/^/  /"
+
+    echo ""
+    num=$((num + 1))
+  done <<< "$input"
+}
+
+# extract sessions from history.jsonl
+tmpfile=$(mktemp)
+trap "rm -f '$tmpfile'" EXIT
+
+filter_arg="$FILTER_SUMMARIZE"
+
+jq -r --arg project "$PROJECT_DIR" '
+  select(.project == $project and .sessionId != null and .sessionId != "") |
+  [.sessionId, (.timestamp | tostring), .display] | @tsv
+' "$HISTORY_FILE" 2>/dev/null | \
+awk -F'\t' '{
+  sid = $1
+  ts = $2
+  msg = $3
+  if (!(sid in first_msg)) {
+    first_msg[sid] = msg
+  }
+  if (!(sid in last_ts) || ts+0 > last_ts[sid]+0) {
+    last_ts[sid] = ts
+  }
+}
+END {
+  for (sid in first_msg) {
+    printf "%s\t%s\t%s\n", last_ts[sid], sid, first_msg[sid]
+  }
+}' | \
+while IFS=$'\t' read -r ts sid msg; do
+  if [[ $filter_arg -eq 1 ]] && echo "$msg" | grep -qi "^Summarize"; then
+    continue
+  fi
+  epoch=$((ts / 1000))
+  printf "%s\t%s\t%s\n" "$epoch" "$sid" "$msg"
+done | sort -t$'\t' -k1 -rn | head -n "$LIMIT" > "$tmpfile"
+
+if [[ ! -s "$tmpfile" ]]; then
+  echo "No sessions found for: $(shorten_path "$PROJECT_DIR")" >&2
+  exit 1
+fi
+
+sorted=$(cat "$tmpfile")
+
+if [[ $LIST_ONLY -eq 1 ]]; then
+  render_cards "$sorted"
+  exit 0
+fi
+
+# write detail file for fzf preview
+detailfile=$(mktemp)
+trap "rm -f '$tmpfile' '$detailfile'" EXIT
+
+while IFS=$'\t' read -r epoch sid msg; do
+  age=$(format_age "$epoch")
+  formatted_ts=$(format_ts "$epoch")
+  decoded=$(printf '%s' "$msg" | tr '\n' ' ' | sed 's/\\n/ /g')
+  body="${decoded:0:500}"
+  [[ ${#decoded} -gt 500 ]] && body="${body}..."
+  printf "SESSION:%s\n" "$sid" >> "$detailfile"
+  printf "  %s · %s\n\n" "$formatted_ts" "$age" >> "$detailfile"
+  printf "  %s\n" "$body" | fold -s -w 70 | sed 's/^/  /' >> "$detailfile"
+  printf "\nEND\n" >> "$detailfile"
+done <<< "$sorted"
+
+# build fzf input: one compact line per session
+fzf_input=""
+while IFS=$'\t' read -r epoch sid msg; do
+  age=$(format_age "$epoch")
+  oneliner=$(printf '%s' "$msg" | tr '\n' ' ' | sed 's/\\n/ /g')
+  oneliner="${oneliner:0:80}"
+  fzf_input+="${sid}	${age}	${oneliner}"$'\n'
+done <<< "$sorted"
+
+if ! command -v fzf &>/dev/null; then
+  render_cards "$sorted"
+  echo "(install fzf for interactive selection)"
+  exit 0
+fi
+
+selected=$(printf '%s' "$fzf_input" | fzf \
+  --ansi \
+  --height=~50% \
+  --layout=reverse \
+  --delimiter=$'\t' \
+  --with-nth=2.. \
+  --prompt="Resume session> " \
+  --header="$(shorten_path "$PROJECT_DIR") — ↑↓ to browse, enter to resume" \
+  --preview="sid={1}; sed -n \"/^SESSION:\$sid\$/,/^END\$/p\" '$detailfile' | grep -v '^SESSION:' | grep -v '^END\$'" \
+  --preview-window=right:50%:wrap \
+  || true)
+
+if [[ -z "$selected" ]]; then
+  exit 0
+fi
+
+session_id=$(echo "$selected" | cut -f1)
+
+echo "Resuming session: $session_id"
+exec claude --resume "$session_id" --dangerously-skip-permissions
