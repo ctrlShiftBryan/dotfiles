@@ -1,4 +1,6 @@
 import { join } from 'path'
+import { homedir } from 'os'
+import { existsSync } from 'fs'
 import { exists, listDir } from '../lib/io'
 import { resolveConfig } from '../lib/config'
 import { isRegistered } from '../lib/registry'
@@ -8,9 +10,11 @@ export function cmdStatus(): void {
   const root = process.cwd()
   const config = resolveConfig(root)
   const git = gitRoot(root)
+  const killSwitch = existsSync(join(homedir(), '.folder-ai', 'disabled'))
 
   const pkg = require('../../package.json')
   console.log(`folder-ai v${pkg.version} workspace status:`)
+  console.log(`  kill switch:     ${killSwitch ? 'ACTIVE (disabled)' : 'off (enabled)'}`)
   console.log(`  git root:        ${git || 'none'}`)
   console.log(`  registered:      ${isRegistered(root) ? 'yes' : 'no'}`)
   console.log(`  repositories.md: ${exists(join(root, 'repositories.md')) ? 'yes' : 'no'}`)

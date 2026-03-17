@@ -39,18 +39,58 @@ export interface SessionInfo {
   status: 'completed' | 'abandoned' | 'active' | 'empty' | 'worker'
 }
 
-/** Check if a session is a turbocommit worker (queue-operation) */
+/** Known folder-ai prompt prefixes (from agent.ts templates) */
+const FOLDER_AI_PROMPT_PREFIXES = [
+  'You have 10 seconds. Write a single-line git commit headline',
+  'Given this transcript of a coding session, write summaries',
+  'Summarize this coding session. Focus on WHAT was accomplished',
+  'Review these git commits from one coding session',
+  'Summarize this CI/build/lint output in 2-4 sentences',
+  'Summarize what was accomplished in 1-2 sentences',
+  'Summarize this coding session in 2-3 lines',
+]
+
+/** Check if a session is a worker/automation session (queue-operation or folder-ai spawned) */
 function isWorkerSession(jsonlPath: string): boolean {
   const content = readFile(jsonlPath)
   if (!content) return false
-  const firstLine = content.split('\n')[0]
+  const lines = content.split('\n').filter(Boolean)
+  const firstLine = lines[0]
   if (!firstLine) return false
   try {
     const entry = JSON.parse(firstLine)
-    return entry.type === 'queue-operation'
+    // queue-operation type (turbocommit workers)
+    if (entry.type === 'queue-operation') return true
   } catch {
     return false
   }
+
+  // Check for folder-ai spawned sessions: haiku model + matches prompt templates
+  let model: string | null = null
+  let firstUserContent: string | null = null
+  let userTurns = 0
+
+  for (const line of lines) {
+    try {
+      const entry = JSON.parse(line)
+      if (entry.type === 'assistant' && entry.message?.model && !model) {
+        model = entry.message.model
+      }
+      if (entry.type === 'user' && typeof entry.message?.content === 'string') {
+        userTurns++
+        if (!firstUserContent) firstUserContent = entry.message.content
+      }
+    } catch { continue }
+  }
+
+  // Structural match: haiku model + single user turn + prompt matches folder-ai template
+  if (model?.includes('haiku') && userTurns <= 2 && firstUserContent) {
+    for (const prefix of FOLDER_AI_PROMPT_PREFIXES) {
+      if (firstUserContent.startsWith(prefix)) return true
+    }
+  }
+
+  return false
 }
 
 /** Get first event timestamp from JSONL */

@@ -89,7 +89,7 @@ export async function runWatcher(backfill = false): Promise<void> {
   }
 }
 
-function readBindingIssue(sessionId: string, projectPath: string): string | null {
+export function readBindingIssue(sessionId: string, projectPath: string): string | null {
   const shortId = sessionId.slice(0, 8)
   const bindingPath = join(projectPath, 'session-issues', `${shortId}.md`)
   if (exists(bindingPath)) {
@@ -102,7 +102,7 @@ function readBindingIssue(sessionId: string, projectPath: string): string | null
   return null
 }
 
-function buildSessionData(session: SessionInfo, projectPath: string, config: any): SessionFileData | null {
+export function buildSessionData(session: SessionInfo, projectPath: string, config: any): SessionFileData | null {
   const shortId = session.id.slice(0, 8)
 
   // Read session-issue binding
@@ -159,8 +159,8 @@ function extractModelFromSession(session: SessionInfo): string | null {
   return extractModelFromJsonl(session.jsonlPath)
 }
 
-/** Summary priority chain: session-memory > git > llm > fallback */
-function buildSummary(session: SessionInfo, projectPath: string, start: string, end?: string, config?: any): string {
+/** Summary priority chain: session-memory > git > fallback */
+function buildSummary(session: SessionInfo, projectPath: string, start: string, end?: string, _config?: any): string {
   // 1. Try session-memory/summary.md
   if (session.hasSummary) {
     const summaryDir = join(dirname(session.summaryPath), '..')
@@ -168,7 +168,6 @@ function buildSummary(session: SessionInfo, projectPath: string, start: string, 
     if (summaryContent) {
       const title = extractSummaryTitle(summaryContent)
       if (title) return title
-      // Extract first meaningful line
       const lines = summaryContent.split('\n').filter(l => l.trim() && !l.startsWith('#'))
       if (lines.length > 0) return lines.slice(0, 3).join(' ').slice(0, 200)
     }
@@ -176,16 +175,9 @@ function buildSummary(session: SessionInfo, projectPath: string, start: string, 
 
   // 2. Try git log
   const gitSummary = buildGitSummary(projectPath, start, end)
-  if (gitSummary) {
-    // 3. Optionally enhance with LLM
-    if (config?.summaryMode === 'llm') {
-      const llmSummary = runLlmSummary(gitSummary)
-      if (llmSummary) return llmSummary
-    }
-    return gitSummary
-  }
+  if (gitSummary) return gitSummary
 
-  // 4. Fallback
+  // 3. Fallback
   return 'No code changes recorded.'
 }
 
@@ -201,23 +193,9 @@ function buildGitSummary(projectPath: string, start: string, end?: string): stri
   return `${count} commits: ${titles}.`
 }
 
-function summarizeOutcome(text: string): string | null {
-  const truncated = text.slice(0, 4000)
-  const result = tryRun('claude -p --model haiku', {
-    input: `Summarize what was accomplished in 1-2 sentences. Be specific and concise.\n\n${truncated}`,
-    timeout: 30000
-  })
-  if (result.code !== 0) return null
-  return result.stdout.trim() || null
-}
-
-function runLlmSummary(gitData: string): string | null {
-  const result = tryRun('claude -p --model haiku', {
-    input: `Summarize this coding session in 2-3 lines. Be specific.\n\n${gitData}`,
-    timeout: 30000
-  })
-  if (result.code !== 0) return null
-  return result.stdout.trim() || null
+function summarizeOutcome(_text: string): string | null {
+  // LLM calls removed — was spawning claude -p sessions that caused cascade
+  return null
 }
 
 function buildActivity(projectPath: string, start: string, end?: string): { name: string; detail: string }[] {
@@ -303,8 +281,7 @@ export function updateLiveSession(sessionId: string, jsonlPath: string, projectP
 
   writeFile(sessionMdPath, sessionFileMd(data))
 
-  // Auto-commit session file
-  tryRun(`git add "${sessionMdPath}" && git commit -m "chore: update session ${shortId}" --no-verify`, { cwd: projectPath })
+  // No auto-commit — finalize commits the final version at session end
 }
 
 // If run directly

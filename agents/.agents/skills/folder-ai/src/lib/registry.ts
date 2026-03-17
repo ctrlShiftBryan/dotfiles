@@ -36,8 +36,7 @@ export function readRegistry(): RegistryEntry[] {
 }
 
 export function isRegistered(projectDir: string): boolean {
-  const content = readFile(REGISTRY_PATH)
-  return content ? content.includes(projectDir) : false
+  return readRegistry().some(e => e.path === projectDir)
 }
 
 export function registerProject(projectDir: string): void {
@@ -58,6 +57,30 @@ export function logEvent(type: string, meta: Record<string, any> = {}): void {
     const entry = { ts: new Date().toISOString(), type, ...meta }
     appendToFile(EVENTS_PATH, JSON.stringify(entry) + '\n')
   } catch {}
+}
+
+const MAX_REGISTRY_SIZE = 50
+
+/** Remove entries where path no longer exists on disk */
+export function pruneRegistry(): number {
+  if (!exists(REGISTRY_PATH)) return 0
+  const entries = readRegistry()
+  const valid = entries.filter(e => exists(e.path))
+  // Deduplicate by path
+  const seen = new Set<string>()
+  const deduped = valid.filter(e => {
+    if (seen.has(e.path)) return false
+    seen.add(e.path)
+    return true
+  })
+  const removed = entries.length - deduped.length
+  if (removed > 0) {
+    writeFile(REGISTRY_PATH, deduped.map(e => JSON.stringify(e)).join('\n') + (deduped.length ? '\n' : ''))
+  }
+  if (deduped.length > MAX_REGISTRY_SIZE) {
+    console.warn(`Warning: registry has ${deduped.length} entries (max recommended: ${MAX_REGISTRY_SIZE})`)
+  }
+  return removed
 }
 
 /** Log event to turbocommit-compatible path for commit events */

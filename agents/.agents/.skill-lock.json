@@ -291,6 +291,51 @@
       "skillFolderHash": "9cfb2176bd74e084f3c239dc175239cda9ea8a34",
       "installedAt": "2026-03-13T03:57:48.006Z",
       "updatedAt": "2026-03-13T03:57:48.006Z"
+    },
+    "a11y-debugging": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/chromedevtools/chrome-devtools-mcp.git",
+      "skillPath": "skills/a11y-debugging/SKILL.md",
+      "skillFolderHash": "49deb16531307e3333894df1839611e2d80958dc",
+      "installedAt": "2026-03-17T10:23:06.386Z",
+      "updatedAt": "2026-03-17T10:23:06.386Z"
+    },
+    "chrome-devtools-cli": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/chromedevtools/chrome-devtools-mcp.git",
+      "skillPath": "skills/chrome-devtools-cli/SKILL.md",
+      "skillFolderHash": "ebc8b19d29cbcbb471d292cda03722ebdbb99482",
+      "installedAt": "2026-03-17T10:23:06.713Z",
+      "updatedAt": "2026-03-17T10:23:06.713Z"
+    },
+    "debug-optimize-lcp": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/chromedevtools/chrome-devtools-mcp.git",
+      "skillPath": "skills/debug-optimize-lcp/SKILL.md",
+      "skillFolderHash": "1c0012ebcee5fbfd1e8678a393f13181f067c3d8",
+      "installedAt": "2026-03-17T10:23:07.080Z",
+      "updatedAt": "2026-03-17T10:23:07.080Z"
+    },
+    "troubleshooting": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/chromedevtools/chrome-devtools-mcp.git",
+      "skillPath": "skills/troubleshooting/SKILL.md",
+      "skillFolderHash": "91c8fce1bcbf681abd3ca24f2e09b538177109a0",
+      "installedAt": "2026-03-17T10:23:07.422Z",
+      "updatedAt": "2026-03-17T10:23:07.422Z"
+    },
+    "chrome-devtools": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/chromedevtools/chrome-devtools-mcp.git",
+      "skillPath": "skills/chrome-devtools/SKILL.md",
+      "skillFolderHash": "ae16f6ecf605c5b2290802686a2b38a033432f23",
+      "installedAt": "2026-03-17T10:23:07.795Z",
+      "updatedAt": "2026-03-17T10:23:07.795Z"
     }
   },
   "dismissed": {
@@ -305,6 +350,7 @@
     "github-copilot",
     "kimi-cli",
     "opencode",
+    "warp",
     "claude-code"
   ]
 }

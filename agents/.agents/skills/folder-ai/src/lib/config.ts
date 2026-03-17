@@ -27,6 +27,17 @@ export interface CondenseConfig {
   minLength?: number
 }
 
+export interface FinalizeConfig {
+  enabled?: boolean
+  push?: boolean
+  tldr?: boolean
+  reword?: boolean
+  command?: string
+  tldrPrompt?: string
+  rewordPrompt?: string
+  refineTimeout?: number
+}
+
 export interface FolderAiConfig {
   enabled: boolean
   staleTimeoutMs: number
@@ -38,6 +49,7 @@ export interface FolderAiConfig {
   body: BodyConfig
   condense: CondenseConfig
   autocommit: AutocommitConfig
+  finalize: FinalizeConfig
 }
 
 export const DEFAULT_CONFIG: FolderAiConfig = {
@@ -50,7 +62,14 @@ export const DEFAULT_CONFIG: FolderAiConfig = {
   title: { type: 'agent', command: 'claude -p --model haiku' },
   body: {},
   condense: {},
-  autocommit: { workspace: true, children: {} }
+  autocommit: { workspace: true, children: {} },
+  finalize: {
+    enabled: true,
+    push: true,
+    tldr: true,
+    reword: true,
+    refineTimeout: 90000
+  }
 }
 
 export function configPath(projectRoot: string): string {

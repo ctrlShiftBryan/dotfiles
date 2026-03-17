@@ -12,10 +12,6 @@ function buildHookDefs() {
   const cliPath = resolveCliPath()
   const cmd = `bun "${cliPath}"`
   return {
-    PreToolUse: {
-      matcher: 'Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*',
-      hooks: [{ type: 'command', command: `${cmd} hook pre-tool-use` }]
-    },
     SessionStart: {
       hooks: [{ type: 'command', command: `${cmd} hook session-start` }]
     },
@@ -33,14 +29,6 @@ function hasFolderAi(groups: any[]): boolean {
   return groups.some(g => {
     const hooks = g?.hooks || []
     return hooks.some((h: any) => h.command?.includes('folder-ai'))
-  })
-}
-
-function hasTurbocommit(groups: any[]): boolean {
-  if (!Array.isArray(groups)) return false
-  return groups.some(g => {
-    const hooks = g?.hooks || []
-    return hooks.some((h: any) => h.command?.includes('turbocommit'))
   })
 }
 

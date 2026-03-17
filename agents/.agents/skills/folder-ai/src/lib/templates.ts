@@ -91,6 +91,7 @@ export interface SessionFileData {
     toolCalls: Record<string, number>
     filesModified: string[]
   } | null
+  tldr?: string | null
   summary?: string
   activity?: { name: string; detail: string }[]
 }
@@ -115,6 +116,11 @@ export function sessionFileMd(data: SessionFileData): string {
 `
   if (data.issue) {
     md += `**Issue:** ${data.issue}\n`
+  }
+
+  // TLDR section
+  if (data.tldr) {
+    md += `\n## TLDR\n\n${data.tldr}\n`
   }
 
   // Prompt section

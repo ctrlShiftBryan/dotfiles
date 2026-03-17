@@ -16,6 +16,7 @@ export interface RefineConfig {
   body?: AgentConfig & { maxLineLength?: number; type?: string }
   condense?: AgentConfig & { minLength?: number; enabled?: boolean }
   autoPush?: boolean
+  finalize?: { enabled?: boolean }
 }
 
 export interface RefineManifest {
@@ -114,7 +115,8 @@ export function refine(manifestPath: string): void {
       saveWatermark(root, sessionId, pairCount || pairs.length, newSha)
     }
 
-    if (config.autoPush && hasRemote(root)) {
+    // Only push here if finalize is disabled (finalize handles push)
+    if (config.autoPush && !config.finalize?.enabled && hasRemote(root)) {
       try {
         push(root)
       } catch {

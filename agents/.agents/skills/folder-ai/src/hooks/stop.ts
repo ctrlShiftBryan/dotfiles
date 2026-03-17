@@ -5,7 +5,6 @@ import { parseTranscript, formatBody, formatTitleTranscript, extractHeadline, ex
 import { runTitleAgent, runBodyAgent, runCondenseAgent } from '../commit/agent'
 import { wrapText } from '../lib/wrap'
 import { logCommitEvent, readRegistry } from '../lib/registry'
-import { hasTrackedModifications, cleanupTracking } from './pre-tool-use'
 import { getAncestors, savePending, collectPending, cleanupConsumed, cleanupStale, readWatermark, saveWatermark, resolveParentCommit, saveRefineManifest } from '../lib/session-chain'
 import { getCommitTargets } from '../lib/repos'
 import { formatModelName } from '../lib/claude-projects'
@@ -13,7 +12,7 @@ import { updateLiveSession } from '../watch'
 import { basename, join } from 'path'
 import { homedir } from 'os'
 import { spawn } from 'child_process'
-import { statSync } from 'fs'
+import { existsSync, statSync } from 'fs'
 
 const PENDING_TAG = '[tc-pending]'
 
@@ -94,6 +93,7 @@ export function spawnRefine(manifestPath: string): void {
  */
 export function handleStop(input: string): void {
   if (process.env.FOLDERAI_DISABLED) return
+  if (existsSync(join(homedir(), '.folder-ai', 'disabled'))) return
 
   let hookInput: any
   try {
@@ -134,14 +134,6 @@ export function handleStop(input: string): void {
   // Get all commit targets (workspace + child repos)
   const targets = getCommitTargets(root, config.autocommit || { workspace: true, children: {} })
 
-  // Skip decision: if PreToolUse never fired for this session, skip commit
-  if (sessionId && !hasTrackedModifications(root, sessionId)) {
-    savePending(root, sessionId, formatBody(effectivePairs))
-    logCommitEvent('skip', { project: basename(root), branch: currentBranch(root) })
-    cleanupStale(root)
-    return
-  }
-
   // Check if ANY target has changes
   const targetsWithChanges = targets.filter(t => {
     try {
@@ -151,11 +143,10 @@ export function handleStop(input: string): void {
     }
   })
 
-  // Early exit: tracking fired but all changes were reverted across all targets
+  // Early exit: no changes across all targets
   if (targetsWithChanges.length === 0) {
     if (sessionId) {
       savePending(root, sessionId, formatBody(effectivePairs))
-      cleanupTracking(root, sessionId)
     }
     logCommitEvent('skip', { project: basename(root), branch: currentBranch(root) })
     cleanupStale(root)
@@ -205,7 +196,6 @@ export function handleStop(input: string): void {
     if (sessionId) {
       const ancestors = getAncestors(root, sessionId)
       cleanupConsumed(root, [...ancestors, sessionId])
-      cleanupTracking(root, sessionId)
     }
     cleanupStale(root)
   } catch (err) {
@@ -302,7 +292,7 @@ function commitSync(
   const wrappedBody = wrapText(combinedBody, config.body?.maxLineLength)
   const sha = addAndCommit(repoPath, headline, wrappedBody + coauthorTag)
 
-  if (config.autoPush && hasRemote(repoPath)) {
+  if (config.autoPush && !config.finalize?.enabled && hasRemote(repoPath)) {
     try {
       push(repoPath)
     } catch {
