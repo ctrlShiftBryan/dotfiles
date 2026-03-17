@@ -21,20 +21,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-start"
+            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook session-start"
           }
         ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook pre-tool-use"
-          }
-        ],
-        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|mcp__.*"
       }
     ],
     "SessionEnd": [
@@ -42,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook session-end"
+            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook session-end"
           }
         ]
       }
@@ -52,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun ~/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts hook stop"
+            "command": "bun \"/Users/bryanarendt/dotfiles/agents/.agents/skills/folder-ai/src/cli.ts\" hook stop"
           }
         ]
       }
