@@ -336,6 +336,33 @@
       "skillFolderHash": "ae16f6ecf605c5b2290802686a2b38a033432f23",
       "installedAt": "2026-03-17T10:23:07.795Z",
       "updatedAt": "2026-03-17T10:23:07.795Z"
+    },
+    "setup-react-native-storybook": {
+      "source": "storybookjs/react-native",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/storybookjs/react-native.git",
+      "skillPath": "skills/setup-react-native-storybook/SKILL.md",
+      "skillFolderHash": "",
+      "installedAt": "2026-03-18T10:17:02.012Z",
+      "updatedAt": "2026-03-18T10:17:02.012Z"
+    },
+    "upgrading-react-native-storybook": {
+      "source": "storybookjs/react-native",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/storybookjs/react-native.git",
+      "skillPath": "skills/upgrading-react-native-storybook/SKILL.md",
+      "skillFolderHash": "",
+      "installedAt": "2026-03-18T10:17:02.561Z",
+      "updatedAt": "2026-03-18T10:17:02.561Z"
+    },
+    "writing-react-native-storybook-stories": {
+      "source": "storybookjs/react-native",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/storybookjs/react-native.git",
+      "skillPath": "skills/writing-react-native-storybook-stories/SKILL.md",
+      "skillFolderHash": "",
+      "installedAt": "2026-03-18T10:17:03.031Z",
+      "updatedAt": "2026-03-18T10:17:03.031Z"
     }
   },
   "dismissed": {
