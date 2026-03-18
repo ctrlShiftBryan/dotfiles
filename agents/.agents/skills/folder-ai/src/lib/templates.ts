@@ -199,5 +199,35 @@ export function claudeMdSection(version: string): string {
 - **trunk** — commit directly to main, no branching
 - **worktree** — git worktree for changes, merge locally, no PR
 - **pullrequest** — git worktree + create a pull request
+
+## Session-Issue Binding
+
+Every session is bound to exactly one issue. One session = one issue.
+
+**Session state lives in \`session-issues/{shortId}.md\`:**
+- Empty file = unbound session (auto-created by folder-ai on session start)
+- Populated file = bound to an issue, locked for the session's duration
+
+**At session start:**
+1. Read \`session-issues/{shortId}.md\` — check if already bound (e.g., resumed session)
+2. If already bound: \`/rename\` the session to the issue slug (e.g., \`/rename fix-auth-bug\`)
+3. If unbound: \`/rename UNBOUND\` immediately, then ask the user which issue this session serves, or create one
+4. Write the binding: populate the file with Issue, Bound timestamp, and Notes
+5. \`/rename\` the session to the issue slug after binding
+6. Append this session to the issue's \`## Sessions\` table
+
+**Binding format** (write to \`session-issues/{shortId}.md\`):
+
+    **Issue:** {issue-slug}
+    **Bound:** {YYYY-MM-DD HH:MM}
+    **Notes:** {one-line description of session intent}
+
+**Once bound, the session is locked to that issue.**
+
+**Context switches:** If the user's request drifts to scope NOT covered by the bound issue:
+- STOP and warn: "This looks like work for a different issue. This session is bound to **{issue-slug}**. I recommend starting a new session for this work. If you want, I can create the issue now so it's ready."
+- Minor tangents (< 1 file, < 5 min): stay on current issue with a note
+- Larger detours: strongly recommend a new session
+- NEVER silently switch issue context
 `
 }
