@@ -40,15 +40,17 @@ export function cmdCleanup(dryRun = false): void {
     const files = listDir(sessionsDir).filter(f => f.endsWith('.md') && f !== 'sessions.md')
     const removed: string[] = []
 
+    // Scan sessions once per project (not per file)
+    const sessions = scanSessions(entry.path)
+    const sessionMap = new Map(sessions.map(s => [s.id.slice(0, 8), s]))
+
     for (const file of files) {
       // Extract shortId from filename (YYYY-MM-DD-HHMM-{shortId}.md)
       const match = file.match(/-([a-f0-9]{8})\.md$/)
       if (!match) continue
       const shortId = match[1]
 
-      // Find corresponding JSONL to check if junk
-      const sessions = scanSessions(entry.path)
-      const session = sessions.find(s => s.id.startsWith(shortId))
+      const session = sessionMap.get(shortId)
 
       if (session) {
         if (session.status === 'worker' || isJunkSession(session.jsonlPath)) {
