@@ -172,7 +172,11 @@ function main() {
       if (timer) clearTimeout(timer);
       stdin.setRawMode(false);
       stdin.pause();
-      writeResult("CLEANUP");
+      if (mergedBranches.length === 0) {
+        console.log("No merged worktrees to clean up");
+        process.exit(0);
+      }
+      writeResult("CLEANUP:" + mergedBranches.join(","));
       process.exit(0);
     }
     if (key === "\x1b" || key === "q") { if (timer) clearTimeout(timer); cancel(); return; }

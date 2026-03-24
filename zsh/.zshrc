@@ -1,5 +1,5 @@
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# Keep personal bins first, but let version managers win over /usr/local/bin.
+export PATH=$HOME/bin:$HOME/.local/bin:$PATH
 HISTSIZE=100000
 SAVEHIST=100000
 

@@ -443,8 +443,13 @@ function gwl() {
     GWL_RESULT_FILE="$tmpfile" node "$HOME/.zsh/scripts/gwl-exec.js"
     local selected=$(cat "$tmpfile" 2>/dev/null)
     rm -f "$tmpfile"
-    if [[ "$selected" == "CLEANUP" ]]; then
-        gwca
+    if [[ "$selected" == CLEANUP:* ]]; then
+        local branches="${selected#CLEANUP:}"
+        echo "Cleaning merged worktrees: ${branches//,/ }"
+        IFS=',' read -rA to_clean <<< "$branches"
+        for b in "${to_clean[@]}"; do
+            gwc "$b"
+        done
     elif [[ -n "$selected" && -d "$selected" ]]; then
         cd "$selected"
         echo "Changed to worktree: $PWD"
