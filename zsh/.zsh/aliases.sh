@@ -437,106 +437,17 @@ function gwm() {
     fi
 }
 
-# git worktree list - list all worktrees with PR status, sorted by last commit
+# git worktree list - interactive list with single-keypress navigation
 function gwl() {
-    # Validate: in git repo
-    if ! git rev-parse --is-inside-work-tree &>/dev/null; then
-        echo "Error: Not in a git repository"
-        return 1
+    local tmpfile=$(mktemp)
+    GWL_RESULT_FILE="$tmpfile" node "$HOME/.zsh/scripts/gwl-exec.js"
+    local selected=$(cat "$tmpfile" 2>/dev/null)
+    rm -f "$tmpfile"
+    if [[ -n "$selected" && -d "$selected" ]]; then
+        cd "$selected"
+        echo "Changed to worktree: $PWD"
     fi
-
-    # Validate: in main repo, not worktree
-    local git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
-    if [[ "$git_common_dir" != "$(git rev-parse --git-dir)" ]]; then
-        echo "Error: Run from main repo, not a worktree"
-        return 1
-    fi
-
-    # Validate: gh CLI available
-    if ! command -v gh &>/dev/null; then
-        echo "Error: gh CLI required"
-        return 1
-    fi
-
-    # Determine main branch
-    local main_branch
-    if git show-ref --verify --quiet refs/heads/main; then
-        main_branch="main"
-    elif git show-ref --verify --quiet refs/heads/master; then
-        main_branch="master"
-    else
-        echo "Error: No main/master branch"
-        return 1
-    fi
-
-    local merged_worktrees=()
-    local wt_branch wt_path wt_name pr_info wt_status pr_num pr_state line
-    local commit_date commit_date_rel sort_date
-    local -a output_lines
-
-    # Parse git worktree list
-    while IFS= read -r line; do
-        wt_path=$(echo "$line" | awk '{print $1}')
-        wt_name=$(basename "$wt_path")
-
-        if [[ "$line" =~ \(detached\ HEAD\) ]]; then
-            output_lines+=("0000-00-00|%-45s %-12s %b|$wt_name||? detached")
-            continue
-        fi
-
-        # Extract branch name from [branch]
-        wt_branch=$(echo "$line" | grep -oE '\[[^]]+\]$' | tr -d '[]')
-
-        # Skip if no branch found or is main/master
-        if [[ -z "$wt_branch" || "$wt_branch" == "$main_branch" ]]; then
-            continue
-        fi
-
-        # Get last commit date (sortable ISO format and relative)
-        sort_date=$(git log -1 --format="%ci" "$wt_branch" 2>/dev/null | cut -d' ' -f1)
-        commit_date_rel=$(git log -1 --format="%cr" "$wt_branch" 2>/dev/null)
-        [[ -z "$sort_date" ]] && sort_date="0000-00-00"
-        [[ -z "$commit_date_rel" ]] && commit_date_rel="unknown"
-
-        # Check PR status via gh
-        pr_info=$(gh pr list --head "$wt_branch" --state all --json number,state --jq '.[0] | "\(.number) \(.state)"' 2>/dev/null)
-
-        if [[ -z "$pr_info" || "$pr_info" == "null null" ]]; then
-            wt_status="\033[90m○ no PR\033[0m"
-        else
-            pr_num=$(echo "$pr_info" | awk '{print $1}')
-            pr_state=$(echo "$pr_info" | awk '{print $2}')
-
-            case "$pr_state" in
-                MERGED)
-                    wt_status="\033[32m✓ merged\033[0m"
-                    merged_worktrees+=("$wt_branch")
-                    ;;
-                OPEN)
-                    wt_status="\033[34m↑ PR #$pr_num\033[0m"
-                    ;;
-                CLOSED)
-                    wt_status="\033[31m✗ closed #$pr_num\033[0m"
-                    ;;
-                *)
-                    wt_status="\033[90m○ no PR\033[0m"
-                    ;;
-            esac
-        fi
-
-        output_lines+=("$sort_date|%-45s %-12s %b|$wt_branch|$commit_date_rel|$wt_status")
-    done < <(git worktree list)
-
-    # Sort by date (oldest first, newest last)
-    printf '%s\n' "${output_lines[@]}" | sort -t'|' -k1 | while IFS='|' read -r _ fmt branch date st; do
-        printf "$fmt\n" "$branch" "$date" "$st"
-    done
-
-    # Cleanup suggestion
-    if [[ ${#merged_worktrees[@]} -gt 0 ]]; then
-        echo ""
-        echo "Cleanup: gwc ${merged_worktrees[*]}"
-    fi
+}
 }
 
 # git worktree cleanup - remove worktree and delete branch
