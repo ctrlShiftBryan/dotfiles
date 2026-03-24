@@ -1,6 +1,7 @@
 import { readFile, exists } from './io'
 import { join, basename } from 'path'
 import { homedir } from 'os'
+import { readdirSync } from 'fs'
 import { gitRoot } from './git'
 
 export interface RepoEntry {
@@ -86,29 +87,55 @@ export function getCommitTargets(
     }
   }
 
-  // Child repos
+  // Child repos + their worktrees
   const children = parseRepositoriesMd(projectRoot)
   for (const child of children) {
     const childPath = child.localPath
     // Check autocommit config — default to true if not explicitly set
     const enabled = autocommitConfig.children[childPath] ?? autocommitConfig.children[child.localPath] ?? true
     if (!enabled) continue
-    if (!exists(childPath)) continue
-    targets.push({ path: childPath, name: child.name, isWorkspace: false })
+    if (exists(childPath)) {
+      targets.push({ path: childPath, name: child.name, isWorkspace: false })
+    }
+
+    // Convention: worktrees live at {localPath}-worktrees/{branch}/
+    const worktreeRoot = childPath + '-worktrees'
+    if (exists(worktreeRoot)) {
+      try {
+        for (const entry of readdirSync(worktreeRoot, { withFileTypes: true })) {
+          if (!entry.isDirectory()) continue
+          const wtPath = join(worktreeRoot, entry.name)
+          if (!exists(join(wtPath, '.git'))) continue
+          targets.push({ path: wtPath, name: `${child.name}/${entry.name}`, isWorkspace: false })
+        }
+      } catch { /* ignore read errors */ }
+    }
   }
 
   return targets
 }
 
-/** Map a file path to its owning repo (workspace or child) */
+/** Map a file path to its owning repo (workspace, child, or worktree) */
 export function fileToRepo(
   filePath: string,
   projectRoot: string
 ): { path: string; name: string } | null {
   const children = parseRepositoriesMd(projectRoot)
 
-  // Check children first (more specific paths)
+  // Check children and their worktrees (more specific paths first)
   for (const child of children) {
+    // Check worktrees first — they're under {localPath}-worktrees/{branch}/
+    const worktreeRoot = child.localPath + '-worktrees'
+    if (filePath.startsWith(worktreeRoot + '/')) {
+      // Extract the worktree subdir from the path
+      const rel = filePath.slice(worktreeRoot.length + 1)
+      const branch = rel.split('/')[0]
+      const wtPath = join(worktreeRoot, branch)
+      if (exists(join(wtPath, '.git'))) {
+        return { path: wtPath, name: `${child.name}/${branch}` }
+      }
+    }
+
     if (filePath.startsWith(child.localPath + '/') || filePath === child.localPath) {
       return { path: child.localPath, name: child.name }
     }

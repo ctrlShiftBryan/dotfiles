@@ -57,5 +57,5 @@ fi
 git config core.hooksPath ~/dotfiles/hooks
 
 # Run stow (will update symlinks if dotfiles changed)
-stow zsh bavim tmux wezterm starship nvim agents
+stow zsh bavim tmux wezterm starship nvim agents ghostty
 echo "Dotfiles synced and linked!"

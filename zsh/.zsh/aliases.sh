@@ -31,7 +31,7 @@ ccds() {
 }
 cccd() {
     export CLAUDE_ORIGINAL_DIR="$PWD"
-    claude --dangerously-skip-permissions -r "$@"
+    claude --dangerously-skip-permissions --resume "$@"
 }
 cccdf() {
     export CLAUDE_ORIGINAL_DIR="$PWD"

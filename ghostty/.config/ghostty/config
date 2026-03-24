@@ -1,0 +1,3 @@
+shell-integration-features = no-notify
+background-opacity = 1.0
+unfocused-split-opacity = 0.15

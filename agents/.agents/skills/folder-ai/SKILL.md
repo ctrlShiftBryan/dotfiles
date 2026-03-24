@@ -79,7 +79,7 @@ Ask if people tracking is needed. If yes, collect name/role/context entries.
 bun "$SKILL_DIR/src/cli.ts" install
 ```
 
-Registers PreToolUse, Stop, SessionStart, SessionEnd hooks. Replaces any existing turbocommit hooks.
+Registers Stop, SessionStart, SessionEnd hooks. Replaces any existing turbocommit hooks.
 
 ### Step 6: .gitignore
 
@@ -99,9 +99,8 @@ Output what was created.
 
 folder-ai includes turbocommit's auto-commit functionality. On every turn-end:
 
-1. **PreToolUse hook** tracks file-modifying tools (Write, Edit, Bash, etc.)
-2. **Stop hook** commits all changes across workspace + child repos
-3. **Two-phase async**: fast commit with `[tc-pending]` tag, background LLM refinement
+1. **Stop hook** commits all changes across workspace + child repos
+2. **Two-phase async**: fast commit with `[tc-pending]` tag, background LLM refinement
 
 ### Multi-Repo Support
 
