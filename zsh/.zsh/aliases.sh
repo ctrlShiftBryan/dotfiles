@@ -448,7 +448,6 @@ function gwl() {
         echo "Changed to worktree: $PWD"
     fi
 }
-}
 
 # git worktree cleanup - remove worktree and delete branch
 function gwc() {
