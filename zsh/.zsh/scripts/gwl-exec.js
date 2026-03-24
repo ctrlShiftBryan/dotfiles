@@ -123,7 +123,8 @@ function main() {
   }
 
   console.log("");
-  console.log(`${DIM}Press 1-${entries.length} to cd into worktree, Esc/q to cancel${RESET}`);
+  const hints = [`1-${entries.length} cd`, `c cleanup`, `Esc/q cancel`];
+  console.log(`${DIM}${hints.join("  •  ")}${RESET}`);
 
   // Single-keypress input
   const { stdin } = process;
@@ -159,6 +160,17 @@ function main() {
   };
 
   stdin.on("data", (key) => {
+    // c — cleanup merged worktrees
+    if (key === "c") {
+      if (timeout) clearTimeout(timeout);
+      stdin.setRawMode(false);
+      stdin.pause();
+      const resultFile = process.env.GWL_RESULT_FILE;
+      if (resultFile) {
+        require("fs").writeFileSync(resultFile, "CLEANUP\n");
+      }
+      process.exit(0);
+    }
     // Esc or q
     if (key === "\x1b" || key === "q") {
       if (timeout) clearTimeout(timeout);

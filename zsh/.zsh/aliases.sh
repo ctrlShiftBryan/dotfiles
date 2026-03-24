@@ -443,7 +443,9 @@ function gwl() {
     GWL_RESULT_FILE="$tmpfile" node "$HOME/.zsh/scripts/gwl-exec.js"
     local selected=$(cat "$tmpfile" 2>/dev/null)
     rm -f "$tmpfile"
-    if [[ -n "$selected" && -d "$selected" ]]; then
+    if [[ "$selected" == "CLEANUP" ]]; then
+        gwca
+    elif [[ -n "$selected" && -d "$selected" ]]; then
         cd "$selected"
         echo "Changed to worktree: $PWD"
     fi
