@@ -1,16 +1,12 @@
 #!/bin/bash
 cd ~/dotfiles
 
-# Check if stow is installed, if not run bootstrap
-if ! command -v stow >/dev/null 2>&1; then
-    echo "📦 Stow not found. Running bootstrap..."
-    if [ -f "./bootstrap.sh" ]; then
-        # Source instead of execute to preserve PATH changes
-        source ./bootstrap.sh
-    else
-        echo "❌ bootstrap.sh not found!"
-        exit 1
-    fi
+# Always run bootstrap to ensure all dependencies are installed
+if [ -f "./bootstrap.sh" ]; then
+    source ./bootstrap.sh
+else
+    echo "❌ bootstrap.sh not found!"
+    exit 1
 fi
 
 # Only backup if symlinks don't already exist (first time setup)

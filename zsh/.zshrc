@@ -43,7 +43,7 @@ export VISUAL='bavim'
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/bryanarendt/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit -i
 # End of Docker CLI completions
@@ -81,8 +81,10 @@ export PATH="$HOME/.zsh/scripts:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-if [[ -z "${CLAUDECODE}" ]]; then
+if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+if [[ -z "${CLAUDECODE}" ]] && command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh --cmd cd)"
 fi
 
@@ -98,10 +100,10 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 
 # opencode
-export PATH=/Users/bryanarendt/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
 # pnpm
-export PNPM_HOME="/Users/bryanarendt/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
