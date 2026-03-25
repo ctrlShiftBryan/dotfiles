@@ -1,7 +1,7 @@
 ---
 name: quality-setup
 description: >-
-  Add ESLint v10 flat config (sonarjs, unicorn, complexity limits) + Prettier +
+  Add ESLint v9 flat config (sonarjs, unicorn, complexity limits) + Prettier +
   jscpd + TypeScript strict + Vitest (unit/component/storybook) + Playwright E2E +
   quality scripts + git hooks + GitHub Actions CI to any pnpm React + Vite +
   TypeScript project. Detects existing tooling and only adds what's missing.
@@ -158,7 +158,43 @@ Create `scripts/quality/check.sh`:
 
 Uses `set -uo pipefail` (not `-e`) so all checks run even if one fails.
 
-Also create `scripts/quality/format-file.sh` and `scripts/quality/lint-fix-file.sh` for single-file operations.
+Also create `scripts/quality/format-file.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="$1"
+EXT="${FILE##*.}"
+
+case "$EXT" in
+  ts|tsx|js|jsx|css|json|md)
+    pnpm exec prettier --write "$FILE"
+    ;;
+  *)
+    echo "Skipping unsupported extension: .$EXT"
+    ;;
+esac
+```
+
+And `scripts/quality/lint-fix-file.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="$1"
+EXT="${FILE##*.}"
+
+case "$EXT" in
+  ts|tsx|js|jsx)
+    pnpm exec eslint --fix "$FILE"
+    ;;
+  *)
+    echo "Skipping unsupported extension: .$EXT"
+    ;;
+esac
+```
 
 Mark all executable: `chmod +x scripts/quality/*.sh`
 
@@ -323,7 +359,7 @@ If any fail, diagnose and fix before declaring success.
 
 | Scenario                 | Action                                                                     |
 | ------------------------ | -------------------------------------------------------------------------- |
-| ESLint v8 (`.eslintrc*`) | Offer to upgrade to v10 flat config or skip                                |
+| ESLint v8 (`.eslintrc*`) | Offer to upgrade to v9 flat config or skip                                 |
 | Jest present             | Offer to migrate to Vitest (usually just rename imports) or coexist        |
 | No Tailwind              | Omit `prettier-plugin-tailwindcss`                                         |
 | No `src/` dir            | Adjust Vitest includes to scan from root (see `references/test-config.md`) |

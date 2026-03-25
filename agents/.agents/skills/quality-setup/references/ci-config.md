@@ -275,6 +275,9 @@ jobs:
               jq -r '.total | to_entries[] | "| \(.key) | \(.value.pct)% |"' "${dir}coverage-summary.json" >> $GITHUB_STEP_SUMMARY
             fi
           done
+          if [ ! -d "coverage-reports" ] || [ -z "$(ls -A coverage-reports/ 2>/dev/null)" ]; then
+            echo "No coverage artifacts found." >> $GITHUB_STEP_SUMMARY
+          fi
 ```
 
 ### Adaptation: `.tool-versions` file
