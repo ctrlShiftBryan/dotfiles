@@ -35,3 +35,7 @@ This ensures all plans are:
 ## Portable Paths
 
 Never use hardcoded usernames or absolute home paths (e.g. `/Users/bryanarendt/`) in config files like `settings.json`. Always use `~` or `$HOME` so configs work across machines with different usernames.
+
+## Large File Reading
+
+When reading files >2000 lines, first check line count with `wc -l`, then use offset and limit parameters to read in chunks. Never assume a single Read captured the entire file.
