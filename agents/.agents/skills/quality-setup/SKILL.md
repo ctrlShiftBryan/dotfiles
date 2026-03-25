@@ -1,307 +1,188 @@
 ---
 name: quality-setup
-description: "Add ESLint v9 flat config (with sonarjs, unicorn, complexity limits) + Prettier + jscpd + TypeScript strict + quality scripts to any pnpm TypeScript project. Detects React, Tailwind, & Expo."
+description: >-
+  Add ESLint v10 flat config (sonarjs, unicorn, complexity limits) + Prettier +
+  jscpd + TypeScript strict + Vitest (unit/component/storybook) + Playwright E2E +
+  quality scripts + git hooks + GitHub Actions CI to any pnpm React + Vite +
+  TypeScript project. Detects existing tooling and only adds what's missing.
+  Use this skill whenever setting up quality checks, linting, testing, CI, or
+  code quality infrastructure in a React project, even if the user just says
+  "add tests", "set up linting", "add CI", or "quality checks".
 user_invocable: true
 ---
 
-# Quality Setup — ESLint + Prettier + TypeScript Strict
+# Quality Setup for React + Vite + pnpm + TypeScript
 
-Add a standardized code quality stack to any pnpm TypeScript project.
+Adds production-grade quality infrastructure to a React + Vite + pnpm + TypeScript project. Everything works together: lint, format, typecheck, duplicate detection, unit/component tests with coverage, E2E tests, git hooks, and CI.
 
-## Step 1: Detect Project
+Reference files in `references/` contain complete config templates. Read them when you reach the relevant phase — they have adaptation notes and edge case guidance.
 
-Read `package.json` and determine:
+## Phase 0: Pre-flight Detection
 
-- **HAS_REACT** — `react` in `dependencies`
-- **HAS_TAILWIND** — `tailwindcss` in `dependencies` or `devDependencies`
-- **HAS_TYPESCRIPT** — `typescript` in `dependencies` or `devDependencies`
-- **HAS_EXPO** — `expo` in `dependencies`
-- **IS_ESM** — `"type": "module"` in package.json
+Before adding anything, detect what the project already has.
 
-**Bail if**:
+### Prerequisites (stop if missing)
 
-- No `pnpm-lock.yaml` → tell user this skill requires pnpm
-- No `tsconfig.json` → tell user this skill requires TypeScript
+1. **pnpm** — `pnpm-lock.yaml` must exist. If `yarn.lock` or `package-lock.json` found instead, stop.
+2. **Vite** — `vite.config.ts` (or `.js`/`.mjs`) must exist. If not, stop.
+3. **TypeScript** — `tsconfig.json` must exist.
+4. **Single package** — if `pnpm-workspace.yaml` exists, stop. This skill targets single-package projects.
 
-## Step 2: Scan for Ignore Patterns
+### Detect existing tooling
 
-Check if these directories/files exist in the project root. Only include ones that actually exist:
+| Tool       | Detection                              | If found                                                                 |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| ESLint     | `eslint.config.*` or `.eslintrc*`      | Flat config: merge missing rules. Legacy: warn, offer migrate or skip.   |
+| Prettier   | `.prettierrc*` or `prettier.config.*`  | Read existing. Only add missing settings. Never change formatting prefs. |
+| jscpd      | `.jscpd.json`                          | Merge missing fields.                                                    |
+| Vitest     | `vitest.config.*` or vitest in devDeps | Add coverage config if missing.                                          |
+| Jest       | `jest.config.*`                        | Warn: skill uses Vitest. Offer migrate or coexist.                       |
+| Playwright | `playwright.config.*`                  | Skip if present.                                                         |
+| Storybook  | `@storybook/react` in deps             | If found: add portable story tests. If not: skip.                        |
+| Git hooks  | `.githooks/` or `.husky/`              | If husky: suggest .githooks. If .githooks: verify hooks.                 |
+| CI         | `.github/workflows/check.yml`          | Skip if quality workflow exists.                                         |
 
-- `dist`, `build`, `.next`, `.expo`, `.output`
-- `convex/_generated`
-- `coverage`
-- `metro.config.js`, `metro.config.cjs`
-- `babel.config.js`
-- `tailwind.config.js`, `tailwind.config.ts`
+### Detect conditionals
 
-Store as `IGNORE_PATTERNS` for use in ESLint globalIgnores and .prettierignore.
+- **Tailwind**: `tailwindcss` in deps or `tailwind.config.*` or `@tailwindcss/vite` in deps → include `prettier-plugin-tailwindcss`
+- **Source layout**: check if `src/` directory has `.ts`/`.tsx` files → affects Vitest include patterns
+- **Path aliases**: read `tsconfig.json` paths — Vitest inherits from vite.config via `mergeConfig`
 
-## Step 3: Back Up Existing Configs
+### Scan for ignore patterns
 
-Rename any existing configs to `.bak`:
+Check which of these exist: `dist`, `build`, `.vite`, `coverage`, `playwright-report`, `test-results`. Store the list for ESLint globalIgnores, .prettierignore, and .jscpd.json ignore arrays.
 
-- `.eslintrc`, `.eslintrc.js`, `.eslintrc.cjs`, `.eslintrc.json`, `.eslintrc.yml`
-- `eslint.config.js`, `eslint.config.mjs`, `eslint.config.cjs`
-- `.prettierrc`, `.prettierrc.js`, `.prettierrc.cjs`, `.prettierrc.json`, `.prettierrc.yml`
-- `.prettierignore`
-- `.jscpd.json`
+---
 
-Only rename files that exist. Skip if no existing configs found.
+## Phase 1: Install Dependencies
 
-## Step 4: Install Packages
+Check `package.json` devDependencies first — skip packages already at compatible versions.
 
-Run a single `pnpm add -D` command with these packages:
-
-**Always**:
-
-- `@eslint/js`
-- `eslint`
-- `typescript-eslint`
-- `globals`
-- `prettier`
-- `eslint-config-prettier`
-- `eslint-plugin-sonarjs`
-- `eslint-plugin-unicorn`
-- `jscpd`
-
-**If HAS_REACT**:
-
-- `eslint-plugin-react-hooks`
-
-**If HAS_TAILWIND**:
-
-- `prettier-plugin-tailwindcss`
-
-**If NOT HAS_TYPESCRIPT**:
-
-- `typescript`
-
-## Step 5: Generate ESLint Config
-
-**File name**: `eslint.config.js` if IS_ESM, otherwise `eslint.config.mjs`
-
-```js
-import js from "@eslint/js";
-import globals from "globals";
-// CONDITIONAL: only if HAS_REACT
-import reactHooks from "eslint-plugin-react-hooks";
-import sonarjs from "eslint-plugin-sonarjs";
-import unicorn from "eslint-plugin-unicorn";
-import tseslint from "typescript-eslint";
-import { defineConfig, globalIgnores } from "eslint/config";
-
-export default defineConfig([
-  globalIgnores([
-    // INSERT: IGNORE_PATTERNS from Step 2
-  ]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      // CONDITIONAL: only if HAS_REACT
-      reactHooks.configs.flat.recommended,
-    ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    rules: {
-      // CONDITIONAL: only if HAS_REACT (React Native needs require() for images)
-      "@typescript-eslint/no-require-imports": "off",
-      // Allow unused vars with underscore prefix
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
-    },
-  },
-  // Sonarjs cherry-pick (NOT recommended preset — avoids overlap with unicorn)
-  {
-    plugins: { sonarjs },
-    rules: {
-      "sonarjs/cognitive-complexity": ["error", 15],
-      "sonarjs/no-duplicate-string": "error",
-      "sonarjs/no-identical-functions": "error",
-    },
-  },
-  // Unicorn full recommended + overrides
-  unicorn.configs["flat/recommended"],
-  {
-    rules: {
-      "unicorn/no-null": "off",
-      "unicorn/prevent-abbreviations": "off",
-      "unicorn/filename-case": "off",
-    },
-  },
-  // Complexity limits
-  {
-    rules: {
-      "max-lines": [
-        "error",
-        { max: 300, skipBlankLines: true, skipComments: true },
-      ],
-      "max-lines-per-function": [
-        "error",
-        { max: 50, skipBlankLines: true, skipComments: true },
-      ],
-      "max-depth": ["error", 4],
-    },
-  },
-  // Exemptions for theme/config files (duplicate color strings are expected)
-  {
-    files: ["**/theme.ts", "**/theme.tsx"],
-    rules: {
-      "sonarjs/no-duplicate-string": "off",
-    },
-  },
-  // Exemptions for stories and SVGs
-  {
-    files: ["**/stories/**/*", "**/*Svg.tsx"],
-    rules: {
-      "max-lines": "off",
-      "max-lines-per-function": "off",
-      "max-depth": "off",
-      "sonarjs/cognitive-complexity": "off",
-    },
-  },
-]);
-```
-
-**Notes**:
-
-- Remove `reactHooks` import and extends entry if NOT HAS_REACT
-- Remove `@typescript-eslint/no-require-imports` rule if NOT HAS_REACT
-- Populate `globalIgnores` array with string entries from IGNORE_PATTERNS
-
-## Step 6: Generate `.prettierrc`
-
-```json
-{
-  "semi": true,
-  "singleQuote": false,
-  "tabWidth": 2,
-  "trailingComma": "es5"
-}
-```
-
-**If HAS_TAILWIND**, add:
-
-```json
-{
-  "semi": true,
-  "singleQuote": false,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "plugins": ["prettier-plugin-tailwindcss"]
-}
-```
-
-## Step 7: Generate `.prettierignore`
-
-Always include:
-
-```
-node_modules
-pnpm-lock.yaml
-```
-
-Then append each entry from IGNORE_PATTERNS (one per line).
-
-## Step 8: Generate `.jscpd.json`
-
-```json
-{
-  "threshold": 5,
-  "reporters": ["consoleFull"],
-  "ignore": ["node_modules/**", "**/*.d.ts", "plans/**"],
-  "format": ["typescript", "javascript"],
-  "minLines": 5,
-  "minTokens": 50,
-  "gitignore": true
-}
-```
-
-Build the `ignore` array dynamically:
-
-- Always include `node_modules/**`, `**/*.d.ts`, `plans/**`
-- For each directory in IGNORE_PATTERNS that exists, append `<dir>/**`
-- If a stories directory exists (e.g. `app/stories`), add matching glob (e.g. `app/stories/**`)
-
-## Step 9: Generate Quality Scripts
-
-Create `scripts/quality/` directory with 3 executable bash scripts:
-
-**check.sh** — quality pipeline (metro bundle, typecheck, duplicate detection):
+**Always install:**
 
 ```bash
-#!/usr/bin/env bash
-set -uo pipefail
-
-EXIT_CODE=0
-
-# CONDITIONAL: only if HAS_EXPO
-echo "===== Metro Bundle ====="
-npx expo export --platform web --output-dir /tmp/expo-typegen || EXIT_CODE=$?
-
-echo "===== TypeScript ====="
-npx tsc --noEmit || EXIT_CODE=$?
-
-echo "===== Duplicate Code ====="
-npx jscpd --config .jscpd.json --exitCode 1 --reporters consoleFull || EXIT_CODE=$?
-
-exit $EXIT_CODE
+pnpm add -D \
+  @eslint/js eslint eslint-config-prettier \
+  eslint-plugin-react-hooks eslint-plugin-sonarjs eslint-plugin-unicorn \
+  typescript-eslint globals \
+  prettier jscpd \
+  vitest @vitest/coverage-v8 \
+  @testing-library/react @testing-library/jest-dom @testing-library/user-event \
+  jsdom @playwright/test tsx
 ```
 
-Remove the Metro Bundle section if NOT HAS_EXPO.
+**Conditional:**
 
-**format-file.sh** — formats a single file by extension:
+- `prettier-plugin-tailwindcss` — only if Tailwind detected
+- `@storybook/test` — only if Storybook 8+ detected
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+---
 
-FILE="$1"
-EXT="${FILE##*.}"
+## Phase 2: ESLint
 
-case "$EXT" in
-  ts|tsx|js|jsx|css|json|md)
-    pnpm format:file "$FILE"
-    ;;
-  *)
-    echo "Skipping unsupported extension: .$EXT"
-    ;;
-esac
-```
+Read `references/eslint-config.md` for the complete template and adaptation notes.
 
-**lint-fix-file.sh** — lints and fixes a single file by extension:
+Create `eslint.config.mjs` with:
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+- @eslint/js + typescript-eslint + react-hooks + eslint-config-prettier
+- sonarjs cherry-picked (cognitive-complexity 15, no-duplicate-string, no-identical-functions)
+- unicorn full recommended (overrides: no-null off, prevent-abbreviations off, filename-case off)
+- Complexity: max-lines 300, max-lines-per-function 50, max-depth 4
+- Exemptions for test files, stories, SVGs, theme files
+- globalIgnores from detected patterns + `dist`, `.vite`, `coverage`
 
-FILE="$1"
-EXT="${FILE##*.}"
+---
 
-case "$EXT" in
-  ts|tsx|js|jsx)
-    pnpm lint:fix "$FILE"
-    ;;
-  *)
-    echo "Skipping unsupported extension: .$EXT"
-    ;;
-esac
-```
+## Phase 3: Prettier
 
-After creating all three scripts, run `chmod +x scripts/quality/*.sh`.
+Read `references/prettier-config.md`.
 
-## Step 10: Ensure `tsconfig.json` has `strict: true`
+- Create `.prettierrc` — with or without Tailwind plugin
+- Create `.prettierignore` — node_modules, pnpm-lock.yaml, dist, .vite, coverage, etc.
+- If existing config found: don't change formatting prefs, only add Tailwind plugin if missing
 
-Read `tsconfig.json`. If `compilerOptions.strict` is not `true`, set it to `true`. Do NOT touch any other tsconfig options.
+---
 
-## Step 11: Merge Scripts into `package.json`
+## Phase 4: jscpd
 
-Add/overwrite these scripts in package.json:
+Template in `references/eslint-config.md` (bundled there).
+
+Create `.jscpd.json` — threshold 5, minLines 5, minTokens 50, gitignore true. Ignore tests, stories, dist, coverage.
+
+---
+
+## Phase 5: TypeScript Strict
+
+Read `tsconfig.json`. Add `"strict": true` if not set. Warn user about potential new errors. Don't change anything else.
+
+---
+
+## Phase 6: Vitest
+
+Read `references/test-config.md` for the complete template.
+
+- Create `vitest.config.ts` — merges with vite.config, jsdom, v8 coverage with 70% thresholds
+- Create `vitest.setup.ts` — `@testing-library/jest-dom/vitest`
+- If already configured: only add missing coverage thresholds and setup file
+
+---
+
+## Phase 7: Playwright
+
+Read `references/test-config.md` Playwright section.
+
+- Create `playwright.config.ts` — Vite dev server, Desktop Chrome, CI mode
+- Create `tests/e2e/tsconfig.json`
+- Create `tests/e2e/` directory
+- Skip if already configured
+
+---
+
+## Phase 8: Storybook Tests (conditional)
+
+Only if `@storybook/react` detected. Read `references/test-config.md` Storybook section.
+
+Add portable story tests using `composeStories` + `@testing-library/react` + Vitest. Either colocated `*.stories.test.tsx` or central batch runner via `import.meta.glob`.
+
+---
+
+## Phase 9: Quality Check Script
+
+Read `references/ci-config.md`.
+
+Create `scripts/quality/check.sh`:
+
+1. `vite build` to `/tmp/quality-build-check` (validates imports/syntax) + cleanup
+2. `tsc --noEmit`
+3. `jscpd`
+
+Uses `set -uo pipefail` (not `-e`) so all checks run even if one fails.
+
+Also create `scripts/quality/format-file.sh` and `scripts/quality/lint-fix-file.sh` for single-file operations.
+
+Mark all executable: `chmod +x scripts/quality/*.sh`
+
+---
+
+## Phase 10: Git Hooks
+
+Read `references/ci-config.md`.
+
+- Create `.githooks/pre-commit` — runs `pnpm quality:check`
+- Create `.githooks/pre-push` — runs `pnpm quality:check`
+- Create `scripts/setup-git-hooks.ts` — configures `git config core.hooksPath .githooks`
+
+Both hooks call only `pnpm quality:check`, not `pnpm check`. The full check suite (with tests) belongs in CI — hooks that run the full test suite are too slow and developers skip them.
+
+Mark hooks executable. Run `scripts/setup-git-hooks.ts` to activate.
+
+---
+
+## Phase 11: Package.json Scripts
+
+Read `references/ci-config.md` for the complete list.
+
+Merge into `package.json` (don't replace existing scripts — warn on conflicts):
 
 ```json
 {
@@ -312,184 +193,89 @@ Add/overwrite these scripts in package.json:
   "format:file": "prettier --write",
   "typecheck": "tsc --noEmit",
   "quality:check": "bash scripts/quality/check.sh",
-  "check": "pnpm lint && pnpm format:check && pnpm quality:check"
+  "test:unit": "vitest run",
+  "test:unit:watch": "vitest",
+  "test:unit:coverage": "vitest run --coverage",
+  "test:e2e:web": "playwright test",
+  "test:e2e:web:ci": "playwright test --reporter=github",
+  "test:e2e:web:headed": "playwright test --headed",
+  "test:e2e:web:ui": "playwright test --ui",
+  "test": "vitest run",
+  "test:ci": "vitest run --coverage",
+  "check": "pnpm lint && pnpm format:check && pnpm quality:check && pnpm test:ci",
+  "hooks:install": "npx tsx scripts/setup-git-hooks.ts"
 }
 ```
 
-Do NOT remove existing scripts — only add or overwrite these keys.
+Also add `packageManager` and `engines.node` fields if not present.
 
-Also add these fields to package.json if not present:
+---
 
-- `packageManager` — required by `pnpm/action-setup@v4` in CI. Run `pnpm --version` to get the current version.
-- `engines.node` — use the major version from `.tool-versions` or `.nvmrc`.
+## Phase 12: GitHub Actions
 
-```json
-{
-  "packageManager": "pnpm@10.11.0",
-  "engines": {
-    "node": ">=22"
-  }
-}
-```
+Read `references/ci-config.md` for the workflow template.
 
-## Step 12: Generate GitHub Actions Workflow
+Create `.github/workflows/check.yml`:
 
-Create `.github/workflows/check.yml`. Read the Node version from `.tool-versions` or `.nvmrc` via `node-version-file`. Run three parallel jobs — Lint, Format, Quality — so each reports independently in the PR checks UI.
+- Parallel jobs: lint, format, quality
+- Test job with Vitest coverage + artifact upload
+- E2E web job with Playwright Chromium install
+- Coverage report aggregation
+- Detect `.tool-versions` — use `node-version-file` if found, else `node-version: 22`
 
-```yaml
-name: Check
+Skip if a check workflow already exists.
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+---
 
-jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .tool-versions
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+## Phase 13: Claude Code Hooks (optional)
 
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .tool-versions
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
+If the user wants Claude Code integration, create `.claude/hooks/` with:
 
-  quality:
-    name: Quality
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .tool-versions
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: TypeScript
-        run: pnpm typecheck
-      - name: Duplicate Code
-        run: npx jscpd --config .jscpd.json --exitCode 1 --reporters consoleFull
-```
+- **post-edit-hook.sh** — auto-formats and lint-fixes every edited file
+- **stop-quality-hook.sh** — blocks Claude from stopping if quality checks fail
 
-**Notes**:
+Read the hook templates below and create `.claude/settings.json` (merge if exists).
 
-- Use `node-version-file: .tool-versions` if `.tool-versions` exists, otherwise `.nvmrc`
-- If HAS_EXPO, add a Metro Bundle step before TypeScript in the quality job: `npx expo export --platform web --output-dir /tmp/expo-typegen`
-- The quality job splits TypeScript and jscpd into separate named steps for clear failure identification
-
-## Step 13: Generate Claude Code Hooks
-
-Create `.claude/hooks/` directory with 3 hooks that enforce quality automatically during Claude Code sessions.
-
-**session-start-hook.sh** — stashes model name for other hooks:
+### post-edit-hook.sh
 
 ```bash
 #!/bin/bash
-# Stash model name for other hooks to read
-INPUT=$(cat)
-MODEL=$(echo "$INPUT" | jq -r '.model // ""')
-echo "$MODEL" > /tmp/claude-code-model
-exit 0
-```
-
-**post-edit-hook.sh** — auto-formats and lint-fixes every edited file:
-
-```bash
-#!/bin/bash
-# PostToolUse hook: format + lint edited files
-
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
-
-if [ -z "$FILE_PATH" ] || [ ! -f "$FILE_PATH" ]; then
-  exit 0
-fi
-
+if [ -z "$FILE_PATH" ] || [ ! -f "$FILE_PATH" ]; then exit 0; fi
 cd "$CLAUDE_PROJECT_DIR"
-
-# Format (suppress output)
-pnpm format:file "$FILE_PATH" >/dev/null 2>&1 || true
-
-# Lint-fix and capture remaining issues
-OUTPUT=$(pnpm lint:fix "$FILE_PATH" 2>&1) || true
-
+bash scripts/quality/format-file.sh "$FILE_PATH" >/dev/null 2>&1 || true
+OUTPUT=$(bash scripts/quality/lint-fix-file.sh "$FILE_PATH" 2>&1) || true
 if [ -n "$OUTPUT" ] && echo "$OUTPUT" | grep -qE "(error|warning)"; then
   ESCAPED=$(echo "$OUTPUT" | jq -Rs .)
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":$ESCAPED}}"
 fi
-
 exit 0
 ```
 
-**stop-quality-hook.sh** — blocks Claude from stopping if quality checks fail:
+### stop-quality-hook.sh
 
 ```bash
 #!/bin/bash
-# Stop hook: advisory quality gate
-
 INPUT=$(cat)
 STOP_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
-if [ "$STOP_ACTIVE" = "true" ]; then
-  exit 0
-fi
-
-# Skip quality check for haiku model
-MODEL=$(cat /tmp/claude-code-model 2>/dev/null || echo "")
-if echo "$MODEL" | grep -qi "haiku"; then
-  exit 0
-fi
-
+if [ "$STOP_ACTIVE" = "true" ]; then exit 0; fi
 cd "$CLAUDE_PROJECT_DIR" || exit 1
-
 OUTPUT=$(pnpm quality:check 2>&1) || true
-
-# Only output if there are actual issues
-if echo "$OUTPUT" | grep -qE "(error TS|Found [1-9].*clones|Metro bundle failed)"; then
+if echo "$OUTPUT" | grep -qE "(error TS|Found [1-9].*clones|Build failed)"; then
   ESCAPED=$(echo "$OUTPUT" | jq -Rs .)
   echo "{\"decision\":\"block\",\"reason\":$ESCAPED}"
 else
   echo "{\"decision\":\"approve\"}"
 fi
-
 exit 0
 ```
 
-After creating all three hooks, run `chmod +x .claude/hooks/*.sh`.
-
-Then create or merge `.claude/settings.json`:
+### .claude/settings.json hooks config
 
 ```json
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-start-hook.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
@@ -517,34 +303,29 @@ Then create or merge `.claude/settings.json`:
 }
 ```
 
-If `.claude/settings.json` already exists, merge the `hooks` key — do NOT overwrite other settings.
+---
 
-## Step 14: Verify
+## Phase 14: Verify
 
-Run `pnpm check` — this is the master command that calls lint → format:check → quality:check. Fix config issues if any step fails:
+Run each tool to confirm setup:
 
-- Lint errors → add ESLint rule overrides as needed
-- Format errors → run `pnpm format` to auto-fix, then re-run
-- TypeScript errors → check tsconfig strict issues
-- Duplicate code errors → check jscpd config
+1. `pnpm lint` — pass (or pre-existing issues only)
+2. `pnpm format:check` — pass
+3. `pnpm typecheck` — pass
+4. `pnpm test:unit` — pass ("no tests found" is OK)
+5. `pnpm quality:check` — pass
 
-Report results to user. If all pass, setup is complete.
+If any fail, diagnose and fix before declaring success.
 
-## Checklist
+---
 
-- [ ] Detect React, Tailwind, TypeScript, Expo, ESM from package.json
-- [ ] Bail if no pnpm-lock.yaml or tsconfig.json
-- [ ] Scan for ignore patterns (only existing dirs/files)
-- [ ] Back up existing eslint/prettier/jscpd configs to .bak
-- [ ] Install required packages via `pnpm add -D` (including sonarjs, unicorn, jscpd)
-- [ ] Generate ESLint flat config (conditional React/Tailwind + sonarjs + unicorn + complexity)
-- [ ] Generate .prettierrc (conditional Tailwind plugin)
-- [ ] Generate .prettierignore from detected patterns
-- [ ] Generate .jscpd.json with dynamic ignore patterns
-- [ ] Generate scripts/quality/ (check.sh, format-file.sh, lint-fix-file.sh)
-- [ ] Set `strict: true` in tsconfig.json
-- [ ] Merge quality scripts into package.json
-- [ ] Add `engines` field to package.json
-- [ ] Generate `.github/workflows/check.yml` (3 parallel jobs: Lint, Format, Quality)
-- [ ] Generate Claude hooks (session-start, post-edit, stop-quality) + `.claude/settings.json`
-- [ ] Run `pnpm check` to verify all checks pass
+## Edge Cases
+
+| Scenario                 | Action                                                                     |
+| ------------------------ | -------------------------------------------------------------------------- |
+| ESLint v8 (`.eslintrc*`) | Offer to upgrade to v10 flat config or skip                                |
+| Jest present             | Offer to migrate to Vitest (usually just rename imports) or coexist        |
+| No Tailwind              | Omit `prettier-plugin-tailwindcss`                                         |
+| No `src/` dir            | Adjust Vitest includes to scan from root (see `references/test-config.md`) |
+| Existing CI workflow     | Don't create duplicate — check for quality-related jobs first              |
+| Monorepo                 | Stop. This skill targets single-package projects.                          |
