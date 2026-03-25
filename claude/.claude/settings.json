@@ -60,5 +60,6 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "plansDirectory": "./plans/",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "cleanupPeriodDays": 365
 }
