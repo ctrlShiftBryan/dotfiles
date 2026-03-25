@@ -163,3 +163,56 @@ export function truncateHookFeedback(text: string, maxLines: number = 4): string
   if (lines.length <= maxLines) return text
   return lines.slice(0, maxLines).join('\n') + `\n[... ${lines.length - maxLines} lines truncated]`
 }
+
+/**
+ * Parse Codex CLI notify payload messages into TranscriptPair[].
+ * Codex input-messages use OpenAI chat format: {role, content}.
+ */
+export function parseCodexMessages(payload: {
+  'input-messages'?: any[]
+  'last-assistant-message'?: string
+}): TranscriptPair[] {
+  const messages = payload['input-messages']
+  if (!Array.isArray(messages)) {
+    // Fallback: build a single pair from last-assistant-message
+    const lastMsg = payload['last-assistant-message']
+    if (lastMsg) return [{ prompt: '(codex turn)', response: lastMsg }]
+    return []
+  }
+
+  const pairs: TranscriptPair[] = []
+  let prompt: string | null = null
+  let response = ''
+
+  for (const msg of messages) {
+    if (!msg || typeof msg.role !== 'string') continue
+    const content = typeof msg.content === 'string'
+      ? msg.content
+      : Array.isArray(msg.content)
+        ? msg.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
+        : ''
+    if (!content) continue
+
+    if (msg.role === 'user') {
+      if (prompt !== null) {
+        pairs.push({ prompt, response })
+      }
+      prompt = content
+      response = ''
+    } else if (msg.role === 'assistant') {
+      response += content
+    }
+  }
+
+  if (prompt !== null) {
+    pairs.push({ prompt, response })
+  }
+
+  // Append last-assistant-message if it extends beyond input-messages
+  const lastMsg = payload['last-assistant-message']
+  if (lastMsg && pairs.length > 0 && !pairs[pairs.length - 1].response) {
+    pairs[pairs.length - 1].response = lastMsg
+  }
+
+  return pairs
+}

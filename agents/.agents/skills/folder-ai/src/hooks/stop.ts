@@ -1,4 +1,4 @@
-import { loadJson, fileSize } from '../lib/io'
+import { loadJson } from '../lib/io'
 import { gitRoot, hasChanges, addAndCommit, hasCommits, currentBranch, hasRemote, push } from '../lib/git'
 import { resolveConfig } from '../lib/config'
 import { parseTranscript, formatBody, formatTitleTranscript, extractHeadline, extractModel, isHookFeedback, truncateHookFeedback } from '../commit/transcript'
@@ -7,14 +7,26 @@ import { wrapText } from '../lib/wrap'
 import { logCommitEvent, readRegistry } from '../lib/registry'
 import { getAncestors, savePending, collectPending, cleanupConsumed, cleanupStale, readWatermark, saveWatermark, resolveParentCommit, saveRefineManifest } from '../lib/session-chain'
 import { getCommitTargets } from '../lib/repos'
-import { formatModelName } from '../lib/claude-projects'
+import { formatModelName, formatOpenAIModelName } from '../lib/claude-projects'
 import { updateLiveSession } from '../watch'
 import { basename, join } from 'path'
 import { homedir } from 'os'
 import { spawn } from 'child_process'
 import { existsSync, statSync } from 'fs'
+import type { TranscriptPair } from '../commit/transcript'
 
 const PENDING_TAG = '[tc-pending]'
+
+export interface CommitCoreInput {
+  root: string
+  config: any
+  sessionId: string | null
+  effectivePairs: TranscriptPair[]
+  allPairsCount: number
+  transcriptPath: string | null
+  agent: 'claude' | 'codex'
+  model: string | null
+}
 
 /**
  * Read Claude Code's attribution.commit setting.
@@ -38,7 +50,7 @@ function readClaudeAttribution(root: string | null): string | undefined {
  * Tier 2: Claude Code attribution.commit setting
  * Tier 3: auto-detect model from transcript
  */
-export function resolveCoauthor(config: any, transcriptPath: string, root: string): string | null {
+export function resolveCoauthor(config: any, agent: 'claude' | 'codex', model: string | null, root: string): string | null {
   // Tier 1: explicit config (default: no trailer)
   if (config.coauthor === false || config.coauthor === undefined) return null
 
@@ -46,15 +58,20 @@ export function resolveCoauthor(config: any, transcriptPath: string, root: strin
     return `Co-Authored-By: ${config.coauthor}`
   }
 
-  // Tier 2: Claude Code attribution setting
-  const claudeAttr = readClaudeAttribution(root)
-  if (claudeAttr !== undefined) {
-    return claudeAttr === '' ? null : claudeAttr
+  if (agent === 'claude') {
+    // Tier 2: Claude Code attribution setting
+    const claudeAttr = readClaudeAttribution(root)
+    if (claudeAttr !== undefined) {
+      return claudeAttr === '' ? null : claudeAttr
+    }
   }
 
-  // Tier 3: auto-detect from transcript
-  const model = extractModel(transcriptPath)
+  // Tier 3: auto-detect from model
   if (!model) return null
+  if (agent === 'codex') {
+    const name = formatOpenAIModelName(model)
+    return `Co-Authored-By: ${name} <noreply@openai.com>`
+  }
   const name = formatModelName(model)
   return `Co-Authored-By: ${name} <noreply@anthropic.com>`
 }
@@ -87,9 +104,8 @@ export function spawnRefine(manifestPath: string): void {
 }
 
 /**
- * Core auto-commit logic. Called on Stop hook event.
- * Reads hook input, checks bail conditions, iterates commit targets.
- * Always returns void -- never blocks Claude, never outputs to stdout.
+ * Claude Code Stop hook adapter.
+ * Parses Claude-specific input, then delegates to commitCore().
  */
 export function handleStop(input: string): void {
   if (process.env.FOLDERAI_DISABLED) return
@@ -102,20 +118,17 @@ export function handleStop(input: string): void {
     return
   }
 
-  // Find workspace root
   const cwd = hookInput.cwd || process.cwd()
   const root = gitRoot(cwd)
   if (!root) return
 
-  // Resolve config (global + project merged with defaults)
   const config = resolveConfig(root)
   if (!config.enabled) return
 
-  // Update live session file on every turn
+  // Update live session file (Claude-specific)
   const sessionId = hookInput.session_id
   if (sessionId && hookInput.transcript_path) {
     try {
-      // Find registered project matching this workspace
       const projectPath = readRegistry().find(e => root.startsWith(e.path) || e.path.startsWith(root))?.path
       if (projectPath) {
         updateLiveSession(sessionId, hookInput.transcript_path, projectPath)
@@ -123,18 +136,35 @@ export function handleStop(input: string): void {
     } catch {}
   }
 
-  // Parse transcript
   const pairs = parseTranscript(hookInput.transcript_path)
 
-  // Watermark slicing: only include new pairs since last commit in this session
   const watermark = sessionId ? readWatermark(root, sessionId) : null
   const newPairs = watermark ? pairs.slice(watermark.pairs) : pairs
   const effectivePairs = newPairs.length > 0 ? newPairs : pairs
 
-  // Get all commit targets (workspace + child repos)
+  const model = extractModel(hookInput.transcript_path)
+
+  commitCore({
+    root,
+    config,
+    sessionId,
+    effectivePairs,
+    allPairsCount: pairs.length,
+    transcriptPath: hookInput.transcript_path,
+    agent: 'claude',
+    model
+  })
+}
+
+/**
+ * Shared commit logic for both Claude and Codex.
+ * Finds targets with changes, resolves coauthor, commits each target.
+ */
+export function commitCore(input: CommitCoreInput): void {
+  const { root, config, sessionId, effectivePairs, allPairsCount, transcriptPath, agent, model } = input
+
   const targets = getCommitTargets(root, config.autocommit || { workspace: true, children: {} })
 
-  // Check if ANY target has changes
   const targetsWithChanges = targets.filter(t => {
     try {
       return !hasCommits(t.path) || hasChanges(t.path)
@@ -143,9 +173,8 @@ export function handleStop(input: string): void {
     }
   })
 
-  // Early exit: no changes across all targets
   if (targetsWithChanges.length === 0) {
-    if (sessionId) {
+    if (sessionId && agent === 'claude') {
       savePending(root, sessionId, formatBody(effectivePairs))
     }
     logCommitEvent('skip', { project: basename(root), branch: currentBranch(root) })
@@ -154,10 +183,10 @@ export function handleStop(input: string): void {
   }
 
   try {
-    // Resolve continuation + pending (instant, no LLM)
+    // Session chains (Claude only — Codex has no continuation/pending)
     let continuation = ''
     let pendingSections: string[] = []
-    if (sessionId) {
+    if (sessionId && agent === 'claude') {
       const parentCommit = resolveParentCommit(root, sessionId)
       continuation = parentCommit
         ? `Continuation of ${parentCommit.slice(0, 7)}\n\n`
@@ -166,34 +195,31 @@ export function handleStop(input: string): void {
       pendingSections = collectPending(root, [...ancestors].reverse())
     }
 
-    // Resolve coauthor trailer (instant, no LLM)
-    const coauthor = resolveCoauthor(config, hookInput.transcript_path, root)
+    const coauthor = resolveCoauthor(config, agent, model, root)
     const coauthorTag = coauthor ? '\n\n' + coauthor : ''
 
     const mode = config.commitMode || 'async'
 
-    // Iterate each target repo independently
     for (const target of targetsWithChanges) {
       const project = target.name
       const branch = currentBranch(target.path)
       let context = 0
-      try { context = statSync(hookInput.transcript_path).size } catch {}
+      if (transcriptPath) {
+        try { context = statSync(transcriptPath).size } catch {}
+      }
 
       logCommitEvent('start', { project, branch, context })
 
       if (mode !== 'sync') {
-        // -- Async path: fast commit, background refine --
-        commitAsync(target.path, project, branch, context, effectivePairs, pairs,
-          continuation, pendingSections, coauthorTag, config, sessionId, hookInput)
+        commitAsync(target.path, project, branch, context, effectivePairs,
+          allPairsCount, continuation, pendingSections, coauthorTag, config, sessionId)
       } else {
-        // -- Sync path: blocking with agent calls --
-        commitSync(target.path, project, branch, context, effectivePairs, pairs,
-          continuation, pendingSections, coauthorTag, config, sessionId, hookInput)
+        commitSync(target.path, project, branch, context, effectivePairs,
+          allPairsCount, continuation, pendingSections, coauthorTag, config, sessionId)
       }
     }
 
-    // Post-commit cleanup (once, not per-target)
-    if (sessionId) {
+    if (sessionId && agent === 'claude') {
       const ancestors = getAncestors(root, sessionId)
       cleanupConsumed(root, [...ancestors, sessionId])
     }
@@ -208,10 +234,9 @@ export function handleStop(input: string): void {
 function commitAsync(
   repoPath: string, project: string, branch: string, context: number,
   effectivePairs: { prompt: string; response: string }[],
-  allPairs: { prompt: string; response: string }[],
+  allPairsCount: number,
   continuation: string, pendingSections: string[],
-  coauthorTag: string, config: any, sessionId: string | null,
-  hookInput: any
+  coauthorTag: string, config: any, sessionId: string | null
 ): void {
   const headline = extractHeadline(effectivePairs)
   const formattedTranscript = formatBody(effectivePairs)
@@ -231,7 +256,7 @@ function commitAsync(
   logCommitEvent('fast-commit', { project, branch, context, title: headline })
 
   if (sessionId) {
-    saveWatermark(repoPath, sessionId, allPairs.length, sha)
+    saveWatermark(repoPath, sessionId, allPairsCount, sha)
   }
 
   // Save manifest for phase 2
@@ -244,7 +269,7 @@ function commitAsync(
     continuation,
     pendingSections,
     coauthor: coauthorTag ? coauthorTag.slice(2) : null, // strip leading \n\n
-    pairCount: allPairs.length,
+    pairCount: allPairsCount,
     branch
   })
 
@@ -256,10 +281,9 @@ function commitAsync(
 function commitSync(
   repoPath: string, project: string, branch: string, context: number,
   effectivePairs: { prompt: string; response: string }[],
-  allPairs: { prompt: string; response: string }[],
+  allPairsCount: number,
   continuation: string, pendingSections: string[],
-  coauthorTag: string, config: any, sessionId: string | null,
-  hookInput: any
+  coauthorTag: string, config: any, sessionId: string | null
 ): void {
   if (config.condense?.enabled !== false) {
     condensePairs(repoPath, config, effectivePairs)
@@ -303,6 +327,6 @@ function commitSync(
   logCommitEvent('success', { project, branch, context, title: headline })
 
   if (sessionId) {
-    saveWatermark(repoPath, sessionId, allPairs.length, sha)
+    saveWatermark(repoPath, sessionId, allPairsCount, sha)
   }
 }

@@ -5,12 +5,14 @@ import { cmdCreate } from './commands/create'
 import { cmdRegister, cmdUnregister, cmdDiscover } from './commands/register'
 import { cmdStatus } from './commands/status'
 import { cmdInstall, cmdUninstall } from './commands/install'
+import { cmdInstallCodex, cmdUninstallCodex } from './commands/install-codex'
 import { cmdWatch } from './commands/watch'
 import { cmdNuke } from './commands/nuke'
 import { cmdCleanup } from './commands/cleanup'
 import { pruneRegistry } from './lib/registry'
 import { handlePreToolUseHook as handlePreToolUse } from './hooks/pre-tool-use'
 import { handleStop } from './hooks/stop'
+import { handleCodexNotify } from './hooks/codex-notify'
 import { handleSessionStartHook } from './hooks/session-start'
 import { handleSessionEndHook } from './hooks/session-end'
 import { refine } from './commit/refine'
@@ -42,8 +44,10 @@ Commands:
   unregister          Remove cwd from registry
   discover            Scan ~/.claude/projects/, show unregistered projects
   status              Workspace state + commit health
-  install             Install hooks (SessionStart, SessionEnd, Stop)
-  uninstall           Remove hooks
+  install             Install Claude Code hooks (SessionStart, SessionEnd, Stop)
+  uninstall           Remove Claude Code hooks
+  install-codex       Install Codex CLI notify hook
+  uninstall-codex     Remove Codex CLI notify hook
   enable              Remove kill switch (enable all hooks)
   disable             Create kill switch (disable all hooks instantly)
   cleanup [--dry-run] Remove junk session .md files from all projects
@@ -54,7 +58,8 @@ Commands:
   watch logs          Show recent events
 
   hook pre-tool-use   Hook: pre-tool-use (reads stdin)
-  hook stop           Hook: stop (reads stdin)
+  hook stop           Hook: stop (reads stdin, Claude Code)
+  hook codex-notify   Hook: Codex CLI notify (JSON as argv or stdin)
   hook session-start  Hook: session-start (reads stdin)
   hook session-end    Hook: session-end (reads stdin)
   hook refine <path>  Hook: refine manifest
@@ -97,6 +102,14 @@ switch (cmd) {
 
   case 'uninstall':
     cmdUninstall()
+    break
+
+  case 'install-codex':
+    cmdInstallCodex()
+    break
+
+  case 'uninstall-codex':
+    cmdUninstallCodex()
     break
 
   case 'enable': {
@@ -149,6 +162,10 @@ switch (cmd) {
           break
         case 'session-end':
           handleSessionEndHook(input)
+          break
+        case 'codex-notify':
+          // Codex passes JSON as argv[1], stdin fallback for testing
+          handleCodexNotify(argv[1] || input)
           break
         case 'refine':
           // argv[1] is manifest path

@@ -1,6 +1,6 @@
 ---
 name: folder-ai
-description: "Unified session tracking + auto-commits for Claude Code workspaces. Plain folders + markdown context with multi-repo support."
+description: "Unified session tracking + auto-commits for Claude Code and Codex CLI workspaces. Plain folders + markdown context with multi-repo support."
 ---
 
 # folder-ai
@@ -29,6 +29,8 @@ Route based on the argument passed to `/folder-ai`:
 | `/folder-ai discover` | Run `bun "$SKILL_DIR/src/cli.ts" discover` |
 | `/folder-ai install` | Run `bun "$SKILL_DIR/src/cli.ts" install` |
 | `/folder-ai uninstall` | Run `bun "$SKILL_DIR/src/cli.ts" uninstall` |
+| `/folder-ai install-codex` | Run `bun "$SKILL_DIR/src/cli.ts" install-codex` |
+| `/folder-ai uninstall-codex` | Run `bun "$SKILL_DIR/src/cli.ts" uninstall-codex` |
 | `/folder-ai watch install` | Run `bun "$SKILL_DIR/src/cli.ts" watch install` |
 | `/folder-ai watch uninstall` | Run `bun "$SKILL_DIR/src/cli.ts" watch uninstall` |
 | `/folder-ai watch status` | Run `bun "$SKILL_DIR/src/cli.ts" watch status` |
@@ -99,8 +101,17 @@ Output what was created.
 
 folder-ai includes turbocommit's auto-commit functionality. On every turn-end:
 
-1. **Stop hook** commits all changes across workspace + child repos
+1. **Stop hook** (Claude Code) or **notify** (Codex CLI) commits all changes across workspace + child repos
 2. **Two-phase async**: fast commit with `[tc-pending]` tag, background LLM refinement
+
+### Codex CLI Support
+
+Auto-commits also work with Codex CLI via the `notify` system.
+
+- **Install:** `/folder-ai install-codex` — adds `notify` line to `~/.codex/config.toml`
+- **Uninstall:** `/folder-ai uninstall-codex` — removes it
+- Hook fires on `agent-turn-complete`, same gating as Claude (kill switch → git root → config.enabled)
+- Co-Authored-By uses `<noreply@openai.com>` with model from `~/.codex/config.toml`
 
 ### Multi-Repo Support
 

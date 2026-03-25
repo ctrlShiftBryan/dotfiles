@@ -330,3 +330,11 @@ export function formatModelName(modelId: string | null): string | null {
   const version = numeric.join('.')
   return `Claude ${tier} ${version}`
 }
+
+/**
+ * Format OpenAI model ID to friendly name.
+ * gpt-5.4 → GPT-5.4, o3 → O3
+ */
+export function formatOpenAIModelName(modelId: string): string {
+  return modelId.replace(/^gpt-/i, 'GPT-').replace(/^o(\d)/, 'O$1')
+}
